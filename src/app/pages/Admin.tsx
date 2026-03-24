@@ -1,0 +1,675 @@
+import { Link } from "react-router";
+import { useState } from "react";
+import {
+  Plus, Trash2, Edit3, Package, X, Check,
+  BarChart2, ShoppingBag, Tag, TrendingUp, Eye, Search,
+  Upload, ChevronRight, AlertCircle
+} from "lucide-react";
+import { useProducts } from "../context/ProductContext";
+import { Product, categories } from "../data/products";
+import { useLanguage } from "../context/LanguageContext";
+
+const BLANK: Omit<Product, "id"> = {
+  name: "",
+  price: 0,
+  originalPrice: undefined,
+  category: "clothing",
+  description: "",
+  condition: "Good",
+  size: "",
+  imageUrl: "",
+  featured: false,
+};
+
+const CONDITIONS = ["New", "Excellent", "Very Good", "Good", "Fair"];
+
+export function Admin() {
+  const { products, addProduct, removeProduct, updateProduct } = useProducts();
+  const { t } = useLanguage();
+  const [view, setView] = useState<"dashboard" | "products" | "add" | "edit">("dashboard");
+  const [form, setForm] = useState<Omit<Product, "id">>(BLANK);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Partial<Record<keyof Product, string>>>({});
+  const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState("all");
+  const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
+
+  const showToast = (msg: string, type: "success" | "error" = "success") => {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const validate = () => {
+    const e: Partial<Record<keyof Product, string>> = {};
+    if (!form.name.trim()) e.name = t.adminPage.nameRequired;
+    if (!form.price || form.price <= 0) e.price = t.adminPage.priceRequired;
+    if (!form.description.trim()) e.description = t.adminPage.descriptionRequired;
+    if (!form.imageUrl.trim()) e.imageUrl = t.adminPage.imageRequired;
+    if (!form.category) e.category = t.adminPage.categoryRequired;
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
+
+  const handleSubmit = () => {
+    if (!validate()) return;
+    if (editingId) {
+      updateProduct({ ...form, id: editingId });
+      showToast(t.adminPage.productUpdated);
+    } else {
+      const newId = `prod_${Date.now()}`;
+      addProduct({ ...form, id: newId });
+      showToast(t.adminPage.productAdded);
+    }
+    setForm(BLANK);
+    setEditingId(null);
+    setErrors({});
+    setView("products");
+  };
+
+  const handleEdit = (product: Product) => {
+    setForm({
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      category: product.category,
+      description: product.description,
+      condition: product.condition,
+      size: product.size,
+      imageUrl: product.imageUrl,
+      featured: product.featured,
+    });
+    setEditingId(product.id);
+    setErrors({});
+    setView("edit");
+  };
+
+  const handleDelete = (id: string) => {
+    removeProduct(id);
+    setDeleteConfirm(null);
+    showToast(t.adminPage.productRemoved, "error");
+  };
+
+  const filtered = products.filter((p) => {
+    const matchCat = filterCat === "all" || p.category === filterCat;
+    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    return matchCat && matchSearch;
+  });
+
+  const totalValue = products.reduce((s, p) => s + p.price, 0);
+  const featuredCount = products.filter((p) => p.featured).length;
+  const categoryCount = new Set(products.map((p) => p.category)).size;
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* Toast */}
+      {toast && (
+        <div
+          className={`fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg text-white text-sm transition-all duration-300 ${
+            toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"
+          }`}
+        >
+          {toast.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
+          {toast.msg}
+        </div>
+      )}
+
+      {/* Delete confirm modal */}
+      {deleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl p-7 max-w-sm w-full mx-4 shadow-2xl">
+            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mb-4">
+              <Trash2 className="w-5 h-5 text-rose-500" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.adminPage.deleteConfirmTitle}</h3>
+            <p className="text-gray-500 text-sm mb-6">
+              {t.adminPage.deleteConfirmMsg}
+            </p>
+            <div className="flex gap-3">
+              <button
+                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors"
+                onClick={() => setDeleteConfirm(null)}
+              >
+                {t.adminPage.cancel}
+              </button>
+              <button
+                className="flex-1 py-2.5 bg-rose-500 text-white rounded-xl text-sm hover:bg-rose-600 transition-colors"
+                onClick={() => handleDelete(deleteConfirm)}
+              >
+                {t.adminPage.deleteProduct}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="flex">
+        {/* ─── Sidebar ─── */}
+        <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex-shrink-0">
+          <div className="p-6 border-b border-gray-100">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center">
+                <Package className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-gray-900">{t.adminPage.adminPanel}</p>
+                <p className="text-xs text-gray-400">{t.adminPage.thriftStore}</p>
+              </div>
+            </div>
+          </div>
+
+          <nav className="p-4 space-y-1">
+            {[
+              { id: "dashboard", label: t.adminPage.dashboard, icon: BarChart2 },
+              { id: "products", label: t.adminPage.allProducts, icon: ShoppingBag },
+              { id: "add", label: t.adminPage.addProduct, icon: Plus },
+            ].map(({ id, label, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => {
+                  if (id === "add") { setForm(BLANK); setEditingId(null); setErrors({}); }
+                  setView(id as any);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
+                  view === id || (view === "edit" && id === "products")
+                    ? "bg-black text-white"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            ))}
+          </nav>
+
+          <div className="absolute bottom-6 left-0 w-64 px-4">
+            <Link
+              to="/"
+              className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+            >
+              <Eye className="w-4 h-4" />
+              {t.adminPage.viewStore}
+            </Link>
+          </div>
+        </aside>
+
+        {/* ─── Main content ─── */}
+        <main className="flex-1 p-8">
+
+          {/* ── Dashboard ── */}
+          {view === "dashboard" && (
+            <div>
+              <div className="mb-8">
+                <h1 className="text-2xl font-semibold text-gray-900">{t.adminPage.dashboard}</h1>
+                <p className="text-gray-400 text-sm mt-1">{t.adminPage.welcomeBack}</p>
+              </div>
+
+              {/* Stats grid */}
+              <div className="grid grid-cols-4 gap-5 mb-8">
+                {[
+                  { label: t.adminPage.totalProducts, value: products.length, icon: Package, color: "bg-blue-50 text-blue-500" },
+                  { label: t.adminPage.totalValue, value: `$${totalValue.toLocaleString()}`, icon: TrendingUp, color: "bg-emerald-50 text-emerald-500" },
+                  { label: t.adminPage.featuredItems, value: featuredCount, icon: Tag, color: "bg-amber-50 text-amber-500" },
+                  { label: t.adminPage.categories, value: categoryCount, icon: BarChart2, color: "bg-purple-50 text-purple-500" },
+                ].map(({ label, value, icon: Icon, color }) => (
+                  <div key={label} className="bg-white rounded-2xl p-6 border border-gray-100">
+                    <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-4`}>
+                      <Icon className="w-5 h-5" />
+                    </div>
+                    <p className="text-2xl font-bold text-gray-900">{value}</p>
+                    <p className="text-sm text-gray-400 mt-1">{label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Category breakdown */}
+              <div className="grid grid-cols-2 gap-5">
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-sm font-semibold text-gray-900 mb-4 tracking-wide uppercase">{t.adminPage.byCategory}</h2>
+                  <div className="space-y-3">
+                    {categories.filter((c) => c.id !== "all").map((cat) => {
+                      const count = products.filter((p) => p.category === cat.id).length;
+                      const pct = products.length ? Math.round((count / products.length) * 100) : 0;
+                      return (
+                        <div key={cat.id}>
+                          <div className="flex justify-between items-center mb-1">
+                            <span className="text-sm text-gray-600">{cat.name}</span>
+                            <span className="text-xs text-gray-400">{count} {t.adminPage.items}</span>
+                          </div>
+                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{ width: `${pct}%`, background: cat.color }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-100 p-6">
+                  <h2 className="text-sm font-semibold text-gray-900 mb-4 tracking-wide uppercase">{t.adminPage.recentProducts}</h2>
+                  <div className="space-y-3">
+                    {products.slice(0, 5).map((p) => (
+                      <div key={p.id} className="flex items-center gap-3">
+                        <img src={p.imageUrl} alt={p.name} className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
+                          <p className="text-xs text-gray-400">{p.category}</p>
+                        </div>
+                        <span className="text-sm font-semibold text-gray-900">${p.price}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setView("products")}
+                    className="mt-4 text-xs text-gray-400 hover:text-black flex items-center gap-1 transition-colors"
+                  >
+                    {t.adminPage.viewAllProducts} <ChevronRight className="w-3 h-3" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ── Products list ── */}
+          {view === "products" && (
+            <div>
+              <div className="flex items-center justify-between mb-6">
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">{t.adminPage.allProducts}</h1>
+                  <p className="text-gray-400 text-sm mt-1">{filtered.length} {t.adminPage.ofProducts} {products.length} {t.adminPage.products}</p>
+                </div>
+                <button
+                  onClick={() => { setForm(BLANK); setEditingId(null); setErrors({}); setView("add"); }}
+                  className="flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-xl text-sm hover:bg-gray-800 transition-colors"
+                >
+                  <Plus className="w-4 h-4" /> {t.adminPage.addProduct}
+                </button>
+              </div>
+
+              {/* Filters */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="relative flex-1 max-w-xs">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder={t.adminPage.searchProducts}
+                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-black transition-colors bg-white"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+                </div>
+                <select
+                  className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-black bg-white cursor-pointer"
+                  value={filterCat}
+                  onChange={(e) => setFilterCat(e.target.value)}
+                >
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Table */}
+              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-100 bg-gray-50/50">
+                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.product}</th>
+                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.category}</th>
+                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.condition}</th>
+                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.price}</th>
+                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.featured}</th>
+                      <th className="text-right px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.actions}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filtered.map((p) => {
+                      const cat = categories.find((c) => c.id === p.category);
+                      return (
+                        <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                          <td className="px-5 py-4">
+                            <div className="flex items-center gap-3">
+                              <img src={p.imageUrl} alt={p.name} className="w-11 h-11 object-cover rounded-lg flex-shrink-0" />
+                              <div>
+                                <p className="text-sm font-medium text-gray-900">{p.name}</p>
+                                {p.size && <p className="text-xs text-gray-400">{t.adminPage.size}: {p.size}</p>}
+                              </div>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4">
+                            <span
+                              className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium"
+                              style={{ background: cat?.color + "22", color: cat?.color }}
+                            >
+                              {cat?.name ?? p.category}
+                            </span>
+                          </td>
+                          <td className="px-5 py-4 text-sm text-gray-600">{p.condition}</td>
+                          <td className="px-5 py-4">
+                            <span className="text-sm font-semibold text-gray-900">${p.price}</span>
+                            {p.originalPrice && (
+                              <span className="text-xs text-gray-400 line-through ml-1">${p.originalPrice}</span>
+                            )}
+                          </td>
+                          <td className="px-5 py-4">
+                            {p.featured ? (
+                              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs rounded-lg">
+                                <Check className="w-3 h-3" /> {t.adminPage.yes}
+                              </span>
+                            ) : (
+                              <span className="text-xs text-gray-300">—</span>
+                            )}
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="flex items-center justify-end gap-2">
+                              <Link to={`/product/${p.id}`} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="View">
+                                <Eye className="w-3.5 h-3.5 text-gray-400" />
+                              </Link>
+                              <button
+                                onClick={() => handleEdit(p)}
+                                className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                title="Edit"
+                              >
+                                <Edit3 className="w-3.5 h-3.5 text-blue-400" />
+                              </button>
+                              <button
+                                onClick={() => setDeleteConfirm(p.id)}
+                                className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
+                                title="Delete"
+                              >
+                                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                    {filtered.length === 0 && (
+                      <tr>
+                        <td colSpan={6} className="px-5 py-16 text-center text-gray-400 text-sm">
+                          {t.adminPage.noProductsFound}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── Add / Edit Product form ── */}
+          {(view === "add" || view === "edit") && (
+            <div>
+              <div className="flex items-center gap-3 mb-8">
+                <button
+                  onClick={() => { setView("products"); setForm(BLANK); setEditingId(null); setErrors({}); }}
+                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                <div>
+                  <h1 className="text-2xl font-semibold text-gray-900">
+                    {editingId ? t.adminPage.editProduct : t.adminPage.addNewProduct}
+                  </h1>
+                  <p className="text-gray-400 text-sm mt-0.5">
+                    {editingId ? t.adminPage.updateProductDetails : t.adminPage.fillDetailsToAdd}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-6">
+                {/* Left: main form */}
+                <div className="col-span-2 space-y-5">
+
+                  {/* Name */}
+                  <FormField label={t.adminPage.productName} error={errors.name} required>
+                    <input
+                      type="text"
+                      placeholder={t.adminPage.productNamePlaceholder}
+                      className={inputCls(!!errors.name)}
+                      value={form.name}
+                      onChange={(e) => setForm({ ...form, name: e.target.value })}
+                    />
+                  </FormField>
+
+                  {/* Description */}
+                  <FormField label={t.adminPage.description} error={errors.description} required>
+                    <textarea
+                      rows={4}
+                      placeholder={t.adminPage.descriptionPlaceholder}
+                      className={inputCls(!!errors.description) + " resize-none"}
+                      value={form.description}
+                      onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    />
+                  </FormField>
+
+                  {/* Price row */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField label={t.adminPage.salePrice} error={errors.price} required>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        min={0}
+                        step={0.01}
+                        className={inputCls(!!errors.price)}
+                        value={form.price || ""}
+                        onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
+                      />
+                    </FormField>
+                    <FormField label={t.adminPage.originalPrice} hint={t.adminPage.optional}>
+                      <input
+                        type="number"
+                        placeholder="0.00"
+                        min={0}
+                        step={0.01}
+                        className={inputCls(false)}
+                        value={form.originalPrice || ""}
+                        onChange={(e) => setForm({ ...form, originalPrice: parseFloat(e.target.value) || undefined })}
+                      />
+                    </FormField>
+                  </div>
+
+                  {/* Category & Condition */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField label={t.adminPage.category} error={errors.category} required>
+                      <select
+                        className={inputCls(!!errors.category) + " cursor-pointer"}
+                        value={form.category}
+                        onChange={(e) => setForm({ ...form, category: e.target.value })}
+                      >
+                        {categories.filter((c) => c.id !== "all").map((c) => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                    </FormField>
+                    <FormField label={t.adminPage.condition} required>
+                      <select
+                        className={inputCls(false) + " cursor-pointer"}
+                        value={form.condition}
+                        onChange={(e) => setForm({ ...form, condition: e.target.value })}
+                      >
+                        {CONDITIONS.map((c) => (
+                          <option key={c} value={c}>{c}</option>
+                        ))}
+                      </select>
+                    </FormField>
+                  </div>
+
+                  {/* Size */}
+                  <FormField label={t.adminPage.size} hint={t.adminPage.optionalLeaveBlank}>
+                    <div className="flex flex-wrap gap-2">
+                      {["XS", "S", "M", "L", "XL", "XXL", "One Size"].map((sz) => (
+                        <button
+                          key={sz}
+                          type="button"
+                          onClick={() => setForm({ ...form, size: form.size === sz ? "" : sz })}
+                          className={`px-4 py-2 rounded-xl text-sm border transition-all duration-150 ${
+                            form.size === sz
+                              ? "bg-black text-white border-black"
+                              : "border-gray-200 text-gray-600 hover:border-black hover:text-black"
+                          }`}
+                        >
+                          {sz}
+                        </button>
+                      ))}
+                      <input
+                        type="text"
+                        placeholder={t.adminPage.customSize}
+                        className="px-4 py-2 rounded-xl text-sm border border-gray-200 outline-none focus:border-black transition-colors w-32"
+                        value={["XS","S","M","L","XL","XXL","One Size"].includes(form.size ?? "") ? "" : (form.size ?? "")}
+                        onChange={(e) => setForm({ ...form, size: e.target.value })}
+                      />
+                    </div>
+                  </FormField>
+
+                  {/* Image URL */}
+                  <FormField label={t.adminPage.imageUrl} error={errors.imageUrl} required>
+                    <div className="flex gap-3">
+                      <input
+                        type="text"
+                        placeholder="https://images.unsplash.com/..."
+                        className={inputCls(!!errors.imageUrl) + " flex-1"}
+                        value={form.imageUrl}
+                        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                      <Upload className="w-3 h-3" />
+                      {t.adminPage.pasteImageUrl}
+                    </p>
+                  </FormField>
+
+                </div>
+
+                {/* Right: preview + options */}
+                <div className="space-y-5">
+
+                  {/* Image preview */}
+                  <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+                    <div className="p-4 border-b border-gray-100">
+                      <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t.adminPage.preview}</p>
+                    </div>
+                    <div className="aspect-square bg-gray-50 relative">
+                      {form.imageUrl ? (
+                        <img
+                          src={form.imageUrl}
+                          alt="preview"
+                          className="w-full h-full object-cover"
+                          onError={(e) => { (e.target as HTMLImageElement).src = ""; }}
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
+                          <Package className="w-10 h-10 mb-2" />
+                          <p className="text-xs">{t.adminPage.noImageYet}</p>
+                        </div>
+                      )}
+                    </div>
+                    {form.name && (
+                      <div className="p-4">
+                        <p className="text-sm font-medium text-gray-900 truncate">{form.name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="text-sm font-bold text-gray-900">${form.price || "0"}</span>
+                          {form.originalPrice && (
+                            <span className="text-xs text-gray-400 line-through">${form.originalPrice}</span>
+                          )}
+                          {form.originalPrice && form.price < form.originalPrice && (
+                            <span className="text-xs text-rose-500 font-medium">
+                              -{Math.round(((form.originalPrice - form.price) / form.originalPrice) * 100)}%
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Featured toggle */}
+                  <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{t.adminPage.featuredProduct}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">{t.adminPage.featuredProductDesc}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setForm({ ...form, featured: !form.featured })}
+                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
+                          form.featured ? "bg-black" : "bg-gray-200"
+                        }`}
+                      >
+                        <span
+                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
+                            form.featured ? "translate-x-6" : "translate-x-1"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Submit */}
+                  <button
+                    type="button"
+                    onClick={handleSubmit}
+                    className="w-full bg-black text-white py-3.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                  >
+                    {editingId ? (
+                      <><Check className="w-4 h-4" /> {t.adminPage.saveProduct}</>
+                    ) : (
+                      <><Plus className="w-4 h-4" /> {t.adminPage.addProduct}</>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => { setView("products"); setForm(BLANK); setEditingId(null); setErrors({}); }}
+                    className="w-full border border-gray-200 text-gray-600 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors"
+                  >
+                    {t.adminPage.cancel}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ─── helpers ─── */
+
+function FormField({
+  label, children, error, hint, required,
+}: {
+  label: string;
+  children: React.ReactNode;
+  error?: string;
+  hint?: string;
+  required?: boolean;
+}) {
+  return (
+    <div>
+      <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
+        {label}
+        {required && <span className="text-rose-400 ml-1">*</span>}
+        {hint && <span className="normal-case font-normal tracking-normal text-gray-400 ml-1">— {hint}</span>}
+      </label>
+      {children}
+      {error && (
+        <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+          <AlertCircle className="w-3 h-3" /> {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
+function inputCls(hasError: boolean) {
+  return `w-full px-4 py-3 rounded-xl text-sm border outline-none transition-colors bg-white ${
+    hasError
+      ? "border-rose-300 focus:border-rose-500"
+      : "border-gray-200 focus:border-black"
+  }`;
+}
