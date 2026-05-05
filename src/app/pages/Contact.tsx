@@ -3,6 +3,7 @@ import { Mail, Phone, MapPin, Send, Check, AlertCircle, Clock, ArrowRight } from
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function Contact() {
   const { t } = useLanguage();

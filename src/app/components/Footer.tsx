@@ -2,6 +2,7 @@ import { Heart, Facebook, Instagram, Phone, MapPin, Clock, Settings } from "luci
 import { Link } from "react-router";
 import { useLanguage } from "../context/LanguageContext";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function Footer() {
   const { t } = useLanguage();

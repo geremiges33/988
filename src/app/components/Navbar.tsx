@@ -1,11 +1,13 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { ShoppingCart, Search, Heart, Menu, X, ChevronDown, Shield, User, LogOut, Package, Settings } from "lucide-react";
+import { ShoppingCart, Search, Heart, Menu, X, ChevronDown, User, LogOut, Package, Settings } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 /* ─────────────────────────── mega-menu data ─────────────────────────── */
 
@@ -226,7 +228,9 @@ export function Navbar() {
   const [mobileExpanded, setMobileExpanded] = useState<NavItem | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dropdownTop, setDropdownTop] = useState(0);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const navRef = useRef<HTMLElement>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -234,9 +238,29 @@ export function Navbar() {
     setMobileOpen(false);
   }, [location.pathname]);
 
+  // Keep dropdownTop in sync with the navbar's actual bottom edge,
+  // both on mount and on every scroll/resize.
+  useEffect(() => {
+    const update = () => {
+      if (navRef.current) {
+        setDropdownTop(navRef.current.getBoundingClientRect().bottom);
+      }
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+    window.addEventListener("resize", update, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+    };
+  }, [searchOpen]); // re-run when search bar opens/closes (changes nav height)
+
   const openMenu = useCallback((item: NavItem) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setActiveMenu(item);
+    if (navRef.current) {
+      setDropdownTop(navRef.current.getBoundingClientRect().bottom);
+    }
   }, []);
 
   const scheduleClose = useCallback(() => {
@@ -272,7 +296,7 @@ export function Navbar() {
       </div>
 
       {/* ── Main navbar ── */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-100" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.06)" }}>
+      <nav ref={navRef} className="sticky top-0 z-50 bg-white border-b border-gray-100" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.06)" }}>
         <div className="max-w-[1440px] mx-auto px-8">
           <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 gap-4">
 
@@ -316,7 +340,7 @@ export function Navbar() {
               ))}
             </div>
 
-            {/* ── Right icons ── */}
+            {/* ── Desktop right icons ── */}
             <div className="hidden lg:flex items-center gap-4">
               {/* Search */}
               <button
@@ -397,8 +421,6 @@ export function Navbar() {
                   </Link>
                 </div>
               )}
-
-              
             </div>
 
             {/* ── Mobile right ── */}
@@ -431,7 +453,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* ── Search bar (slides down) ─ */}
+        {/* ── Search bar (slides down) ── */}
         <div
           className={`overflow-hidden transition-all duration-300 border-t border-gray-100 bg-white ${searchOpen ? "max-h-20" : "max-h-0"}`}
         >
@@ -493,25 +515,25 @@ export function Navbar() {
         </div>
       </nav>
 
-      {/* ── Mega menu dropdown ── */}
-      {activeMenu && (
-        <div
-          className="fixed left-0 right-0 z-40 bg-white border-b border-gray-200 shadow-2xl"
-          style={{ top: "calc(var(--navbar-offset, 106px))" }}
-          onMouseEnter={cancelClose}
-          onMouseLeave={scheduleClose}
-        >
-          <MegaMenuPanel item={activeMenu} onClose={() => setActiveMenu(null)} />
-        </div>
-      )}
-
-      {/* Backdrop */}
-      {activeMenu && (
-        <div
-          className="fixed inset-0 z-30 bg-black/10"
-          style={{ top: "calc(var(--navbar-offset, 106px))" }}
-          onClick={() => setActiveMenu(null)}
-        />
+      {/* ── Mega menu dropdown — portalled to <body> so it escapes the sticky stacking context ── */}
+      {activeMenu && createPortal(
+        <>
+          <div
+            className="fixed left-0 right-0 bg-white border-b border-gray-200 shadow-2xl"
+            style={{ top: dropdownTop, zIndex: 9999 }}
+            onMouseEnter={cancelClose}
+            onMouseLeave={scheduleClose}
+          >
+            <MegaMenuPanel item={activeMenu} onClose={() => setActiveMenu(null)} />
+          </div>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-black/10"
+            style={{ top: dropdownTop, zIndex: 9998 }}
+            onClick={() => setActiveMenu(null)}
+          />
+        </>,
+        document.body
       )}
     </>
   );
@@ -659,7 +681,6 @@ function UserMenu({ user, onLogout }: { user?: { firstName: string; lastName: st
   }, []);
 
   const initials = `${user?.firstName[0] ?? ""}${user?.lastName[0] ?? ""}`.toUpperCase();
-  // const joinYear = new Date(user?.joinedAt).getFullYear();
 
   const gradients = [
     "linear-gradient(135deg,#FF6B6B,#FFE66D)",
@@ -716,10 +737,10 @@ function UserMenu({ user, onLogout }: { user?: { firstName: string; lastName: st
             {/* Menu items */}
             <div className="bg-white py-2">
               {[
-                { icon: User,    label: t.user.myAccount,    sub: t.user.profileSettings,  to: "/" },
-                { icon: Package, label: t.user.myOrders,     sub: t.user.trackPurchases,   to: "/shop" },
-                { icon: Heart,   label: t.user.wishlist,     sub: t.user.savedItems,       to: "/shop" },
-                { icon: Settings,label: t.user.preferences,  sub: t.user.notificationsMore,to: "/" },
+                { icon: User,     label: t.user.myAccount,   sub: t.user.profileSettings,   to: "/" },
+                { icon: Package,  label: t.user.myOrders,    sub: t.user.trackPurchases,    to: "/shop" },
+                { icon: Heart,    label: t.user.wishlist,    sub: t.user.savedItems,        to: "/shop" },
+                { icon: Settings, label: t.user.preferences, sub: t.user.notificationsMore, to: "/" },
               ].map(({ icon: Icon, label, sub, to }) => (
                 <Link
                   key={label}

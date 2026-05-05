@@ -2,6 +2,7 @@ import { Truck, MapPin, Package, Clock, Phone, AlertCircle, CheckCircle, ArrowRi
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function ShippingInfo() {
   const { t } = useLanguage();

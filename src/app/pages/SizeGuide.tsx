@@ -2,6 +2,7 @@ import { Ruler, AlertCircle, ArrowRight } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function SizeGuide() {
   const { t } = useLanguage();

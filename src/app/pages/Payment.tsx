@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { CreditCard, Lock, ArrowLeft, Check } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import React from "react";
 
 export function Payment() {
   const { cartItems, getCartTotal, clearCart } = useCart();

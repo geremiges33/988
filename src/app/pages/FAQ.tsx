@@ -3,6 +3,7 @@ import { ChevronDown, Phone, MapPin, AlertCircle, MessageCircle, ArrowRight } fr
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function FAQ() {
   const { t } = useLanguage();

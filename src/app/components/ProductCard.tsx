@@ -4,6 +4,7 @@ import { Product } from "../data/products";
 import { useCart } from "../context/CartContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useState } from "react";
+import React from "react";
 
 interface ProductCardProps {
   product: Product;

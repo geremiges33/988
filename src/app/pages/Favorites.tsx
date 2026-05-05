@@ -3,6 +3,7 @@ import { Heart, ShoppingCart, Trash2 } from "lucide-react";
 import { useFavorites } from "../context/FavoritesContext";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import React from "react";
 
 export function Favorites() {
   const { favorites, removeFromFavorites } = useFavorites();

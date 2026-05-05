@@ -1,5 +1,6 @@
 import { Link } from "react-router";
 import { AlertCircle } from "lucide-react";
+import React from "react";
 
 /* ── LEFT PANEL ───────────────────────── */
 

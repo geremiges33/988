@@ -8,6 +8,7 @@ import {
 import { useProducts } from "../context/ProductContext";
 import { Product, categories } from "../data/products";
 import { useLanguage } from "../context/LanguageContext";
+import React from "react";
 
 const BLANK: Omit<Product, "id"> = {
   name: "",

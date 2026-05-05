@@ -9,6 +9,7 @@ import {
   ShoppingBag, X, ChevronDown, Search, ArrowUpDown,
   Check, Eye, Zap,
 } from "lucide-react";
+import React from "react";
 
 /* ─── Design tokens ─────────────────────────────────────────── */
 const G = {

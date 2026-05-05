@@ -2,6 +2,7 @@ import { useLanguage } from "../context/LanguageContext";
 import { AlertCircle, ShoppingBag, Phone, MapPin } from "lucide-react";
 import { Link } from "react-router";
 import logo from "../../assets/logo.png";
+import React from "react";
 
 export function Returns() {
   const { t } = useLanguage();

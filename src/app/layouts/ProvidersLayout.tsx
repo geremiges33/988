@@ -1,3 +1,4 @@
+import React from "react";
 import { Outlet } from "react-router";
 
 /** Thin layout shim — all providers now live above RouterProvider in App.tsx */

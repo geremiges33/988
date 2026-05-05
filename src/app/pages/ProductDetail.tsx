@@ -6,6 +6,7 @@ import { ShoppingCart, Heart, ArrowLeft, Star, Package, Shield, AlertCircle, Rec
 import { useState } from "react";
 import { ProductCard } from "../components/ProductCard";
 import { useLanguage } from "../context/LanguageContext";
+import React from "react";
 
 export function ProductDetail() {
   const { id } = useParams();
