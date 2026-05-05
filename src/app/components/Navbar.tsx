@@ -177,8 +177,6 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "All Sale Items",   to: "/shop?sale=true" },
           { label: "Clothing Sale",    to: "/shop/clothing?sale=true" },
           { label: "Accessories Sale", to: "/shop/accessories?sale=true" },
-          { label: "Home & Decor",     to: "/shop/decor?sale=true" },
-          { label: "Electronics",      to: "/shop/electronics?sale=true" },
         ],
       },
       {
@@ -400,14 +398,7 @@ export function Navbar() {
                 </div>
               )}
 
-              {/* Admin */}
-              <Link
-                to="/admin"
-                className="ml-2 flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-full text-xs tracking-widest uppercase hover:bg-black hover:text-white hover:border-black transition-all duration-200"
-              >
-                <Shield className="w-3.5 h-3.5" />
-                {t.nav.admin}
-              </Link>
+              
             </div>
 
             {/* ── Mobile right ── */}
@@ -556,8 +547,6 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
     "All Sale Items": t.mega.allSaleItems,
     "Clothing Sale": t.mega.clothingSale,
     "Accessories Sale": t.mega.accessoriesSale,
-    "Home & Decor": t.mega.homeDecor,
-    "Electronics": t.mega.electronics,
     "Biggest Discounts": t.mega.biggestDiscounts,
     "Clearance": t.mega.clearance,
     "Featured Deals": t.mega.featuredDeals,

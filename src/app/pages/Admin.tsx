@@ -23,6 +23,20 @@ const BLANK: Omit<Product, "id"> = {
 
 const CONDITIONS = ["New", "Excellent", "Very Good", "Good", "Fair"];
 
+// Dark green palette
+const G = {
+  900: "#0a1a0e",
+  800: "#132a18",
+  700: "#1a3a20",
+  600: "#245230",
+  500: "#2d6a3f",
+  400: "#3a854f",
+  300: "#5aaa6e",
+  200: "#8dcba0",
+  100: "#c2e8ce",
+  50:  "#edf7f1",
+};
+
 export function Admin() {
   const { products, addProduct, removeProduct, updateProduct } = useProducts();
   const { t } = useLanguage();
@@ -101,13 +115,15 @@ export function Admin() {
   const categoryCount = new Set(products.map((p) => p.category)).size;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen" style={{ background: "#f6f8f6" }}>
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-xl shadow-lg text-white text-sm transition-all duration-300 ${
-            toast.type === "success" ? "bg-emerald-500" : "bg-rose-500"
-          }`}
+          className="fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-3.5 rounded-lg shadow-md text-white text-sm"
+          style={{
+            background: toast.type === "success" ? G[500] : "#b91c1c",
+            letterSpacing: "0.01em",
+          }}
         >
           {toast.type === "success" ? <Check className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
           {toast.msg}
@@ -116,24 +132,27 @@ export function Admin() {
 
       {/* Delete confirm modal */}
       {deleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl p-7 max-w-sm w-full mx-4 shadow-2xl">
-            <div className="w-12 h-12 rounded-full bg-rose-100 flex items-center justify-center mb-4">
-              <Trash2 className="w-5 h-5 text-rose-500" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{ background: "rgba(10,26,14,0.45)" }}>
+          <div className="bg-white rounded-xl p-8 max-w-sm w-full mx-4" style={{ border: `1px solid ${G[100]}` }}>
+            <div
+              className="w-10 h-10 rounded-full flex items-center justify-center mb-5"
+              style={{ background: "#fef2f2" }}
+            >
+              <Trash2 className="w-4 h-4" style={{ color: "#b91c1c" }} />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">{t.adminPage.deleteConfirmTitle}</h3>
-            <p className="text-gray-500 text-sm mb-6">
-              {t.adminPage.deleteConfirmMsg}
-            </p>
+            <h3 className="text-base font-semibold text-gray-900 mb-2">{t.adminPage.deleteConfirmTitle}</h3>
+            <p className="text-sm mb-6" style={{ color: "#6b7280" }}>{t.adminPage.deleteConfirmMsg}</p>
             <div className="flex gap-3">
               <button
-                className="flex-1 py-2.5 border border-gray-200 rounded-xl text-sm hover:bg-gray-50 transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-sm border transition-colors"
+                style={{ borderColor: "#e5e7eb", color: "#374151" }}
                 onClick={() => setDeleteConfirm(null)}
               >
                 {t.adminPage.cancel}
               </button>
               <button
-                className="flex-1 py-2.5 bg-rose-500 text-white rounded-xl text-sm hover:bg-rose-600 transition-colors"
+                className="flex-1 py-2.5 rounded-lg text-sm text-white transition-colors"
+                style={{ background: "#b91c1c" }}
                 onClick={() => handleDelete(deleteConfirm)}
               >
                 {t.adminPage.deleteProduct}
@@ -145,47 +164,61 @@ export function Admin() {
 
       <div className="flex">
         {/* ─── Sidebar ─── */}
-        <aside className="w-64 min-h-screen bg-white border-r border-gray-100 flex-shrink-0">
-          <div className="p-6 border-b border-gray-100">
+        <aside
+          className="w-60 min-h-screen flex-shrink-0 flex flex-col"
+          style={{ background: G[900], borderRight: `1px solid ${G[800]}` }}
+        >
+          {/* Brand */}
+          <div className="px-6 pt-7 pb-6" style={{ borderBottom: `1px solid ${G[800]}` }}>
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl bg-black flex items-center justify-center">
+              <div
+                className="w-8 h-8 rounded-lg flex items-center justify-center"
+                style={{ background: G[500] }}
+              >
                 <Package className="w-4 h-4 text-white" />
               </div>
               <div>
-                <p className="text-sm font-semibold text-gray-900">{t.adminPage.adminPanel}</p>
-                <p className="text-xs text-gray-400">{t.adminPage.thriftStore}</p>
+                <p className="text-white text-sm font-semibold tracking-wide">{t.adminPage.adminPanel}</p>
+                <p className="text-xs" style={{ color: G[300] }}>{t.adminPage.thriftStore}</p>
               </div>
             </div>
           </div>
 
-          <nav className="p-4 space-y-1">
+          {/* Nav */}
+          <nav className="px-3 py-5 flex-1 space-y-0.5">
             {[
               { id: "dashboard", label: t.adminPage.dashboard, icon: BarChart2 },
               { id: "products", label: t.adminPage.allProducts, icon: ShoppingBag },
               { id: "add", label: t.adminPage.addProduct, icon: Plus },
-            ].map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => {
-                  if (id === "add") { setForm(BLANK); setEditingId(null); setErrors({}); }
-                  setView(id as any);
-                }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm transition-all ${
-                  view === id || (view === "edit" && id === "products")
-                    ? "bg-black text-white"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
-                }`}
-              >
-                <Icon className="w-4 h-4" />
-                {label}
-              </button>
-            ))}
+            ].map(({ id, label, icon: Icon }) => {
+              const active = view === id || (view === "edit" && id === "products");
+              return (
+                <button
+                  key={id}
+                  onClick={() => {
+                    if (id === "add") { setForm(BLANK); setEditingId(null); setErrors({}); }
+                    setView(id as any);
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm transition-all"
+                  style={{
+                    background: active ? G[700] : "transparent",
+                    color: active ? G[100] : G[300],
+                    borderLeft: active ? `2px solid ${G[400]}` : "2px solid transparent",
+                  }}
+                >
+                  <Icon className="w-4 h-4" />
+                  {label}
+                </button>
+              );
+            })}
           </nav>
 
-          <div className="absolute bottom-6 left-0 w-64 px-4">
+          {/* Footer link */}
+          <div className="px-3 pb-6">
             <Link
               to="/"
-              className="flex items-center gap-2 px-4 py-3 rounded-xl text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+              className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg text-sm transition-colors"
+              style={{ color: G[400] }}
             >
               <Eye className="w-4 h-4" />
               {t.adminPage.viewStore}
@@ -194,52 +227,62 @@ export function Admin() {
         </aside>
 
         {/* ─── Main content ─── */}
-        <main className="flex-1 p-8">
+        <main className="flex-1 p-8 min-h-screen">
 
           {/* ── Dashboard ── */}
           {view === "dashboard" && (
             <div>
               <div className="mb-8">
-                <h1 className="text-2xl font-semibold text-gray-900">{t.adminPage.dashboard}</h1>
-                <p className="text-gray-400 text-sm mt-1">{t.adminPage.welcomeBack}</p>
+                <h1 className="text-xl font-semibold text-gray-900 tracking-tight">{t.adminPage.dashboard}</h1>
+                <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>{t.adminPage.welcomeBack}</p>
               </div>
 
-              {/* Stats grid */}
-              <div className="grid grid-cols-4 gap-5 mb-8">
+              {/* Stats */}
+              <div className="grid grid-cols-4 gap-4 mb-8">
                 {[
-                  { label: t.adminPage.totalProducts, value: products.length, icon: Package, color: "bg-blue-50 text-blue-500" },
-                  { label: t.adminPage.totalValue, value: `$${totalValue.toLocaleString()}`, icon: TrendingUp, color: "bg-emerald-50 text-emerald-500" },
-                  { label: t.adminPage.featuredItems, value: featuredCount, icon: Tag, color: "bg-amber-50 text-amber-500" },
-                  { label: t.adminPage.categories, value: categoryCount, icon: BarChart2, color: "bg-purple-50 text-purple-500" },
-                ].map(({ label, value, icon: Icon, color }) => (
-                  <div key={label} className="bg-white rounded-2xl p-6 border border-gray-100">
-                    <div className={`w-10 h-10 rounded-xl ${color} flex items-center justify-center mb-4`}>
-                      <Icon className="w-5 h-5" />
+                  { label: t.adminPage.totalProducts, value: products.length, icon: Package, bg: G[50], iconColor: G[600] },
+                  { label: t.adminPage.totalValue, value: `$${totalValue.toLocaleString()}`, icon: TrendingUp, bg: "#f0fdf4", iconColor: "#15803d" },
+                  { label: t.adminPage.featuredItems, value: featuredCount, icon: Tag, bg: "#fffbeb", iconColor: "#b45309" },
+                  { label: t.adminPage.categories, value: categoryCount, icon: BarChart2, bg: "#f5f3ff", iconColor: "#7c3aed" },
+                ].map(({ label, value, icon: Icon, bg, iconColor }) => (
+                  <div
+                    key={label}
+                    className="rounded-xl p-5"
+                    style={{ background: "#fff", border: "1px solid #e9f0ea" }}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-lg flex items-center justify-center mb-4"
+                      style={{ background: bg }}
+                    >
+                      <Icon className="w-4 h-4" style={{ color: iconColor }} />
                     </div>
-                    <p className="text-2xl font-bold text-gray-900">{value}</p>
-                    <p className="text-sm text-gray-400 mt-1">{label}</p>
+                    <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+                    <p className="text-xs mt-1" style={{ color: "#9ca3af" }}>{label}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Category breakdown */}
+              {/* Category + Recent */}
               <div className="grid grid-cols-2 gap-5">
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-4 tracking-wide uppercase">{t.adminPage.byCategory}</h2>
-                  <div className="space-y-3">
+                <div className="bg-white rounded-xl p-6" style={{ border: "1px solid #e9f0ea" }}>
+                  <h2
+                    className="text-xs font-semibold uppercase tracking-widest mb-5"
+                    style={{ color: G[600] }}
+                  >{t.adminPage.byCategory}</h2>
+                  <div className="space-y-3.5">
                     {categories.filter((c) => c.id !== "all").map((cat) => {
                       const count = products.filter((p) => p.category === cat.id).length;
                       const pct = products.length ? Math.round((count / products.length) * 100) : 0;
                       return (
                         <div key={cat.id}>
-                          <div className="flex justify-between items-center mb-1">
+                          <div className="flex justify-between items-center mb-1.5">
                             <span className="text-sm text-gray-600">{cat.name}</span>
-                            <span className="text-xs text-gray-400">{count} {t.adminPage.items}</span>
+                            <span className="text-xs" style={{ color: "#9ca3af" }}>{count} {t.adminPage.items}</span>
                           </div>
-                          <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-500"
-                              style={{ width: `${pct}%`, background: cat.color }}
+                              style={{ width: `${pct}%`, background: G[400] }}
                             />
                           </div>
                         </div>
@@ -248,15 +291,18 @@ export function Admin() {
                   </div>
                 </div>
 
-                <div className="bg-white rounded-2xl border border-gray-100 p-6">
-                  <h2 className="text-sm font-semibold text-gray-900 mb-4 tracking-wide uppercase">{t.adminPage.recentProducts}</h2>
-                  <div className="space-y-3">
+                <div className="bg-white rounded-xl p-6" style={{ border: "1px solid #e9f0ea" }}>
+                  <h2
+                    className="text-xs font-semibold uppercase tracking-widest mb-5"
+                    style={{ color: G[600] }}
+                  >{t.adminPage.recentProducts}</h2>
+                  <div className="space-y-3.5">
                     {products.slice(0, 5).map((p) => (
                       <div key={p.id} className="flex items-center gap-3">
                         <img src={p.imageUrl} alt={p.name} className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
-                          <p className="text-xs text-gray-400">{p.category}</p>
+                          <p className="text-xs" style={{ color: "#9ca3af" }}>{p.category}</p>
                         </div>
                         <span className="text-sm font-semibold text-gray-900">${p.price}</span>
                       </div>
@@ -264,7 +310,8 @@ export function Admin() {
                   </div>
                   <button
                     onClick={() => setView("products")}
-                    className="mt-4 text-xs text-gray-400 hover:text-black flex items-center gap-1 transition-colors"
+                    className="mt-5 text-xs flex items-center gap-1 transition-colors"
+                    style={{ color: G[500] }}
                   >
                     {t.adminPage.viewAllProducts} <ChevronRight className="w-3 h-3" />
                   </button>
@@ -276,14 +323,17 @@ export function Admin() {
           {/* ── Products list ── */}
           {view === "products" && (
             <div>
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-7">
                 <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">{t.adminPage.allProducts}</h1>
-                  <p className="text-gray-400 text-sm mt-1">{filtered.length} {t.adminPage.ofProducts} {products.length} {t.adminPage.products}</p>
+                  <h1 className="text-xl font-semibold text-gray-900 tracking-tight">{t.adminPage.allProducts}</h1>
+                  <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>
+                    {filtered.length} {t.adminPage.ofProducts} {products.length} {t.adminPage.products}
+                  </p>
                 </div>
                 <button
                   onClick={() => { setForm(BLANK); setEditingId(null); setErrors({}); setView("add"); }}
-                  className="flex items-center gap-2 bg-black text-white px-5 py-2.5 rounded-xl text-sm hover:bg-gray-800 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm text-white"
+                  style={{ background: G[600] }}
                 >
                   <Plus className="w-4 h-4" /> {t.adminPage.addProduct}
                 </button>
@@ -292,17 +342,19 @@ export function Admin() {
               {/* Filters */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="relative flex-1 max-w-xs">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4" style={{ color: "#9ca3af" }} />
                   <input
                     type="text"
                     placeholder={t.adminPage.searchProducts}
-                    className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-black transition-colors bg-white"
+                    className="w-full pl-9 pr-4 py-2.5 text-sm bg-white rounded-lg outline-none transition-colors"
+                    style={{ border: "1px solid #e5e7eb" }}
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                   />
                 </div>
                 <select
-                  className="px-4 py-2.5 text-sm border border-gray-200 rounded-xl outline-none focus:border-black bg-white cursor-pointer"
+                  className="px-4 py-2.5 text-sm bg-white rounded-lg outline-none cursor-pointer"
+                  style={{ border: "1px solid #e5e7eb" }}
                   value={filterCat}
                   onChange={(e) => setFilterCat(e.target.value)}
                 >
@@ -313,74 +365,84 @@ export function Admin() {
               </div>
 
               {/* Table */}
-              <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+              <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid #e9f0ea" }}>
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.product}</th>
-                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.category}</th>
-                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.condition}</th>
-                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.price}</th>
-                      <th className="text-left px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.featured}</th>
-                      <th className="text-right px-5 py-3.5 text-xs tracking-widest uppercase text-gray-400 font-medium">{t.adminPage.actions}</th>
+                    <tr style={{ borderBottom: "1px solid #f0f4f0", background: "#f9fbf9" }}>
+                      {[t.adminPage.product, t.adminPage.category, t.adminPage.condition, t.adminPage.price, t.adminPage.featured, t.adminPage.actions].map((h, i) => (
+                        <th
+                          key={h}
+                          className={`${i === 5 ? "text-right" : "text-left"} px-5 py-3.5 text-xs font-semibold uppercase tracking-widest`}
+                          style={{ color: "#9ca3af" }}
+                        >{h}</th>
+                      ))}
                     </tr>
                   </thead>
                   <tbody>
                     {filtered.map((p) => {
                       const cat = categories.find((c) => c.id === p.category);
                       return (
-                        <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                        <tr key={p.id} className="transition-colors hover:bg-[#f9fbf9]" style={{ borderBottom: "1px solid #f3f4f6" }}>
                           <td className="px-5 py-4">
                             <div className="flex items-center gap-3">
-                              <img src={p.imageUrl} alt={p.name} className="w-11 h-11 object-cover rounded-lg flex-shrink-0" />
+                              <img src={p.imageUrl} alt={p.name} className="w-10 h-10 object-cover rounded-lg flex-shrink-0" />
                               <div>
                                 <p className="text-sm font-medium text-gray-900">{p.name}</p>
-                                {p.size && <p className="text-xs text-gray-400">{t.adminPage.size}: {p.size}</p>}
+                                {p.size && <p className="text-xs" style={{ color: "#9ca3af" }}>{t.adminPage.size}: {p.size}</p>}
                               </div>
                             </div>
                           </td>
                           <td className="px-5 py-4">
                             <span
-                              className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium"
-                              style={{ background: cat?.color + "22", color: cat?.color }}
+                              className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium"
+                              style={{ background: G[50], color: G[700] }}
                             >
                               {cat?.name ?? p.category}
                             </span>
                           </td>
-                          <td className="px-5 py-4 text-sm text-gray-600">{p.condition}</td>
+                          <td className="px-5 py-4 text-sm" style={{ color: "#6b7280" }}>{p.condition}</td>
                           <td className="px-5 py-4">
                             <span className="text-sm font-semibold text-gray-900">${p.price}</span>
                             {p.originalPrice && (
-                              <span className="text-xs text-gray-400 line-through ml-1">${p.originalPrice}</span>
+                              <span className="text-xs line-through ml-1" style={{ color: "#9ca3af" }}>${p.originalPrice}</span>
                             )}
                           </td>
                           <td className="px-5 py-4">
                             {p.featured ? (
-                              <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 text-amber-600 text-xs rounded-lg">
+                              <span
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs"
+                                style={{ background: G[50], color: G[700] }}
+                              >
                                 <Check className="w-3 h-3" /> {t.adminPage.yes}
                               </span>
                             ) : (
-                              <span className="text-xs text-gray-300">—</span>
+                              <span className="text-xs" style={{ color: "#d1d5db" }}>—</span>
                             )}
                           </td>
                           <td className="px-5 py-4">
-                            <div className="flex items-center justify-end gap-2">
-                              <Link to={`/product/${p.id}`} className="p-2 hover:bg-gray-100 rounded-lg transition-colors" title="View">
-                                <Eye className="w-3.5 h-3.5 text-gray-400" />
+                            <div className="flex items-center justify-end gap-1">
+                              <Link
+                                to={`/product/${p.id}`}
+                                className="p-2 rounded-lg transition-colors hover:bg-gray-100"
+                                title="View"
+                              >
+                                <Eye className="w-3.5 h-3.5" style={{ color: "#9ca3af" }} />
                               </Link>
                               <button
                                 onClick={() => handleEdit(p)}
-                                className="p-2 hover:bg-blue-50 rounded-lg transition-colors"
+                                className="p-2 rounded-lg transition-colors"
+                                style={{ color: G[500] }}
                                 title="Edit"
                               >
-                                <Edit3 className="w-3.5 h-3.5 text-blue-400" />
+                                <Edit3 className="w-3.5 h-3.5" />
                               </button>
                               <button
                                 onClick={() => setDeleteConfirm(p.id)}
-                                className="p-2 hover:bg-rose-50 rounded-lg transition-colors"
+                                className="p-2 rounded-lg transition-colors"
+                                style={{ color: "#ef4444" }}
                                 title="Delete"
                               >
-                                <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                                <Trash2 className="w-3.5 h-3.5" />
                               </button>
                             </div>
                           </td>
@@ -389,7 +451,7 @@ export function Admin() {
                     })}
                     {filtered.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="px-5 py-16 text-center text-gray-400 text-sm">
+                        <td colSpan={6} className="px-5 py-16 text-center text-sm" style={{ color: "#9ca3af" }}>
                           {t.adminPage.noProductsFound}
                         </td>
                       </tr>
@@ -400,31 +462,29 @@ export function Admin() {
             </div>
           )}
 
-          {/* ── Add / Edit Product form ── */}
+          {/* ── Add / Edit form ── */}
           {(view === "add" || view === "edit") && (
             <div>
               <div className="flex items-center gap-3 mb-8">
                 <button
                   onClick={() => { setView("products"); setForm(BLANK); setEditingId(null); setErrors({}); }}
-                  className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
+                  className="p-2 rounded-lg transition-colors hover:bg-gray-100"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="w-4 h-4 text-gray-500" />
                 </button>
                 <div>
-                  <h1 className="text-2xl font-semibold text-gray-900">
+                  <h1 className="text-xl font-semibold text-gray-900 tracking-tight">
                     {editingId ? t.adminPage.editProduct : t.adminPage.addNewProduct}
                   </h1>
-                  <p className="text-gray-400 text-sm mt-0.5">
+                  <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>
                     {editingId ? t.adminPage.updateProductDetails : t.adminPage.fillDetailsToAdd}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-6">
-                {/* Left: main form */}
+                {/* Left */}
                 <div className="col-span-2 space-y-5">
-
-                  {/* Name */}
                   <FormField label={t.adminPage.productName} error={errors.name} required>
                     <input
                       type="text"
@@ -435,7 +495,6 @@ export function Admin() {
                     />
                   </FormField>
 
-                  {/* Description */}
                   <FormField label={t.adminPage.description} error={errors.description} required>
                     <textarea
                       rows={4}
@@ -446,7 +505,6 @@ export function Admin() {
                     />
                   </FormField>
 
-                  {/* Price row */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField label={t.adminPage.salePrice} error={errors.price} required>
                       <input
@@ -472,7 +530,6 @@ export function Admin() {
                     </FormField>
                   </div>
 
-                  {/* Category & Condition */}
                   <div className="grid grid-cols-2 gap-4">
                     <FormField label={t.adminPage.category} error={errors.category} required>
                       <select
@@ -498,7 +555,6 @@ export function Admin() {
                     </FormField>
                   </div>
 
-                  {/* Size */}
                   <FormField label={t.adminPage.size} hint={t.adminPage.optionalLeaveBlank}>
                     <div className="flex flex-wrap gap-2">
                       {["XS", "S", "M", "L", "XL", "XXL", "One Size"].map((sz) => (
@@ -506,11 +562,12 @@ export function Admin() {
                           key={sz}
                           type="button"
                           onClick={() => setForm({ ...form, size: form.size === sz ? "" : sz })}
-                          className={`px-4 py-2 rounded-xl text-sm border transition-all duration-150 ${
+                          className="px-4 py-2 rounded-lg text-sm border transition-all duration-150"
+                          style={
                             form.size === sz
-                              ? "bg-black text-white border-black"
-                              : "border-gray-200 text-gray-600 hover:border-black hover:text-black"
-                          }`}
+                              ? { background: G[600], color: "#fff", borderColor: G[600] }
+                              : { background: "#fff", color: "#6b7280", borderColor: "#e5e7eb" }
+                          }
                         >
                           {sz}
                         </button>
@@ -518,39 +575,37 @@ export function Admin() {
                       <input
                         type="text"
                         placeholder={t.adminPage.customSize}
-                        className="px-4 py-2 rounded-xl text-sm border border-gray-200 outline-none focus:border-black transition-colors w-32"
+                        className="px-4 py-2 rounded-lg text-sm border outline-none transition-colors w-28"
+                        style={{ borderColor: "#e5e7eb" }}
                         value={["XS","S","M","L","XL","XXL","One Size"].includes(form.size ?? "") ? "" : (form.size ?? "")}
                         onChange={(e) => setForm({ ...form, size: e.target.value })}
                       />
                     </div>
                   </FormField>
 
-                  {/* Image URL */}
                   <FormField label={t.adminPage.imageUrl} error={errors.imageUrl} required>
-                    <div className="flex gap-3">
-                      <input
-                        type="text"
-                        placeholder="https://images.unsplash.com/..."
-                        className={inputCls(!!errors.imageUrl) + " flex-1"}
-                        value={form.imageUrl}
-                        onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                      />
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1">
+                    <input
+                      type="text"
+                      placeholder="https://images.unsplash.com/..."
+                      className={inputCls(!!errors.imageUrl)}
+                      value={form.imageUrl}
+                      onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
+                    />
+                    <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#9ca3af" }}>
                       <Upload className="w-3 h-3" />
                       {t.adminPage.pasteImageUrl}
                     </p>
                   </FormField>
-
                 </div>
 
-                {/* Right: preview + options */}
-                <div className="space-y-5">
-
-                  {/* Image preview */}
-                  <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
-                    <div className="p-4 border-b border-gray-100">
-                      <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">{t.adminPage.preview}</p>
+                {/* Right */}
+                <div className="space-y-4">
+                  {/* Preview */}
+                  <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid #e9f0ea" }}>
+                    <div className="px-4 py-3" style={{ borderBottom: "1px solid #f0f4f0" }}>
+                      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: G[600] }}>
+                        {t.adminPage.preview}
+                      </p>
                     </div>
                     <div className="aspect-square bg-gray-50 relative">
                       {form.imageUrl ? (
@@ -561,8 +616,8 @@ export function Admin() {
                           onError={(e) => { (e.target as HTMLImageElement).src = ""; }}
                         />
                       ) : (
-                        <div className="absolute inset-0 flex flex-col items-center justify-center text-gray-300">
-                          <Package className="w-10 h-10 mb-2" />
+                        <div className="absolute inset-0 flex flex-col items-center justify-center" style={{ color: "#d1d5db" }}>
+                          <Package className="w-9 h-9 mb-2" />
                           <p className="text-xs">{t.adminPage.noImageYet}</p>
                         </div>
                       )}
@@ -573,10 +628,10 @@ export function Admin() {
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-sm font-bold text-gray-900">${form.price || "0"}</span>
                           {form.originalPrice && (
-                            <span className="text-xs text-gray-400 line-through">${form.originalPrice}</span>
+                            <span className="text-xs line-through" style={{ color: "#9ca3af" }}>${form.originalPrice}</span>
                           )}
                           {form.originalPrice && form.price < form.originalPrice && (
-                            <span className="text-xs text-rose-500 font-medium">
+                            <span className="text-xs font-medium" style={{ color: "#dc2626" }}>
                               -{Math.round(((form.originalPrice - form.price) / form.originalPrice) * 100)}%
                             </span>
                           )}
@@ -586,23 +641,21 @@ export function Admin() {
                   </div>
 
                   {/* Featured toggle */}
-                  <div className="bg-white rounded-2xl border border-gray-100 p-5">
+                  <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e9f0ea" }}>
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm font-medium text-gray-900">{t.adminPage.featuredProduct}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{t.adminPage.featuredProductDesc}</p>
+                        <p className="text-xs mt-0.5" style={{ color: "#9ca3af" }}>{t.adminPage.featuredProductDesc}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => setForm({ ...form, featured: !form.featured })}
-                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200 ${
-                          form.featured ? "bg-black" : "bg-gray-200"
-                        }`}
+                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
+                        style={{ background: form.featured ? G[500] : "#e5e7eb" }}
                       >
                         <span
-                          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200 ${
-                            form.featured ? "translate-x-6" : "translate-x-1"
-                          }`}
+                          className="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
+                          style={{ transform: form.featured ? "translateX(22px)" : "translateX(2px)" }}
                         />
                       </button>
                     </div>
@@ -612,7 +665,8 @@ export function Admin() {
                   <button
                     type="button"
                     onClick={handleSubmit}
-                    className="w-full bg-black text-white py-3.5 rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-3 rounded-lg text-sm font-medium text-white flex items-center justify-center gap-2 transition-opacity hover:opacity-90"
+                    style={{ background: G[600] }}
                   >
                     {editingId ? (
                       <><Check className="w-4 h-4" /> {t.adminPage.saveProduct}</>
@@ -624,7 +678,8 @@ export function Admin() {
                   <button
                     type="button"
                     onClick={() => { setView("products"); setForm(BLANK); setEditingId(null); setErrors({}); }}
-                    className="w-full border border-gray-200 text-gray-600 py-3 rounded-xl text-sm hover:bg-gray-50 transition-colors"
+                    className="w-full py-2.5 rounded-lg text-sm border transition-colors"
+                    style={{ borderColor: "#e5e7eb", color: "#6b7280" }}
                   >
                     {t.adminPage.cancel}
                   </button>
@@ -640,6 +695,9 @@ export function Admin() {
 
 /* ─── helpers ─── */
 
+const G_600 = "#245230";
+const G_50 = "#edf7f1";
+
 function FormField({
   label, children, error, hint, required,
 }: {
@@ -651,14 +709,14 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">
+      <label className="block text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: "#6b7280" }}>
         {label}
-        {required && <span className="text-rose-400 ml-1">*</span>}
-        {hint && <span className="normal-case font-normal tracking-normal text-gray-400 ml-1">— {hint}</span>}
+        {required && <span className="ml-1" style={{ color: "#ef4444" }}>*</span>}
+        {hint && <span className="normal-case font-normal tracking-normal ml-1" style={{ color: "#9ca3af" }}>— {hint}</span>}
       </label>
       {children}
       {error && (
-        <p className="text-xs text-rose-500 mt-1.5 flex items-center gap-1">
+        <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#ef4444" }}>
           <AlertCircle className="w-3 h-3" /> {error}
         </p>
       )}
@@ -667,9 +725,7 @@ function FormField({
 }
 
 function inputCls(hasError: boolean) {
-  return `w-full px-4 py-3 rounded-xl text-sm border outline-none transition-colors bg-white ${
-    hasError
-      ? "border-rose-300 focus:border-rose-500"
-      : "border-gray-200 focus:border-black"
+  return `w-full px-4 py-3 rounded-lg text-sm border outline-none transition-colors bg-white ${
+    hasError ? "border-red-300" : "border-gray-200 focus:border-[#245230]"
   }`;
 }

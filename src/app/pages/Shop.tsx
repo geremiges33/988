@@ -1,50 +1,38 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useParams, Link, useSearchParams, useNavigate } from "react-router";
 import { categories, Product } from "../data/products";
 import { useProducts } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
 import {
-  SlidersHorizontal, Grid3X3, Grid2X2, List, Heart, ShoppingBag, X, ChevronDown,
-  Search, ArrowUpDown, Sparkles, Tag, Check, Eye, Zap,
+  SlidersHorizontal, Grid3X3, Grid2X2, List, Heart,
+  ShoppingBag, X, ChevronDown, Search, ArrowUpDown,
+  Check, Eye, Zap,
 } from "lucide-react";
 
-/* ── constants ─────────────────────────────────────────────────── */
+/* ─── Design tokens ─────────────────────────────────────────── */
+const G = {
+  ink:    "#0D1F0F",
+  deep:   "#143318",
+  mid:    "#1E4D24",
+  sage:   "#2D6A35",
+  mist:   "#EEF3EE",
+  paper:  "#F8FAF8",
+  line:   "#D4DDD4",
+  white:  "#FFFFFF",
+  dim:    "#8A9E8C",
+};
+
 const CONDITIONS = ["Excellent", "Very Good", "Good", "Fair"];
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
-const MAX_PRICE = 400;
-
-const CONDITION_COLORS: Record<string, { backgroundColor: string; color: string }> = {
-  Excellent:   { backgroundColor: "#DCFCE7", color: "#16A34A" },
-  "Very Good": { backgroundColor: "#DBEAFE", color: "#2563EB" },
-  Good:        { backgroundColor: "#FEF9C3", color: "#CA8A04" },
-  Fair:        { backgroundColor: "#FEE2E2", color: "#DC2626" },
-};
-
-const CAT_ICONS: Record<string, string> = {
-  all: "✦", women: "👗", men: "👔", clothing: "🧥", accessories: "👜",
-  furniture: "🪑", decor: "🏺", books: "📚", electronics: "📻", toys: "🎲",
-};
-
-const SORT_OPTIONS_KEYS = [
-  { value: "featured",   key: "sortFeatured"  },
-  { value: "newest",     key: "sortNewest"    },
-  { value: "price-low",  key: "sortPriceLow"  },
-  { value: "price-high", key: "sortPriceHigh" },
-  { value: "name",       key: "name"          },
-  { value: "discount",   key: "sortDiscount"  },
-] as const;
+const SIZES      = ["XS", "S", "M", "L", "XL", "XXL"];
+const MAX_PRICE  = 400;
 
 type GridCols = 2 | 3 | 4;
 
-/* ── helpers ────────────────────────────────────────────────────── */
-function parseSearchParams(sp: URLSearchParams, urlCat?: string): {
-  cat: string; sizes: string[]; conditions: string[]; minPrice: number; maxPrice: number;
-  sort: string; q: string; saleOnly: boolean;
-} {
+function parseSearchParams(sp: URLSearchParams, urlCat?: string) {
   return {
     cat:        urlCat || sp.get("cat") || "all",
-    sizes:      sp.get("size") ? sp.get("size")!.split(",").filter(Boolean) : [],
+    sizes:      sp.get("size")      ? sp.get("size")!.split(",").filter(Boolean)      : [],
     conditions: sp.get("condition") ? sp.get("condition")!.split(",").filter(Boolean) : [],
     minPrice:   parseInt(sp.get("minPrice") || "0"),
     maxPrice:   parseInt(sp.get("maxPrice") || String(MAX_PRICE)),
@@ -57,101 +45,63 @@ function parseSearchParams(sp: URLSearchParams, urlCat?: string): {
 /* ═══════════════════════════════════════════════════════════════ */
 export function Shop() {
   const { category: urlCat } = useParams();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const { products } = useProducts();
-  const { addToCart } = useCart();
-  const { t } = useLanguage();
-  const s = t.shop;
+  const [searchParams]       = useSearchParams();
+  const navigate             = useNavigate();
+  const { products }         = useProducts();
+  const { addToCart }        = useCart();
+  const { t }                = useLanguage();
+  const s                    = t.shop;
 
-  /* ── state — initialised from URL ─────────────────────────── */
-  const initial = parseSearchParams(searchParams, urlCat);
-  const [selectedCat,        setSelectedCat]        = useState(initial.cat);
-  const [selectedSizes,      setSelectedSizes]       = useState<string[]>(initial.sizes);
-  const [selectedConditions, setSelectedConditions]  = useState<string[]>(initial.conditions);
-  const [priceRange,         setPriceRange]          = useState<[number, number]>([initial.minPrice, initial.maxPrice]);
-  const [sortBy,             setSortBy]              = useState(initial.sort);
-  const [searchQuery,        setSearchQuery]         = useState(initial.q);
-  const [saleOnly,           setSaleOnly]            = useState(initial.saleOnly);
+  const init = parseSearchParams(searchParams, urlCat);
+  const [selectedCat,        setSelectedCat]        = useState(init.cat);
+  const [selectedSizes,      setSelectedSizes]       = useState<string[]>(init.sizes);
+  const [selectedConditions, setSelectedConditions]  = useState<string[]>(init.conditions);
+  const [priceRange,         setPriceRange]          = useState<[number, number]>([init.minPrice, init.maxPrice]);
+  const [sortBy,             setSortBy]              = useState(init.sort);
+  const [searchQuery,        setSearchQuery]         = useState(init.q);
+  const [saleOnly,           setSaleOnly]            = useState(init.saleOnly);
   const [gridCols,           setGridCols]            = useState<GridCols>(3);
   const [viewMode,           setViewMode]            = useState<"grid" | "list">("grid");
-  const [sidebarOpen,        setSidebarOpen]         = useState(false);
+  const [filterOpen,         setFilterOpen]          = useState(false);
   const [sortOpen,           setSortOpen]            = useState(false);
   const [visibleCount,       setVisibleCount]        = useState(12);
 
-  /* ── sync URL → state when navigation happens ──────────────── */
   useEffect(() => {
     const p = parseSearchParams(searchParams, urlCat);
-    setSelectedCat(p.cat);
-    setSelectedSizes(p.sizes);
-    setSelectedConditions(p.conditions);
-    setPriceRange([p.minPrice, p.maxPrice]);
-    setSortBy(p.sort);
-    setSearchQuery(p.q);
-    setSaleOnly(p.saleOnly);
-    setVisibleCount(12);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setSelectedCat(p.cat); setSelectedSizes(p.sizes); setSelectedConditions(p.conditions);
+    setPriceRange([p.minPrice, p.maxPrice]); setSortBy(p.sort);
+    setSearchQuery(p.q); setSaleOnly(p.saleOnly); setVisibleCount(12);
   }, [searchParams, urlCat]);
 
-  /* ── sync state → URL ──────────────────────────────────────── */
-  const pushFilters = (overrides: Record<string, string | string[] | boolean | number | null>) => {
+  const push = (overrides: Record<string, string | string[] | boolean | number | null>) => {
     const next = new URLSearchParams(searchParams);
-    const current: Record<string, string | string[] | boolean | number | null> = {
-      cat:        selectedCat,
-      size:       selectedSizes,
-      condition:  selectedConditions,
-      minPrice:   priceRange[0],
-      maxPrice:   priceRange[1],
-      sort:       sortBy,
-      q:          searchQuery,
-      sale:       saleOnly,
-      ...overrides,
+    const cur: Record<string, string | string[] | boolean | number | null> = {
+      cat: selectedCat, size: selectedSizes, condition: selectedConditions,
+      minPrice: priceRange[0], maxPrice: priceRange[1],
+      sort: sortBy, q: searchQuery, sale: saleOnly, ...overrides,
     };
-
-    // cat goes in the path
-    const newCat = (current.cat as string) || "all";
-
-    const setOrDel = (key: string, val: string | string[] | boolean | number | null) => {
-      const str = Array.isArray(val) ? val.join(",") : String(val);
-      const skip = (
-        (key === "cat")       ||
-        (key === "minPrice"  && str === "0") ||
-        (key === "maxPrice"  && str === String(MAX_PRICE)) ||
-        (key === "sort"      && str === "featured") ||
-        (key === "q"         && str === "") ||
-        (key === "sale"      && str === "false") ||
-        (key === "size"      && str === "") ||
-        (key === "condition" && str === "")
-      );
-      if (skip) next.delete(key); else next.set(key, str);
-    };
-    Object.entries(current).forEach(([k, v]) => setOrDel(k, v));
-
-    const catPath = newCat !== "all" ? `/shop/${newCat}` : "/shop";
+    const newCat = (cur.cat as string) || "all";
+    Object.entries(cur).forEach(([k, v]) => {
+      const str = Array.isArray(v) ? v.join(",") : String(v);
+      const skip = k === "cat" || (k === "minPrice" && str === "0") ||
+        (k === "maxPrice" && str === String(MAX_PRICE)) || (k === "sort" && str === "featured") ||
+        (k === "q" && str === "") || (k === "sale" && str === "false") ||
+        (k === "size" && str === "") || (k === "condition" && str === "");
+      if (skip) next.delete(k); else next.set(k, str);
+    });
     const qs = next.toString();
-    navigate({ pathname: catPath, search: qs ? `?${qs}` : "" }, { replace: false });
+    navigate({ pathname: newCat !== "all" ? `/shop/${newCat}` : "/shop", search: qs ? `?${qs}` : "" }, { replace: false });
   };
 
-  /* ── filter helpers ─────────────────────────────────────────── */
-  const handleCatChange = (c: string) => pushFilters({ cat: c });
-  const toggleCondition = (c: string) => {
-    const next = selectedConditions.includes(c) ? selectedConditions.filter(x => x !== c) : [...selectedConditions, c];
-    pushFilters({ condition: next });
-  };
-  const toggleSize = (s: string) => {
-    const next = selectedSizes.includes(s) ? selectedSizes.filter(x => x !== s) : [...selectedSizes, s];
-    pushFilters({ size: next });
-  };
-  const handlePriceChange = (r: [number, number]) => pushFilters({ minPrice: r[0], maxPrice: r[1] });
-  const handleSortChange = (s: string) => { setSortOpen(false); pushFilters({ sort: s }); };
-  const handleSearchChange = (v: string) => pushFilters({ q: v });
-  const handleSaleToggle = () => pushFilters({ sale: !saleOnly });
+  const handleCat    = (c: string)           => push({ cat: c });
+  const toggleCond   = (c: string)           => push({ condition: selectedConditions.includes(c) ? selectedConditions.filter(x => x !== c) : [...selectedConditions, c] });
+  const toggleSize   = (sz: string)          => push({ size: selectedSizes.includes(sz) ? selectedSizes.filter(x => x !== sz) : [...selectedSizes, sz] });
+  const handlePrice  = (r: [number, number]) => push({ minPrice: r[0], maxPrice: r[1] });
+  const handleSort   = (v: string)           => { setSortOpen(false); push({ sort: v }); };
+  const handleSearch = (v: string)           => push({ q: v });
+  const toggleSale   = ()                    => push({ sale: !saleOnly });
+  const clearAll     = ()                    => navigate(urlCat ? `/shop/${urlCat}` : "/shop");
 
-  const clearAll = () => {
-    navigate(urlCat ? `/shop/${urlCat}` : "/shop");
-  };
-
-  /* ── computed ───────────────────────────────────────────────── */
   const filtered = useMemo(() => {
     let list = [...products];
     if (selectedCat !== "all") list = list.filter(p => p.category === selectedCat);
@@ -161,826 +111,710 @@ export function Shop() {
     if (saleOnly) list = list.filter(p => !!p.originalPrice);
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      list = list.filter(p =>
-        p.name.toLowerCase().includes(q) ||
-        p.description.toLowerCase().includes(q) ||
-        p.category.toLowerCase().includes(q)
-      );
+      list = list.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
     switch (sortBy) {
       case "price-low":  list.sort((a, b) => a.price - b.price); break;
       case "price-high": list.sort((a, b) => b.price - a.price); break;
       case "name":       list.sort((a, b) => a.name.localeCompare(b.name)); break;
-      case "discount":   list.sort((a, b) => {
-        const dA = a.originalPrice ? a.originalPrice - a.price : 0;
-        const dB = b.originalPrice ? b.originalPrice - b.price : 0;
-        return dB - dA;
-      }); break;
+      case "discount":   list.sort((a, b) => (b.originalPrice ? b.originalPrice - b.price : 0) - (a.originalPrice ? a.originalPrice - a.price : 0)); break;
       case "newest":     list.sort((a, b) => b.id.localeCompare(a.id)); break;
       default:           list.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
     return list;
   }, [products, selectedCat, selectedConditions, selectedSizes, priceRange, sortBy, searchQuery, saleOnly]);
 
-  const visible  = filtered.slice(0, visibleCount);
-  const hasMore  = visibleCount < filtered.length;
-
-  const activeFiltersCount = [
-    selectedCat !== "all",
-    selectedConditions.length > 0,
-    selectedSizes.length > 0,
-    priceRange[0] > 0 || priceRange[1] < MAX_PRICE,
-    searchQuery.trim() !== "",
-    saleOnly,
-  ].filter(Boolean).length;
-
-  const catLabel   = categories.find(c => c.id === selectedCat)?.name || "All Items";
+  const visible = filtered.slice(0, visibleCount);
+  const hasMore = visibleCount < filtered.length;
 
   const SORT_OPTIONS = [
-    { value: "featured",   label: s.sortFeatured  },
-    { value: "newest",     label: s.sortNewest    },
-    { value: "price-low",  label: s.sortPriceLow  },
-    { value: "price-high", label: s.sortPriceHigh },
-    { value: "name",       label: "Name A–Z"      },
-    { value: "discount",   label: s.sortDiscount  },
+    { value: "featured",   label: "Featured"    },
+    { value: "newest",     label: "Newest"      },
+    { value: "price-low",  label: "Price: Low"  },
+    { value: "price-high", label: "Price: High" },
+    { value: "name",       label: "Name A–Z"    },
+    { value: "discount",   label: "Best Deals"  },
   ];
+  const currentSortLabel = SORT_OPTIONS.find(o => o.value === sortBy)?.label || "Sort";
 
-  const currentSort = SORT_OPTIONS.find(o => o.value === sortBy)?.label || s.sortBy;
+  const activeCount = [
+    selectedCat !== "all", selectedConditions.length > 0, selectedSizes.length > 0,
+    priceRange[0] > 0 || priceRange[1] < MAX_PRICE, searchQuery.trim() !== "", saleOnly,
+  ].filter(Boolean).length;
 
-  /* ── active chip list ───────────────────────────────────────── */
-  const chips: { label: string; onRemove: () => void }[] = [
-    ...selectedConditions.map(c => ({ label: c, onRemove: () => toggleCondition(c) })),
-    ...selectedSizes.map(s => ({ label: `Size ${s}`, onRemove: () => toggleSize(s) })),
+  const chips = [
+    ...selectedConditions.map(c  => ({ label: c,              onRemove: () => toggleCond(c)  })),
+    ...selectedSizes.map(sz      => ({ label: sz,             onRemove: () => toggleSize(sz) })),
     ...(priceRange[0] > 0 || priceRange[1] < MAX_PRICE
-      ? [{ label: `$${priceRange[0]}–$${priceRange[1]}`, onRemove: () => handlePriceChange([0, MAX_PRICE]) }]
+      ? [{ label: `$${priceRange[0]}–$${priceRange[1]}`, onRemove: () => handlePrice([0, MAX_PRICE]) }]
       : []),
-    ...(searchQuery.trim() ? [{ label: `"${searchQuery}"`, onRemove: () => handleSearchChange("") }] : []),
-    ...(saleOnly ? [{ label: "Sale Only", onRemove: handleSaleToggle }] : []),
+    ...(searchQuery.trim() ? [{ label: `"${searchQuery}"`, onRemove: () => handleSearch("") }] : []),
+    ...(saleOnly ? [{ label: "Sale", onRemove: toggleSale }] : []),
   ];
 
   return (
-    <div className="min-h-screen bg-[#F7F5F2]">
+    <div style={{ background: G.paper, minHeight: "100vh", fontFamily: "'Georgia', 'Times New Roman', serif" }}>
 
-      {/* ── Page Hero ───────────────────────────────────────────── */}
-      <div className="bg-[#0A0A0A] relative overflow-hidden">
-        <div
-          className="absolute inset-0 opacity-10"
-          style={{ backgroundImage: "radial-gradient(circle at 20% 50%, #FF6B6B 0%, transparent 50%), radial-gradient(circle at 80% 50%, #4ECDC4 0%, transparent 50%)" }}
-        />
-        <div className="relative z-10 max-w-[1440px] mx-auto px-8 lg:px-16 py-14">
-          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
-            <div>
-              {/* Breadcrumb */}
-              <div className="flex items-center gap-2 text-white/30 text-xs tracking-widest uppercase mb-4">
-                <Link to="/" className="hover:text-white transition-colors">Home</Link>
-                <span>/</span>
-                <span className="text-white/60">Shop</span>
-                {selectedCat !== "all" && (
-                  <><span>/</span><span className="text-[#FF6B6B]">{catLabel}</span></>
-                )}
-              </div>
-              <h1
-                className="text-white mb-2"
-                style={{ fontSize: "clamp(2.5rem,4vw,4rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1 }}
-              >
-                {saleOnly ? (
-                  <>Flash <span style={{ color: "#FF6B6B", fontStyle: "italic", fontWeight: 300 }}>Sale</span></>
-                ) : selectedCat !== "all" ? (
-                  catLabel
-                ) : (
-                  <>All <span style={{ color: "#FF6B6B", fontStyle: "italic", fontWeight: 300 }}>Finds</span></>
-                )}
-              </h1>
-              <div className="flex items-center gap-3 flex-wrap">
-                <p className="text-white/40 text-base">
-                  {filtered.length} pre-loved piece{filtered.length !== 1 ? "s" : ""}
-                </p>
-                {saleOnly && (
-                  <span className="inline-flex items-center gap-1.5 bg-[#FF6B6B]/20 text-[#FF6B6B] border border-[#FF6B6B]/30 text-xs px-3 py-1 rounded-full tracking-widest uppercase">
-                    <Zap className="w-3 h-3" />Up to 70% off
+      {/* ── Dark header ──────────────────────────────────────────── */}
+      <div style={{ background: G.ink }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 48px" }}>
+
+          {/* Top utility row */}
+          <div style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.06)",
+          }}>
+            <nav style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <Link to="/" style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, letterSpacing: "0.16em", textDecoration: "none", fontFamily: "sans-serif", fontWeight: 700 }}>HOME</Link>
+              <span style={{ color: "rgba(255,255,255,0.15)", fontSize: 12, fontFamily: "sans-serif" }}>—</span>
+              <span style={{ color: "rgba(255,255,255,0.4)", fontSize: 12, letterSpacing: "0.16em", fontFamily: "sans-serif", fontWeight: 700 }}>SHOP</span>
+              {selectedCat !== "all" && (
+                <>
+                  <span style={{ color: "rgba(255,255,255,0.15)", fontSize: 12, fontFamily: "sans-serif" }}>—</span>
+                  <span style={{ color: "rgba(255,255,255,0.75)", fontSize: 12, letterSpacing: "0.16em", fontFamily: "sans-serif", fontWeight: 700 }}>
+                    {categories.find(c => c.id === selectedCat)?.name?.toUpperCase()}
                   </span>
-                )}
-              </div>
-            </div>
+                </>
+              )}
+            </nav>
 
-            {/* Hero search */}
-            <div className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-5 py-3 lg:w-80">
-              <Search className="w-4 h-4 text-white/30 flex-shrink-0" />
+            {/* Search */}
+            <div style={{
+              display: "flex", alignItems: "center", gap: 10,
+              background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.09)",
+              padding: "9px 18px", width: 280,
+            }}>
+              <Search size={13} color="rgba(255,255,255,0.3)" />
               <input
-                type="text"
-                placeholder={s.searchPlaceholder}
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/30 outline-none"
                 value={searchQuery}
-                onChange={e => handleSearchChange(e.target.value)}
+                onChange={e => handleSearch(e.target.value)}
+                placeholder="Search pieces..."
+                style={{
+                  background: "transparent", border: "none", outline: "none",
+                  color: "#fff", fontSize: 13, fontFamily: "sans-serif",
+                  fontWeight: 700, letterSpacing: "0.05em", flex: 1,
+                }}
               />
               {searchQuery && (
-                <button onClick={() => handleSearchChange("")} className="text-white/30 hover:text-white transition-colors">
-                  <X className="w-3.5 h-3.5" />
+                <button onClick={() => handleSearch("")} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.3)", padding: 0, display: "flex" }}>
+                  <X size={12} />
                 </button>
               )}
             </div>
           </div>
 
-          {/* Category pills */}
-          <div className="mt-8 flex flex-wrap gap-2">
-            {categories.map(cat => {
-              const count = cat.id === "all"
-                ? products.length
-                : products.filter(p => p.category === cat.id).length;
-              return (
-                <button
-                  key={cat.id}
-                  onClick={() => handleCatChange(cat.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full text-xs tracking-widest uppercase transition-all duration-200"
-                  style={
-                    selectedCat === cat.id
-                      ? { background: cat.color, color: "#0A0A0A", fontWeight: 600 }
-                      : { background: "rgba(255,255,255,0.07)", color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.1)" }
-                  }
-                >
-                  <span>{CAT_ICONS[cat.id] || "•"}</span>
-                  {cat.name}
-                  <span className="opacity-50 text-[10px]">{count}</span>
-                </button>
-              );
-            })}
-
-            {/* Sale toggle pill */}
-            <button
-              onClick={handleSaleToggle}
-              className="flex items-center gap-2 px-4 py-2 rounded-full text-xs tracking-widest uppercase transition-all duration-200"
-              style={
-                saleOnly
-                  ? { background: "#FF6B6B", color: "#fff", fontWeight: 600 }
-                  : { background: "rgba(255,107,107,0.15)", color: "#FF6B6B", border: "1px solid rgba(255,107,107,0.3)" }
-              }
-            >
-              <Zap className="w-3 h-3" />
-              {s.sale}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Main layout ─────────────────────────────────────────── */}
-      <div className="max-w-[1440px] mx-auto px-8 lg:px-16 py-10">
-        <div className="flex gap-8">
-
-          {/* ── Sidebar ──────────────────────────────────────────── */}
-          <aside className="hidden lg:block w-72 flex-shrink-0">
-            <div className="sticky top-24 space-y-5">
-
-              {/* Header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-4 h-4 text-[#FF6B6B]" />
-                  <span className="text-gray-900 text-sm tracking-widest uppercase" style={{ fontWeight: 600 }}>{s.filters}</span>
-                  {activeFiltersCount > 0 && (
-                    <span className="bg-[#FF6B6B] text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center" style={{ fontWeight: 700 }}>
-                      {activeFiltersCount}
-                    </span>
-                  )}
-                </div>
-                {activeFiltersCount > 0 && (
-                  <button onClick={clearAll} className="text-xs text-gray-400 hover:text-[#FF6B6B] transition-colors tracking-widest uppercase">
-                    {s.clearAll}
-                  </button>
-                )}
+          {/* Hero title */}
+          <div style={{ padding: "36px 0 0" }}>
+            <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 32 }}>
+              <div>
+                <p style={{ color: G.sage, fontSize: 11, letterSpacing: "0.26em", fontFamily: "sans-serif", fontWeight: 800, margin: "0 0 10px" }}>
+                  {filtered.length} PIECES AVAILABLE
+                </p>
+                <h1 style={{
+                  color: G.white, fontSize: "clamp(2.8rem, 5.5vw, 5.5rem)",
+                  fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 0.92,
+                  margin: 0, fontStyle: "italic",
+                }}>
+                  {saleOnly ? "Sale" : selectedCat !== "all"
+                    ? categories.find(c => c.id === selectedCat)?.name
+                    : "All Finds"}
+                </h1>
               </div>
-
-              {/* Filter panel */}
-              <div className="bg-white rounded-2xl overflow-hidden" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.06)" }}>
-
-                {/* Sale toggle */}
-                <div className="px-5 py-4 border-b border-gray-100">
-                  <button
-                    onClick={handleSaleToggle}
-                    className="w-full flex items-center justify-between py-1"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div
-                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-all duration-150"
-                        style={saleOnly ? { background: "#FF6B6B", border: "2px solid #FF6B6B" } : { border: "2px solid #E5E7EB" }}
-                      >
-                        {saleOnly && <Check className="w-2.5 h-2.5 text-white" />}
-                      </div>
-                      <span className="text-sm text-gray-700">Sale items only</span>
-                    </div>
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]" style={{ fontWeight: 600 }}>Hot</span>
-                  </button>
+              {saleOnly && (
+                <div style={{
+                  display: "flex", alignItems: "center", gap: 7,
+                  background: G.sage, padding: "10px 20px",
+                }}>
+                  <Zap size={12} color={G.white} />
+                  <span style={{ color: G.white, fontSize: 11, letterSpacing: "0.2em", fontFamily: "sans-serif", fontWeight: 800 }}>UP TO 70% OFF</span>
                 </div>
-
-                {/* Price range */}
-                <FilterSection title="Price Range" defaultOpen>
-                  <PriceRangeSlider
-                    value={priceRange}
-                    onChange={handlePriceChange}
-                    max={MAX_PRICE}
-                  />
-                </FilterSection>
-
-                <div className="h-px bg-gray-100 mx-5" />
-
-                {/* Condition */}
-                <FilterSection title="Condition" defaultOpen>
-                  <div className="space-y-2.5">
-                    {CONDITIONS.map(c => {
-                      const cnt = products.filter(p => p.condition === c).length;
-                      return (
-                        <label key={c} className="flex items-center justify-between cursor-pointer group" onClick={() => toggleCondition(c)}>
-                          <div className="flex items-center gap-3">
-                            <div
-                              className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 transition-all duration-150"
-                              style={selectedConditions.includes(c) ? { background: "#FF6B6B", border: "2px solid #FF6B6B" } : { border: "2px solid #E5E7EB" }}
-                            >
-                              {selectedConditions.includes(c) && <Check className="w-2.5 h-2.5 text-white" />}
-                            </div>
-                            <span className="text-sm text-gray-700 group-hover:text-black transition-colors">{c}</span>
-                          </div>
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className="text-[9px] px-2 py-0.5 rounded-full"
-                              style={{ backgroundColor: CONDITION_COLORS[c].backgroundColor, color: CONDITION_COLORS[c].color }}
-                            >
-                              {c.slice(0, 1)}
-                            </span>
-                            <span className="text-[10px] text-gray-400">{cnt}</span>
-                          </div>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </FilterSection>
-
-                <div className="h-px bg-gray-100 mx-5" />
-
-                {/* Size */}
-                <FilterSection title="Size">
-                  <div className="grid grid-cols-3 gap-2">
-                    {SIZES.map(s => {
-                      const cnt = products.filter(p => p.size === s).length;
-                      return (
-                        <button
-                          key={s}
-                          onClick={() => toggleSize(s)}
-                          className="relative py-2 rounded-xl text-xs tracking-widest uppercase transition-all duration-150"
-                          style={
-                            selectedSizes.includes(s)
-                              ? { background: "#0A0A0A", color: "#fff", fontWeight: 600 }
-                              : cnt === 0
-                              ? { background: "#F7F5F2", color: "#D1D5DB", cursor: "not-allowed" }
-                              : { background: "#F7F5F2", color: "#6B7280" }
-                          }
-                          disabled={cnt === 0}
-                        >
-                          {s}
-                          {cnt > 0 && (
-                            <span
-                              className="absolute -top-1 -right-1 text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center"
-                              style={
-                                selectedSizes.includes(s)
-                                  ? { background: "#FF6B6B", color: "#fff" }
-                                  : { background: "#E5E7EB", color: "#9CA3AF" }
-                              }
-                            >
-                              {cnt}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </FilterSection>
-
-                <div className="h-px bg-gray-100 mx-5" />
-
-                {/* Category */}
-                <FilterSection title="Category">
-                  <div className="space-y-1">
-                    {categories.map(cat => {
-                      const count = cat.id === "all"
-                        ? products.length
-                        : products.filter(p => p.category === cat.id).length;
-                      return (
-                        <button
-                          key={cat.id}
-                          onClick={() => handleCatChange(cat.id)}
-                          className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-sm transition-all duration-150 group"
-                          style={selectedCat === cat.id ? { background: "#0A0A0A" } : {}}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: cat.color }} />
-                            <span style={{ color: selectedCat === cat.id ? "#fff" : undefined }} className={selectedCat === cat.id ? "" : "text-gray-700 group-hover:text-black"}>
-                              {cat.name}
-                            </span>
-                          </div>
-                          <span className={`text-xs ${selectedCat === cat.id ? "text-white/50" : "text-gray-400"}`}>{count}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </FilterSection>
-
-              </div>
-
-              {/* Promo card */}
-              <div className="rounded-2xl p-5 relative overflow-hidden" style={{ background: "linear-gradient(135deg, #FF6B6B, #4ECDC4)" }}>
-                <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full bg-white/10" />
-                <div className="absolute -bottom-6 -left-4 w-28 h-28 rounded-full bg-white/10" />
-                <div className="relative z-10">
-                  <Sparkles className="w-5 h-5 text-white mb-3" />
-                  <p className="text-white text-sm mb-1" style={{ fontWeight: 700 }}>New items weekly!</p>
-                  <p className="text-white/70 text-xs leading-relaxed">Fresh vintage picks land every Monday.</p>
-                </div>
-              </div>
-            </div>
-          </aside>
-
-          {/* ── Products area ───────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
-
-            {/* Toolbar */}
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-gray-500 text-sm">
-                  <span className="text-gray-900" style={{ fontWeight: 600 }}>{filtered.length}</span> {s.results}
-                </span>
-                {chips.map(chip => (
-                  <FilterChip key={chip.label} label={chip.label} onRemove={chip.onRemove} />
-                ))}
-              </div>
-
-              <div className="flex items-center gap-3">
-                {/* Mobile filter toggle */}
-                <button
-                  onClick={() => setSidebarOpen(true)}
-                  className="lg:hidden flex items-center gap-2 border border-gray-200 bg-white rounded-full px-4 py-2 text-xs tracking-widest uppercase text-gray-700"
-                >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
-                  {s.filters} {activeFiltersCount > 0 && `(${activeFiltersCount})`}
-                </button>
-
-                {/* Sort dropdown */}
-                <div className="relative">
-                  <button
-                    onClick={() => setSortOpen(v => !v)}
-                    className="flex items-center gap-2 border border-gray-200 bg-white rounded-full px-4 py-2 text-xs tracking-widest uppercase text-gray-700 hover:border-gray-400 transition-colors"
-                  >
-                    <ArrowUpDown className="w-3 h-3" />
-                    {currentSort}
-                    <ChevronDown className={`w-3 h-3 transition-transform ${sortOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  {sortOpen && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setSortOpen(false)} />
-                      <div
-                        className="absolute right-0 top-full mt-2 bg-white border border-gray-100 rounded-2xl overflow-hidden z-20 min-w-[210px]"
-                        style={{ boxShadow: "0 10px 40px rgba(0,0,0,0.1)" }}
-                      >
-                        {SORT_OPTIONS.map(opt => (
-                          <button
-                            key={opt.value}
-                            onClick={() => handleSortChange(opt.value)}
-                            className="w-full flex items-center justify-between px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                          >
-                            {opt.label}
-                            {sortBy === opt.value && <Check className="w-4 h-4 text-[#FF6B6B]" />}
-                          </button>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-
-                {/* Grid controls */}
-                <div className="hidden lg:flex items-center border border-gray-200 rounded-full overflow-hidden bg-white">
-                  {([2, 3, 4] as GridCols[]).map(n => (
-                    <button
-                      key={n}
-                      onClick={() => { setGridCols(n); setViewMode("grid"); }}
-                      className="w-9 h-9 flex items-center justify-center transition-all duration-150"
-                      style={gridCols === n && viewMode === "grid" ? { background: "#0A0A0A", color: "#fff" } : { color: "#9CA3AF" }}
-                      title={`${n} columns`}
-                    >
-                      {n === 2 ? <Grid2X2 className="w-4 h-4" /> : n === 3 ? <Grid3X3 className="w-4 h-4" /> : (
-                        <svg viewBox="0 0 16 16" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
-                          <rect x="0" y="0" width="4" height="4" rx="0.5"/><rect x="6" y="0" width="4" height="4" rx="0.5"/>
-                          <rect x="12" y="0" width="4" height="4" rx="0.5"/><rect x="0" y="6" width="4" height="4" rx="0.5"/>
-                          <rect x="6" y="6" width="4" height="4" rx="0.5"/><rect x="12" y="6" width="4" height="4" rx="0.5"/>
-                          <rect x="0" y="12" width="4" height="4" rx="0.5"/><rect x="6" y="12" width="4" height="4" rx="0.5"/>
-                          <rect x="12" y="12" width="4" height="4" rx="0.5"/>
-                        </svg>
-                      )}
-                    </button>
-                  ))}
-                  <button
-                    onClick={() => setViewMode("list")}
-                    className="w-9 h-9 flex items-center justify-center transition-all duration-150 border-l border-gray-100"
-                    style={viewMode === "list" ? { background: "#0A0A0A", color: "#fff" } : { color: "#9CA3AF" }}
-                    title="List view"
-                  >
-                    <List className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
+              )}
             </div>
 
-            {/* Products */}
-            {filtered.length === 0 ? (
-              <EmptyState onClear={clearAll} chips={chips} />
-            ) : viewMode === "list" ? (
-              <div className="space-y-4">
-                {visible.map(product => (
-                  <ListCard key={product.id} product={product} onAddToCart={() => addToCart(product)} />
-                ))}
-              </div>
-            ) : (
-              <div
-                className="grid gap-5"
-                style={{ gridTemplateColumns: `repeat(${gridCols}, minmax(0, 1fr))` }}
-              >
-                {visible.map((product, i) => (
-                  <ShopCard key={product.id} product={product} index={i} onAddToCart={() => addToCart(product)} />
-                ))}
-              </div>
-            )}
-
-            {/* Load more */}
-            {hasMore && (
-              <div className="mt-12 text-center">
-                <button
-                  onClick={() => setVisibleCount(v => v + 12)}
-                  className="inline-flex items-center gap-3 bg-white border border-gray-200 rounded-full px-10 py-4 text-sm tracking-widest uppercase text-gray-700 hover:bg-black hover:text-white hover:border-black transition-all duration-300"
-                >
-                  Load More
-                  <span className="text-gray-400 text-xs">({filtered.length - visibleCount} more)</span>
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setSidebarOpen(false)} />
-          <div className="absolute right-0 top-0 bottom-0 w-80 bg-white overflow-y-auto">
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between">
-              <span className="text-sm tracking-widest uppercase" style={{ fontWeight: 600 }}>{s.filters}</span>
-              <button onClick={() => setSidebarOpen(false)} className="p-1 rounded-full hover:bg-gray-100">
-                <X className="w-5 h-5" />
+            {/* Category tabs */}
+            <div style={{ display: "flex", alignItems: "center", borderTop: "1px solid rgba(255,255,255,0.07)", overflowX: "auto" }}>
+              {[{ id: "all", name: "All" }, ...categories.filter(c => c.id !== "all")].map(cat => {
+                const isActive = selectedCat === cat.id;
+                return (
+                  <button key={cat.id} onClick={() => handleCat(cat.id)} style={{
+                    background: "none", border: "none", cursor: "pointer",
+                    padding: "15px 20px", fontSize: 11, letterSpacing: "0.2em",
+                    fontFamily: "sans-serif", fontWeight: 800, whiteSpace: "nowrap",
+                    color: isActive ? G.white : "rgba(255,255,255,0.35)",
+                    borderBottom: isActive ? `2px solid ${G.sage}` : "2px solid transparent",
+                    transition: "all 0.15s",
+                  }}>
+                    {cat.name.toUpperCase()}
+                  </button>
+                );
+              })}
+              <button onClick={toggleSale} style={{
+                background: "none", border: "none", cursor: "pointer",
+                padding: "15px 20px", fontSize: 11, letterSpacing: "0.2em",
+                fontFamily: "sans-serif", fontWeight: 800, whiteSpace: "nowrap",
+                color: saleOnly ? "#7EF5A0" : "rgba(255,255,255,0.35)",
+                borderBottom: saleOnly ? "2px solid #7EF5A0" : "2px solid transparent",
+                transition: "all 0.15s",
+              }}>
+                SALE
               </button>
             </div>
-            <div className="p-5 space-y-6">
-              <PriceRangeSlider value={priceRange} onChange={handlePriceChange} max={MAX_PRICE} />
-              <div>
-                <p className="text-xs tracking-widest uppercase text-gray-500 mb-3" style={{ fontWeight: 600 }}>Condition</p>
-                <div className="space-y-2">
-                  {CONDITIONS.map(c => (
-                    <label key={c} className="flex items-center gap-3 cursor-pointer" onClick={() => toggleCondition(c)}>
-                      <div
-                        className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0"
-                        style={selectedConditions.includes(c) ? { background: "#FF6B6B", border: "2px solid #FF6B6B" } : { border: "2px solid #E5E7EB" }}
-                      >
-                        {selectedConditions.includes(c) && <Check className="w-2.5 h-2.5 text-white" />}
-                      </div>
-                      <span className="text-sm text-gray-700">{c}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-xs tracking-widest uppercase text-gray-500 mb-3" style={{ fontWeight: 600 }}>Size</p>
-                <div className="grid grid-cols-4 gap-2">
-                  {SIZES.map(s => (
-                    <button
-                      key={s}
-                      onClick={() => toggleSize(s)}
-                      className="py-2 rounded-lg text-xs tracking-widest uppercase"
-                      style={selectedSizes.includes(s) ? { background: "#0A0A0A", color: "#fff" } : { background: "#F7F5F2", color: "#6B7280" }}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              {activeFiltersCount > 0 && (
-                <button onClick={() => { clearAll(); setSidebarOpen(false); }}
-                  className="w-full py-3 rounded-full border border-gray-200 text-xs tracking-widest uppercase text-gray-500 hover:border-[#FF6B6B] hover:text-[#FF6B6B] transition-colors">
-                  {s.clearAll}
+          </div>
+        </div>
+      </div>
+
+      {/* ── Sticky toolbar ──────────────────────────────────────── */}
+      <div style={{ background: G.white, borderBottom: `1px solid ${G.line}`, position: "sticky", top: 0, zIndex: 40 }}>
+        <div style={{
+          maxWidth: 1440, margin: "0 auto", padding: "0 48px",
+          display: "flex", alignItems: "center", justifyContent: "space-between", height: 54,
+        }}>
+          {/* Filter toggle + active chips */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, flex: 1, overflow: "hidden", minWidth: 0 }}>
+            <button
+              onClick={() => setFilterOpen(v => !v)}
+              style={{
+                display: "flex", alignItems: "center", gap: 7, padding: "6px 14px",
+                background: filterOpen ? G.ink : "transparent",
+                border: `1px solid ${filterOpen ? G.ink : G.line}`,
+                cursor: "pointer", fontSize: 11, letterSpacing: "0.18em", fontWeight: 800,
+                color: filterOpen ? G.white : G.ink, fontFamily: "sans-serif",
+                flexShrink: 0, transition: "all 0.15s",
+              }}
+            >
+              <SlidersHorizontal size={11} />
+              FILTER{activeCount > 0 ? ` (${activeCount})` : ""}
+            </button>
+
+            <div style={{ width: 1, height: 18, background: G.line, flexShrink: 0 }} />
+
+            <div style={{ display: "flex", gap: 6, overflow: "hidden", alignItems: "center" }}>
+              {chips.map(chip => (
+                <span key={chip.label} style={{
+                  display: "inline-flex", alignItems: "center", gap: 5,
+                  border: `1px solid ${G.deep}`, padding: "4px 10px",
+                  fontSize: 11, letterSpacing: "0.1em", color: G.deep, fontWeight: 700,
+                  fontFamily: "sans-serif", whiteSpace: "nowrap", flexShrink: 0,
+                }}>
+                  {chip.label.toUpperCase()}
+                  <button onClick={chip.onRemove} style={{ background: "none", border: "none", cursor: "pointer", color: G.dim, padding: 0, display: "flex" }}>
+                    <X size={10} />
+                  </button>
+                </span>
+              ))}
+              {activeCount > 0 && (
+                <button onClick={clearAll} style={{
+                  background: "none", border: "none", cursor: "pointer",
+                  fontSize: 11, letterSpacing: "0.12em", color: G.dim, fontWeight: 700,
+                  fontFamily: "sans-serif", textDecoration: "underline", flexShrink: 0,
+                }}>
+                  CLEAR ALL
                 </button>
               )}
             </div>
           </div>
+
+          {/* Sort + view toggles */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setSortOpen(v => !v)}
+                style={{
+                  display: "flex", alignItems: "center", gap: 7, padding: "6px 14px",
+                  background: "transparent", border: `1px solid ${G.line}`,
+                  cursor: "pointer", fontSize: 11, letterSpacing: "0.16em", fontWeight: 800,
+                  color: G.ink, fontFamily: "sans-serif", transition: "all 0.15s",
+                }}
+              >
+                <ArrowUpDown size={11} />
+                {currentSortLabel.toUpperCase()}
+                <ChevronDown size={10} style={{ transform: sortOpen ? "rotate(180deg)" : "none", transition: "0.15s" }} />
+              </button>
+              {sortOpen && (
+                <>
+                  <div style={{ position: "fixed", inset: 0, zIndex: 10 }} onClick={() => setSortOpen(false)} />
+                  <div style={{
+                    position: "absolute", right: 0, top: "calc(100% + 2px)",
+                    background: G.white, border: `1px solid ${G.line}`, zIndex: 20, minWidth: 180,
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.07)",
+                  }}>
+                    {SORT_OPTIONS.map((opt, i) => (
+                      <button key={opt.value} onClick={() => handleSort(opt.value)} style={{
+                        display: "flex", alignItems: "center", justifyContent: "space-between",
+                        width: "100%", padding: "11px 16px", background: "none", border: "none",
+                        borderBottom: i < SORT_OPTIONS.length - 1 ? `1px solid ${G.line}` : "none",
+                        cursor: "pointer", fontSize: 11, letterSpacing: "0.14em", fontWeight: 700,
+                        color: sortBy === opt.value ? G.deep : G.ink,
+                        fontFamily: "sans-serif", textAlign: "left",
+                      }}>
+                        {opt.label.toUpperCase()}
+                        {sortBy === opt.value && <Check size={10} color={G.sage} />}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            <div style={{ width: 1, height: 18, background: G.line }} />
+
+            <div style={{ display: "flex", border: `1px solid ${G.line}` }}>
+              {([2, 3, 4] as GridCols[]).map((n, i) => (
+                <button key={n} onClick={() => { setGridCols(n); setViewMode("grid"); }} style={{
+                  width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
+                  background: gridCols === n && viewMode === "grid" ? G.ink : "transparent",
+                  border: "none", borderRight: i < 2 ? `1px solid ${G.line}` : "none",
+                  cursor: "pointer", color: gridCols === n && viewMode === "grid" ? G.white : G.dim,
+                  transition: "all 0.15s",
+                }}>
+                  {n === 2 ? <Grid2X2 size={13} /> : n === 3 ? <Grid3X3 size={13} /> : (
+                    <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor">
+                      <rect x="0" y="0" width="4" height="4"/><rect x="6" y="0" width="4" height="4"/>
+                      <rect x="12" y="0" width="4" height="4"/><rect x="0" y="6" width="4" height="4"/>
+                      <rect x="6" y="6" width="4" height="4"/><rect x="12" y="6" width="4" height="4"/>
+                      <rect x="0" y="12" width="4" height="4"/><rect x="6" y="12" width="4" height="4"/>
+                      <rect x="12" y="12" width="4" height="4"/>
+                    </svg>
+                  )}
+                </button>
+              ))}
+              <button onClick={() => setViewMode("list")} style={{
+                width: 32, height: 32, display: "flex", alignItems: "center", justifyContent: "center",
+                background: viewMode === "list" ? G.ink : "transparent",
+                border: "none", borderLeft: `1px solid ${G.line}`,
+                cursor: "pointer", color: viewMode === "list" ? G.white : G.dim,
+                transition: "all 0.15s",
+              }}>
+                <List size={13} />
+              </button>
+            </div>
+          </div>
         </div>
-      )}
-    </div>
-  );
-}
 
-/* ── Sub-components ─────────────────────────────────────────────── */
+        {/* ── Collapsible filter panel ──────────────────────────── */}
+        <div style={{
+          maxHeight: filterOpen ? 320 : 0, overflow: "hidden",
+          transition: "max-height 0.35s cubic-bezier(0.4,0,0.2,1)",
+          borderTop: filterOpen ? `1px solid ${G.line}` : "none",
+        }}>
+          <div style={{
+            maxWidth: 1440, margin: "0 auto", padding: "26px 48px",
+            display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 48,
+          }}>
+            {/* Price */}
+            <div>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: G.dim, margin: "0 0 14px", fontFamily: "sans-serif", fontWeight: 800 }}>PRICE RANGE</p>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>${priceRange[0]}</span>
+                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>${priceRange[1]}{priceRange[1] === MAX_PRICE ? "+" : ""}</span>
+              </div>
+              <div style={{ position: "relative", height: 1, background: G.line, marginBottom: 20 }}>
+                <div style={{
+                  position: "absolute", height: 1, background: G.deep,
+                  left: `${(priceRange[0] / MAX_PRICE) * 100}%`,
+                  right: `${100 - (priceRange[1] / MAX_PRICE) * 100}%`,
+                }} />
+                <div style={{
+                  position: "absolute", top: "50%", transform: "translate(-50%, -50%)",
+                  width: 9, height: 9, background: G.white, border: `2px solid ${G.deep}`,
+                  left: `${(priceRange[0] / MAX_PRICE) * 100}%`,
+                }} />
+                <div style={{
+                  position: "absolute", top: "50%", transform: "translate(-50%, -50%)",
+                  width: 9, height: 9, background: G.white, border: `2px solid ${G.deep}`,
+                  left: `${(priceRange[1] / MAX_PRICE) * 100}%`,
+                }} />
+                <div style={{ position: "relative", height: 0 }}>
+                  <input type="range" min={0} max={MAX_PRICE} value={priceRange[0]}
+                    onChange={e => { const v = +e.target.value; if (v < priceRange[1] - 5) handlePrice([v, priceRange[1]]); }}
+                    style={{ position: "absolute", inset: "0 0 0 0", width: "100%", opacity: 0, cursor: "pointer", zIndex: 10 }} />
+                  <input type="range" min={0} max={MAX_PRICE} value={priceRange[1]}
+                    onChange={e => { const v = +e.target.value; if (v > priceRange[0] + 5) handlePrice([priceRange[0], v]); }}
+                    style={{ position: "absolute", inset: "0 0 0 0", width: "100%", opacity: 0, cursor: "pointer", zIndex: 20 }} />
+                </div>
+              </div>
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
+                {([[0, 50], [0, 100], [0, 200], [50, 400]] as [number, number][]).map(([mn, mx]) => (
+                  <button key={`${mn}-${mx}`} onClick={() => handlePrice([mn, mx])} style={{
+                    fontSize: 10, letterSpacing: "0.12em", padding: "5px 10px", cursor: "pointer",
+                    fontFamily: "sans-serif", fontWeight: 800,
+                    background: priceRange[0] === mn && priceRange[1] === mx ? G.ink : "transparent",
+                    color: priceRange[0] === mn && priceRange[1] === mx ? G.white : G.dim,
+                    border: `1px solid ${priceRange[0] === mn && priceRange[1] === mx ? G.ink : G.line}`,
+                    transition: "all 0.15s",
+                  }}>
+                    UNDER ${mx}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-function FilterSection({ title, children, defaultOpen = false }: {
-  title: string; children: React.ReactNode; defaultOpen?: boolean;
-}) {
-  const [open, setOpen] = useState(defaultOpen);
-  return (
-    <div className="px-5 py-4">
-      <button className="flex items-center justify-between w-full" onClick={() => setOpen(v => !v)}>
-        <span className="text-xs tracking-[0.15em] uppercase text-gray-500" style={{ fontWeight: 600 }}>{title}</span>
-        <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
-      </button>
-      <div
-        className="overflow-hidden transition-all duration-300"
-        style={{ maxHeight: open ? "400px" : "0", marginTop: open ? "14px" : "0", opacity: open ? 1 : 0 }}
-      >
-        {children}
+            {/* Condition */}
+            <div>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: G.dim, margin: "0 0 14px", fontFamily: "sans-serif", fontWeight: 800 }}>CONDITION</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {CONDITIONS.map(c => (
+                  <label key={c} onClick={() => toggleCond(c)} style={{ display: "flex", alignItems: "center", gap: 10, cursor: "pointer" }}>
+                    <div style={{
+                      width: 14, height: 14, border: `1px solid ${selectedConditions.includes(c) ? G.deep : G.line}`,
+                      background: selectedConditions.includes(c) ? G.deep : "transparent",
+                      display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 0.15s",
+                    }}>
+                      {selectedConditions.includes(c) && <Check size={9} color={G.white} />}
+                    </div>
+                    <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>{c}</span>
+                    <span style={{ fontSize: 11, color: G.dim, fontFamily: "sans-serif", fontWeight: 700, marginLeft: "auto" }}>
+                      {products.filter(p => p.condition === c).length}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Size */}
+            <div>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: G.dim, margin: "0 0 14px", fontFamily: "sans-serif", fontWeight: 800 }}>SIZE</p>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5 }}>
+                {SIZES.map(sz => {
+                  const cnt = products.filter(p => p.size === sz).length;
+                  return (
+                    <button key={sz} onClick={() => toggleSize(sz)} disabled={cnt === 0} style={{
+                      padding: "8px 0", fontSize: 11, letterSpacing: "0.14em", cursor: cnt > 0 ? "pointer" : "default",
+                      fontFamily: "sans-serif", fontWeight: 800,
+                      background: selectedSizes.includes(sz) ? G.ink : "transparent",
+                      color: selectedSizes.includes(sz) ? G.white : cnt === 0 ? G.line : G.ink,
+                      border: `1px solid ${selectedSizes.includes(sz) ? G.ink : G.line}`,
+                      transition: "all 0.15s",
+                    }}>
+                      {sz}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Category */}
+            <div>
+              <p style={{ fontSize: 10, letterSpacing: "0.25em", color: G.dim, margin: "0 0 14px", fontFamily: "sans-serif", fontWeight: 800 }}>CATEGORY</p>
+              <div style={{ display: "flex", flexDirection: "column" }}>
+                {categories.map((cat) => {
+                  const count = cat.id === "all" ? products.length : products.filter(p => p.category === cat.id).length;
+                  const isActive = selectedCat === cat.id;
+                  return (
+                    <button key={cat.id} onClick={() => handleCat(cat.id)} style={{
+                      display: "flex", alignItems: "center", justifyContent: "space-between",
+                      background: "none", border: "none", borderBottom: `1px solid ${G.line}`,
+                      cursor: "pointer", padding: "9px 0",
+                    }}>
+                      <span style={{ fontSize: 13, color: isActive ? G.deep : G.ink, fontFamily: "sans-serif", fontWeight: isActive ? 800 : 600 }}>
+                        {cat.name}
+                      </span>
+                      <span style={{ fontSize: 11, color: G.dim, fontFamily: "sans-serif", fontWeight: 700 }}>{count}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Product grid ───────────────────────────────────────── */}
+      <div style={{ maxWidth: 1440, margin: "0 auto", padding: "44px 48px" }}>
+        {filtered.length === 0 ? (
+          <EmptyState onClear={clearAll} />
+        ) : viewMode === "list" ? (
+          <div style={{ border: `1px solid ${G.line}`, borderBottom: "none" }}>
+            {visible.map((product, i) => (
+              <ListRow key={product.id} product={product} onAddToCart={() => addToCart(product)} isLast={i === visible.length - 1} />
+            ))}
+          </div>
+        ) : (
+          <div style={{
+            display: "grid",
+            gridTemplateColumns: `repeat(${gridCols}, minmax(0,1fr))`,
+            gap: 0,
+            border: `1px solid ${G.line}`,
+            borderRight: "none", borderBottom: "none",
+          }}>
+            {visible.map(product => (
+              <GridCard key={product.id} product={product} onAddToCart={() => addToCart(product)} />
+            ))}
+          </div>
+        )}
+
+        {hasMore && (
+          <div style={{ marginTop: 60, textAlign: "center" }}>
+            <button
+              onClick={() => setVisibleCount(v => v + 12)}
+              style={{
+                display: "inline-flex", alignItems: "center", gap: 12,
+                padding: "14px 52px", background: G.ink, color: G.white,
+                border: "none", cursor: "pointer",
+                fontSize: 11, letterSpacing: "0.22em", fontFamily: "sans-serif", fontWeight: 800,
+                transition: "background 0.2s",
+              }}
+              onMouseEnter={e => { e.currentTarget.style.background = G.deep; }}
+              onMouseLeave={e => { e.currentTarget.style.background = G.ink; }}
+            >
+              LOAD MORE
+              <span style={{ color: "rgba(255,255,255,0.35)", fontSize: 11, fontWeight: 700 }}>({filtered.length - visibleCount})</span>
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PriceRangeSlider({ value, onChange, max }: {
-  value: [number, number]; onChange: (v: [number, number]) => void; max: number;
-}) {
-  const minPct = (value[0] / max) * 100;
-  const maxPct = (value[1] / max) * 100;
-  return (
-    <div>
-      <div className="flex justify-between mb-3">
-        <span className="text-xs text-gray-500">${value[0]}</span>
-        <span className="text-xs text-gray-500">${value[1]}{value[1] === max ? "+" : ""}</span>
-      </div>
-      <div className="relative h-1.5 bg-gray-100 rounded-full mb-5">
-        <div
-          className="absolute h-full rounded-full"
-          style={{ left: `${minPct}%`, right: `${100 - maxPct}%`, background: "linear-gradient(to right, #FF6B6B, #4ECDC4)" }}
-        />
-        {/* Min thumb dot */}
-        <div className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#FF6B6B] shadow"
-          style={{ left: `calc(${minPct}% - 7px)` }} />
-        {/* Max thumb dot */}
-        <div className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#4ECDC4] shadow"
-          style={{ left: `calc(${maxPct}% - 7px)` }} />
-      </div>
-      {/* Hidden overlapping range inputs */}
-      <div className="relative h-0">
-        <input type="range" min={0} max={max} value={value[0]}
-          onChange={e => { const v = parseInt(e.target.value); if (v < value[1] - 5) onChange([v, value[1]]); }}
-          className="absolute inset-x-0 -top-1.5 w-full opacity-0 h-3 cursor-pointer z-10" />
-        <input type="range" min={0} max={max} value={value[1]}
-          onChange={e => { const v = parseInt(e.target.value); if (v > value[0] + 5) onChange([value[0], v]); }}
-          className="absolute inset-x-0 -top-1.5 w-full opacity-0 h-3 cursor-pointer z-20" />
-      </div>
-      {/* Quick presets */}
-      <div className="flex flex-wrap gap-1.5 mt-3">
-        {([[0, 25], [0, 50], [0, 100], [50, 200]] as [number, number][]).map(([mn, mx]) => (
-          <button
-            key={`${mn}-${mx}`}
-            onClick={() => onChange([mn, mx])}
-            className="text-[10px] px-2.5 py-1 rounded-full border transition-all duration-150"
-            style={
-              value[0] === mn && value[1] === mx
-                ? { background: "#FF6B6B", color: "#fff", borderColor: "#FF6B6B" }
-                : { borderColor: "#E5E7EB", color: "#9CA3AF" }
-            }
-          >
-            Under ${mx}
-          </button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function FilterChip({ label, onRemove }: { label: string; onRemove: () => void }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 bg-white border border-gray-200 rounded-full px-3 py-1 text-xs text-gray-700">
-      {label}
-      <button onClick={onRemove} className="text-gray-400 hover:text-[#FF6B6B] transition-colors ml-0.5">
-        <X className="w-3 h-3" />
-      </button>
-    </span>
-  );
-}
-
-const ACCENT_COLORS = ["#FF6B6B","#4ECDC4","#FFE66D","#F4A3A8","#95E1D3","#FFA07A","#C5B9E4","#A8DADC"];
-
-function ShopCard({ product, index, onAddToCart }: {
-  product: Product; index: number; onAddToCart: () => void;
-}) {
-  const navigate = useNavigate();
-  const [liked, setLiked]   = useState(false);
-  const [added, setAdded]   = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const accent   = ACCENT_COLORS[index % ACCENT_COLORS.length];
+/* ─── Grid Card ─────────────────────────────────────────────── */
+function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
+  const navigate          = useNavigate();
+  const [liked, setLiked] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [over, setOver]   = useState(false);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
-  const cond = CONDITION_COLORS[product.condition] || { bg: "#F3F4F6", text: "#6B7280" };
-
-  const handleAdd = (e: React.MouseEvent) => {
-    e.preventDefault();
-    onAddToCart();
-    setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
-  };
 
   return (
     <div
-      className="group bg-white rounded-2xl overflow-hidden flex flex-col"
       style={{
-        boxShadow: hovered ? "0 12px 40px rgba(0,0,0,0.12)" : "0 2px 12px rgba(0,0,0,0.04)",
-        transition: "box-shadow 0.3s ease, transform 0.3s ease",
-        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        background: G.white,
+        borderRight: `1px solid ${G.line}`, borderBottom: `1px solid ${G.line}`,
+        display: "flex", flexDirection: "column",
+        transition: "background 0.2s",
       }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => setOver(false)}
     >
-      <Link to={`/product/${product.id}`} className="block relative overflow-hidden" style={{ aspectRatio: "3/4" }}>
+      {/* Image */}
+      <Link to={`/product/${product.id}`} style={{ display: "block", position: "relative", overflow: "hidden", aspectRatio: "3/4" }}>
         <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-700"
-          style={{ transform: hovered ? "scale(1.07)" : "scale(1)" }}
+          src={product.imageUrl} alt={product.name}
+          style={{
+            width: "100%", height: "100%", objectFit: "cover", display: "block",
+            transition: "transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94)",
+            transform: over ? "scale(1.05)" : "scale(1)",
+          }}
         />
-        <div
-          className="absolute inset-0 transition-opacity duration-300"
-          style={{ background: "linear-gradient(to top, rgba(10,10,10,0.75) 0%, transparent 55%)", opacity: hovered ? 1 : 0 }}
-        />
-        {/* Badges */}
-        <div className="absolute top-3 left-3 flex flex-col gap-1.5">
-          {discount && (
-            <span className="text-[10px] px-2.5 py-1 rounded-full" style={{ background: accent, color: "#0A0A0A", fontWeight: 700 }}>
-              -{discount}%
-            </span>
-          )}
-          {product.featured && !discount && (
-            <span className="text-[10px] px-2.5 py-1 rounded-full bg-white/90 text-gray-700" style={{ fontWeight: 600 }}>
-              ✦ Featured
-            </span>
-          )}
+        {/* Hover overlay */}
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "rgba(13,31,15,0.52)",
+          opacity: over ? 1 : 0, transition: "opacity 0.3s",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        }}>
+          <button
+            onClick={e => { e.preventDefault(); navigate(`/product/${product.id}`); }}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px",
+              background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)",
+              color: G.white, fontSize: 10, letterSpacing: "0.2em", cursor: "pointer",
+              fontFamily: "sans-serif", fontWeight: 800, backdropFilter: "blur(6px)",
+            }}
+          >
+            <Eye size={11} /> VIEW
+          </button>
+          <button
+            onClick={e => { e.preventDefault(); onAddToCart(); setAdded(true); setTimeout(() => setAdded(false), 1500); }}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px",
+              background: added ? "#22C55E" : G.sage,
+              border: "none", color: G.white,
+              fontSize: 10, letterSpacing: "0.2em", cursor: "pointer", fontFamily: "sans-serif", fontWeight: 800,
+              transition: "background 0.2s",
+            }}
+          >
+            {added ? <><Check size={11} /> ADDED</> : <><ShoppingBag size={11} /> ADD</>}
+          </button>
         </div>
+
+        {/* Discount flag */}
+        {discount && (
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            background: G.deep, color: G.white,
+            fontSize: 10, letterSpacing: "0.14em", padding: "6px 11px", fontFamily: "sans-serif", fontWeight: 800,
+          }}>
+            −{discount}%
+          </div>
+        )}
+        {product.featured && !discount && (
+          <div style={{
+            position: "absolute", top: 0, left: 0,
+            background: G.ink, color: "rgba(255,255,255,0.55)",
+            fontSize: 10, letterSpacing: "0.14em", padding: "6px 11px", fontFamily: "sans-serif", fontWeight: 800,
+          }}>
+            FEATURED
+          </div>
+        )}
+
         {/* Wishlist */}
         <button
           onClick={e => { e.preventDefault(); setLiked(v => !v); }}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center transition-all duration-200 hover:scale-110"
+          style={{
+            position: "absolute", top: 10, right: 10,
+            width: 30, height: 30, background: "rgba(255,255,255,0.88)",
+            border: "none", cursor: "pointer",
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}
         >
-          <Heart className="w-3.5 h-3.5" style={{ fill: liked ? "#FF6B6B" : "none", color: liked ? "#FF6B6B" : "#9CA3AF" }} />
+          <Heart size={13} style={{ fill: liked ? G.deep : "none", color: liked ? G.deep : "#9CA3AF" }} />
         </button>
-        {/* Hover actions */}
-        <div
-          className="absolute bottom-0 left-0 right-0 p-3 flex gap-2 transition-all duration-300"
-          style={{ opacity: hovered ? 1 : 0, transform: hovered ? "translateY(0)" : "translateY(12px)" }}
-        >
-          <button
-            onClick={e => { e.preventDefault(); navigate(`/product/${product.id}`); }}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 text-white text-xs tracking-widest uppercase hover:bg-white/25 transition-colors"
-          >
-            <Eye className="w-3.5 h-3.5" /> View
-          </button>
-          <button
-            onClick={handleAdd}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs tracking-widest uppercase transition-all duration-200"
-            style={{ background: added ? "#22C55E" : accent, color: "#0A0A0A", fontWeight: 600 }}
-          >
-            {added ? <><Check className="w-3.5 h-3.5" />Added</> : <><ShoppingBag className="w-3.5 h-3.5" />Add</>}
-          </button>
-        </div>
       </Link>
 
-      <div className="p-4 flex flex-col flex-1">
-        <div className="flex items-start justify-between gap-2 mb-1">
-          <p className="text-gray-400 text-[10px] tracking-[0.2em] uppercase">{product.category}</p>
-          <span className="text-[9px] px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: cond.backgroundColor, color: cond.color, fontWeight: 600 }}>
-            {product.condition}
+      {/* Info */}
+      <div style={{ padding: "16px 18px 18px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+          <span style={{ fontSize: 10, letterSpacing: "0.2em", color: G.dim, fontFamily: "sans-serif", fontWeight: 800 }}>
+            {product.category.toUpperCase()}
+          </span>
+          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: G.sage, fontFamily: "sans-serif", fontWeight: 800 }}>
+            {product.condition.toUpperCase()}
           </span>
         </div>
-        <Link to={`/product/${product.id}`}>
-          <h3 className="text-gray-900 text-sm mb-3 line-clamp-2 hover:text-[#FF6B6B] transition-colors" style={{ fontWeight: 600 }}>
+
+        <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+          <h3 style={{
+            fontSize: 16, color: G.ink, fontWeight: 700, margin: "0 0 11px",
+            lineHeight: 1.35, letterSpacing: "-0.01em",
+            fontFamily: "'Georgia', serif", fontStyle: "italic",
+          }}>
             {product.name}
           </h3>
         </Link>
-        <div className="flex items-center justify-between mt-auto">
-          <div className="flex items-baseline gap-2">
-            <span className="text-gray-900" style={{ fontWeight: 700, fontSize: "1.05rem" }}>${product.price}</span>
+
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
+            <span style={{ fontSize: 17, color: G.ink, fontWeight: 800, fontFamily: "sans-serif" }}>${product.price}</span>
             {product.originalPrice && (
-              <span className="text-gray-400 text-xs line-through">${product.originalPrice}</span>
+              <span style={{ fontSize: 12, color: G.dim, textDecoration: "line-through", fontFamily: "sans-serif", fontWeight: 600 }}>${product.originalPrice}</span>
             )}
           </div>
           {product.size && (
-            <span className="text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded-lg">{product.size}</span>
+            <span style={{ fontSize: 10, letterSpacing: "0.14em", color: G.dim, fontFamily: "sans-serif", fontWeight: 700, border: `1px solid ${G.line}`, padding: "2px 8px" }}>
+              {product.size}
+            </span>
           )}
         </div>
-        <div
-          className="mt-3 h-[2px] rounded-full transition-all duration-300"
-          style={{ background: accent, transform: hovered ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left" }}
-        />
+
+        {/* Hover underline */}
+        <div style={{
+          marginTop: 12, height: 1, background: G.deep,
+          transform: over ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
+          transition: "transform 0.3s ease",
+        }} />
       </div>
     </div>
   );
 }
 
-function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
-  const { t } = useLanguage();
-  const [liked, setLiked]   = useState(false);
-  const [added, setAdded]   = useState(false);
-  const [hovered, setHovered] = useState(false);
+/* ─── List Row ──────────────────────────────────────────────── */
+function ListRow({ product, onAddToCart, isLast }: {
+  product: Product; onAddToCart: () => void; isLast: boolean;
+}) {
+  const [liked, setLiked] = useState(false);
+  const [added, setAdded] = useState(false);
+  const [over, setOver]   = useState(false);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
-  const cond = CONDITION_COLORS[product.condition] || { bg: "#F3F4F6", text: "#6B7280" };
 
   return (
     <div
-      className="bg-white rounded-2xl overflow-hidden flex group transition-all duration-300"
-      style={{ boxShadow: hovered ? "0 8px 30px rgba(0,0,0,0.1)" : "0 2px 12px rgba(0,0,0,0.04)" }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "grid", gridTemplateColumns: "130px 1fr auto",
+        borderBottom: isLast ? "none" : `1px solid ${G.line}`,
+        background: over ? G.mist : G.white, transition: "background 0.15s",
+      }}
+      onMouseEnter={() => setOver(true)}
+      onMouseLeave={() => setOver(false)}
     >
-      <Link to={`/product/${product.id}`} className="relative flex-shrink-0 w-44 overflow-hidden">
+      <Link to={`/product/${product.id}`} style={{ display: "block", overflow: "hidden" }}>
         <img
           src={product.imageUrl} alt={product.name}
-          className="w-full h-full object-cover transition-transform duration-500"
-          style={{ minHeight: "160px", transform: hovered ? "scale(1.05)" : "scale(1)" }}
+          style={{
+            width: "100%", height: "100%", minHeight: 150, objectFit: "cover", display: "block",
+            transition: "transform 0.5s", transform: over ? "scale(1.05)" : "scale(1)",
+          }}
         />
-        {discount && (
-          <span className="absolute top-2 left-2 bg-[#FF6B6B] text-white text-[10px] px-2 py-0.5 rounded-full" style={{ fontWeight: 700 }}>
-            -{discount}%
-          </span>
-        )}
       </Link>
-      <div className="flex-1 p-5 flex flex-col justify-between">
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-gray-400 text-[10px] tracking-[0.2em] uppercase">{product.category}</p>
-            <div className="flex items-center gap-2">
-              {product.size && (
-                <span className="text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded-lg">{product.size}</span>
-              )}
-              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: cond.backgroundColor, color: cond.color, fontWeight: 600 }}>
-                {product.condition}
-              </span>
-            </div>
-          </div>
-          <Link to={`/product/${product.id}`}>
-            <h3 className="text-gray-900 mb-1.5 hover:text-[#FF6B6B] transition-colors" style={{ fontWeight: 600 }}>{product.name}</h3>
-          </Link>
-          <p className="text-gray-400 text-sm line-clamp-2 leading-relaxed">{product.description}</p>
+
+      <div style={{ padding: "20px 28px", borderLeft: `1px solid ${G.line}`, borderRight: `1px solid ${G.line}` }}>
+        <div style={{ display: "flex", gap: 10, marginBottom: 8, alignItems: "center" }}>
+          <span style={{ fontSize: 10, letterSpacing: "0.2em", color: G.dim, fontFamily: "sans-serif", fontWeight: 800 }}>{product.category.toUpperCase()}</span>
+          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: G.sage, fontFamily: "sans-serif", fontWeight: 800 }}>{product.condition.toUpperCase()}</span>
+          {product.size && <span style={{ fontSize: 10, letterSpacing: "0.1em", color: G.dim, fontFamily: "sans-serif", fontWeight: 700, border: `1px solid ${G.line}`, padding: "1px 7px" }}>{product.size}</span>}
         </div>
-        <div className="flex items-center justify-between mt-4">
-          <div className="flex items-baseline gap-2">
-            <span className="text-gray-900 text-lg" style={{ fontWeight: 700 }}>${product.price}</span>
-            {product.originalPrice && <span className="text-gray-400 text-sm line-through">${product.originalPrice}</span>}
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setLiked(v => !v)}
-              className="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center hover:border-[#FF6B6B] transition-colors"
-            >
-              <Heart className="w-4 h-4" style={{ fill: liked ? "#FF6B6B" : "none", color: liked ? "#FF6B6B" : "#9CA3AF" }} />
-            </button>
-            <button
-              onClick={() => { onAddToCart(); setAdded(true); setTimeout(() => setAdded(false), 1500); }}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs tracking-widest uppercase transition-all duration-200"
-              style={added ? { background: "#22C55E", color: "#fff" } : { background: "#0A0A0A", color: "#fff" }}
-            >
-              {added
-                ? <><Check className="w-3.5 h-3.5" />Added</>
-                : <><ShoppingBag className="w-3.5 h-3.5" />{t.shop.addToCart}</>}
-            </button>
-          </div>
+        <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
+          <h3 style={{ fontSize: 20, color: G.ink, fontWeight: 700, margin: "0 0 8px", fontFamily: "'Georgia', serif", fontStyle: "italic", letterSpacing: "-0.01em" }}>
+            {product.name}
+          </h3>
+        </Link>
+        <p style={{ fontSize: 13, color: G.dim, fontFamily: "sans-serif", fontWeight: 600, lineHeight: 1.65, margin: 0, maxWidth: 480 }}>
+          {product.description}
+        </p>
+      </div>
+
+      <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", justifyContent: "space-between", alignItems: "flex-end", minWidth: 160 }}>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ fontSize: 20, color: G.ink, fontWeight: 800, fontFamily: "sans-serif" }}>${product.price}</div>
+          {product.originalPrice && (
+            <div style={{ fontSize: 12, color: G.dim, textDecoration: "line-through", fontFamily: "sans-serif", fontWeight: 600 }}>${product.originalPrice}</div>
+          )}
+          {discount && <div style={{ fontSize: 10, letterSpacing: "0.1em", color: G.sage, fontFamily: "sans-serif", fontWeight: 800, marginTop: 2 }}>−{discount}% OFF</div>}
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 5, alignItems: "flex-end" }}>
+          <button
+            onClick={() => { onAddToCart(); setAdded(true); setTimeout(() => setAdded(false), 1500); }}
+            style={{
+              display: "flex", alignItems: "center", gap: 7, padding: "9px 20px",
+              background: added ? "#22C55E" : G.ink, border: "none", color: G.white,
+              cursor: "pointer", fontSize: 10, letterSpacing: "0.2em", fontFamily: "sans-serif", fontWeight: 800,
+              transition: "background 0.2s",
+            }}
+          >
+            {added ? <><Check size={11} /> ADDED</> : <><ShoppingBag size={11} /> ADD TO BAG</>}
+          </button>
+          <button
+            onClick={() => setLiked(v => !v)}
+            style={{
+              display: "flex", alignItems: "center", gap: 6, background: "none",
+              border: `1px solid ${liked ? G.deep : G.line}`, cursor: "pointer",
+              padding: "7px 13px", fontSize: 10, letterSpacing: "0.16em", fontWeight: 800,
+              color: liked ? G.deep : G.dim, fontFamily: "sans-serif", transition: "all 0.15s",
+            }}
+          >
+            <Heart size={11} style={{ fill: liked ? G.deep : "none", color: "inherit" }} />
+            {liked ? "SAVED" : "SAVE"}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function EmptyState({ onClear, chips }: { onClear: () => void; chips: { label: string }[] }) {
-  const { t } = useLanguage();
-  const s = t.shop;
+/* ─── Empty state ───────────────────────────────────────────── */
+function EmptyState({ onClear }: { onClear: () => void }) {
   return (
-    <div className="flex flex-col items-center justify-center py-28 text-center">
-      <div className="w-20 h-20 rounded-2xl bg-gray-100 flex items-center justify-center mb-6">
-        <Tag className="w-9 h-9 text-gray-300" />
+    <div style={{ padding: "100px 0", textAlign: "center" }}>
+      <div style={{
+        width: 48, height: 48, border: `1px solid ${G.line}`,
+        display: "inline-flex", alignItems: "center", justifyContent: "center", marginBottom: 24,
+      }}>
+        <SlidersHorizontal size={20} color={G.dim} />
       </div>
-      <h3 className="text-gray-900 text-xl mb-2" style={{ fontWeight: 700 }}>{s.noProducts}</h3>
-      <p className="text-gray-400 mb-4 max-w-sm leading-relaxed">
-        {s.noProductsSub}
-      </p>
-      {chips.length > 0 && (
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {chips.map(c => (
-            <span key={c.label} className="bg-gray-100 text-gray-500 text-xs px-3 py-1 rounded-full">{c.label}</span>
-          ))}
-        </div>
-      )}
+      <p style={{ fontSize: 26, color: G.ink, fontFamily: "'Georgia', serif", fontStyle: "italic", fontWeight: 700, margin: "0 0 8px" }}>No results found</p>
+      <p style={{ fontSize: 13, color: G.dim, fontFamily: "sans-serif", fontWeight: 700, margin: "0 0 30px", letterSpacing: "0.04em" }}>Try adjusting or clearing your filters</p>
       <button
         onClick={onClear}
-        className="inline-flex items-center gap-2 bg-black text-white px-8 py-3.5 rounded-full text-xs tracking-widest uppercase hover:bg-[#FF6B6B] transition-colors duration-200"
+        style={{
+          padding: "12px 40px", background: G.ink, color: G.white, border: "none",
+          cursor: "pointer", fontSize: 10, letterSpacing: "0.24em", fontFamily: "sans-serif", fontWeight: 800,
+        }}
       >
-        {s.clearFilters}
+        CLEAR FILTERS
       </button>
     </div>
   );
