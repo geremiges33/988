@@ -2,11 +2,504 @@ import { useParams, useNavigate, Link } from "react-router";
 import { useCart } from "../context/CartContext";
 import { useProducts } from "../context/ProductContext";
 import { useFavorites } from "../context/FavoritesContext";
-import { ShoppingCart, Heart, ArrowLeft, Star, Package, Shield, AlertCircle, Recycle } from "lucide-react";
+import {
+  ShoppingCart,
+  Heart,
+  ArrowLeft,
+  Star,
+  Package,
+  Shield,
+  AlertCircle,
+  Recycle,
+} from "lucide-react";
 import { useState } from "react";
 import { ProductCard } from "../components/ProductCard";
 import { useLanguage } from "../context/LanguageContext";
 import React from "react";
+
+const styles = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap');
+
+  .pd-root {
+    min-height: 100vh;
+    background: #ffffff;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a2e1a;
+  }
+
+  .pd-root * {
+    box-sizing: border-box;
+  }
+
+  .pd-back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #3d7a3d;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: color 0.2s;
+  }
+  .pd-back-btn:hover { color: #1a2e1a; }
+
+  .pd-container {
+    max-width: 1160px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  .pd-top-bar {
+    padding: 40px 0 32px;
+  }
+
+  .pd-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .pd-grid { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* Image */
+  .pd-image-wrap {
+    border-radius: 4px;
+    overflow: hidden;
+    background: #f2f7f2;
+    border: 1px solid #e0ece0;
+  }
+  .pd-image-wrap img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* Info card */
+  .pd-info {
+    padding: 0;
+  }
+
+  .pd-category {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #3d7a3d;
+    margin-bottom: 12px;
+  }
+
+  .pd-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(28px, 4vw, 42px);
+    font-weight: 400;
+    line-height: 1.1;
+    color: #1a2e1a;
+    margin: 0 0 20px;
+  }
+
+  /* Divider */
+  .pd-divider {
+    height: 1px;
+    background: #e0ece0;
+    margin: 20px 0;
+  }
+
+  /* Rating */
+  .pd-rating {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .pd-stars { display: flex; gap: 2px; }
+  .pd-star { width: 14px; height: 14px; color: #3d7a3d; fill: #3d7a3d; }
+  .pd-reviews { font-size: 13px; color: #7aaa7a; }
+
+  /* Price */
+  .pd-price-row {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+  .pd-price {
+    font-family: 'DM Serif Display', serif;
+    font-size: 38px;
+    color: #1a2e1a;
+    letter-spacing: -0.01em;
+  }
+  .pd-original-price {
+    font-size: 20px;
+    color: #b0c8b0;
+    text-decoration: line-through;
+  }
+  .pd-save-badge {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #ffffff;
+    background: #3d7a3d;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+
+  /* Description */
+  .pd-description {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.75;
+    color: #5a7a5a;
+    margin-bottom: 24px;
+  }
+
+  /* Details grid */
+  .pd-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .pd-detail-box {
+    background: #f2f7f2;
+    border-radius: 3px;
+    padding: 14px 16px;
+    border: 1px solid #e0ece0;
+  }
+  .pd-detail-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3d7a3d;
+    margin-bottom: 4px;
+  }
+  .pd-detail-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a2e1a;
+  }
+
+  /* Quantity */
+  .pd-qty-label {
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #3d7a3d;
+    margin-bottom: 12px;
+  }
+  .pd-qty-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    margin-bottom: 28px;
+    width: fit-content;
+    border: 1px solid #c8dcc8;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  .pd-qty-btn {
+    width: 42px;
+    height: 42px;
+    background: #f2f7f2;
+    border: none;
+    color: #3d7a3d;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pd-qty-btn:hover { background: #e0ece0; color: #1a2e1a; }
+  .pd-qty-num {
+    width: 52px;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 500;
+    color: #1a2e1a;
+    background: #ffffff;
+    border-left: 1px solid #c8dcc8;
+    border-right: 1px solid #c8dcc8;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Buttons */
+  .pd-actions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 28px;
+  }
+  .pd-add-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 0 24px;
+    height: 52px;
+    border: none;
+    border-radius: 3px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.25s;
+  }
+  .pd-add-btn.normal {
+    background: #1a4d1a;
+    color: #ffffff;
+  }
+  .pd-add-btn.normal:hover { background: #3d7a3d; }
+  .pd-add-btn.added {
+    background: #f2f7f2;
+    color: #3d7a3d;
+    border: 1px solid #3d7a3d;
+  }
+
+  .pd-fav-btn {
+    width: 52px;
+    height: 52px;
+    background: #f2f7f2;
+    border: 1px solid #c8dcc8;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .pd-fav-btn:hover { background: #e0ece0; }
+  .pd-fav-btn.active { border-color: #1a4d1a; background: #f2f7f2; }
+  .pd-fav-icon { width: 18px; height: 18px; color: #7aaa7a; }
+  .pd-fav-btn.active .pd-fav-icon { color: #1a4d1a; fill: #1a4d1a; }
+
+  /* Features strip */
+  .pd-features {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid #c8dcc8;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 16px;
+  }
+  .pd-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 8px;
+    background: #f2f7f2;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #3d7a3d;
+  }
+  .pd-feature + .pd-feature {
+    border-left: 1px solid #c8dcc8;
+  }
+  .pd-feature svg { width: 15px; height: 15px; }
+  .pd-feature.warn { color: #b85c3a; background: #fff8f6; }
+  .pd-feature.eco { color: #3d7a3d; }
+
+  /* No-returns notice */
+  .pd-notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    background: #fff8f6;
+    border: 1px solid #f0d0c0;
+    border-radius: 3px;
+    padding: 14px 16px;
+  }
+  .pd-notice svg { width: 14px; height: 14px; color: #b85c3a; flex-shrink: 0; margin-top: 1px; }
+  .pd-notice p {
+    font-size: 12px;
+    line-height: 1.6;
+    color: #b85c3a;
+    margin: 0;
+  }
+  .pd-notice strong { color: #8b3a20; }
+
+  /* Related — full-width dark green section */
+  .pd-related {
+    margin-top: 80px;
+    background: #0a1a0b;
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    padding: 0 0 64px;
+  }
+  .pd-related::before {
+    content: '';
+    display: block;
+    height: 4px;
+    background: linear-gradient(90deg, #1a4d1a, #3d7a3d, #7aaa7a, #3d7a3d, #1a4d1a);
+  }
+  .pd-related-inner {
+    padding: 0 48px;
+  }
+  .pd-related-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 48px 0 36px;
+  }
+  .pd-related-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+    font-weight: 400;
+    color: #f0ede8;
+    margin: 0;
+    line-height: 1.1;
+  }
+  .pd-related-subtitle {
+    font-size: 11px;
+    color: #5a9e5a;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin: 0 0 10px;
+  }
+  .pd-related-count {
+    font-size: 13px;
+    color: #3d7a3d;
+    letter-spacing: 0.04em;
+    padding-bottom: 6px;
+  }
+  .pd-related-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 900px) {
+    .pd-related-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 480px) {
+    .pd-related-grid { grid-template-columns: 1fr; }
+  }
+
+  /* Dark-theme product card */
+  .pd-rcard {
+    background: #0f2410;
+    border: 1px solid #1e3820;
+    border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.2s, transform 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .pd-rcard:hover {
+    border-color: #3d7a3d;
+    transform: translateY(-4px);
+  }
+  .pd-rcard-img {
+    width: 100%;
+    aspect-ratio: 4/3;
+    object-fit: cover;
+    display: block;
+    filter: brightness(0.92);
+    transition: filter 0.2s;
+  }
+  .pd-rcard:hover .pd-rcard-img { filter: brightness(1); }
+  .pd-rcard-body {
+    padding: 20px 22px 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .pd-rcard-cat {
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #5a9e5a;
+  }
+  .pd-rcard-name {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: #e8e4de;
+    line-height: 1.25;
+    margin: 0;
+    flex: 1;
+  }
+  .pd-rcard-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 14px;
+  }
+  .pd-rcard-price {
+    font-size: 22px;
+    font-weight: 500;
+    color: #f0ede8;
+    font-family: 'DM Serif Display', serif;
+  }
+  .pd-rcard-orig {
+    font-size: 14px;
+    color: #3d5c3d;
+    text-decoration: line-through;
+    margin-left: 8px;
+  }
+  .pd-rcard-badge {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #0a1a0b;
+    background: #5a9e5a;
+    padding: 3px 8px;
+    border-radius: 2px;
+  }
+  .pd-rcard-add {
+    width: 40px;
+    height: 40px;
+    background: #1e3820;
+    border: 1px solid #2e5230;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s;
+    color: #7aaa7a;
+  }
+  .pd-rcard-add:hover { background: #3d7a3d; border-color: #3d7a3d; color: #fff; }
+  .pd-rcard-add svg { width: 16px; height: 16px; }
+
+  /* 404 */
+  .pd-404 {
+    min-height: 100vh;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Sans', sans-serif;
+    color: #1a2e1a;
+    text-align: center;
+  }
+  .pd-404 a { color: #3d7a3d; text-decoration: none; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .pd-404 a:hover { text-decoration: underline; }
+`;
 
 export function ProductDetail() {
   const { id } = useParams();
@@ -19,29 +512,39 @@ export function ProductDetail() {
   const [quantity, setQuantity] = useState(1);
   const [justAdded, setJustAdded] = useState(false);
 
-  const product = products.find((p) => p.id === id);
+  const product = products.find((prod) => prod.id === id);
 
   if (!product) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="mb-4">Product not found</h2>
-          <Link to="/shop" className="text-[#4ECDC4] hover:underline">
-            Return to shop
-          </Link>
+      <div>
+        <style>{styles}</style>
+        <div className="pd-404">
+          <div>
+            <h2
+              style={{
+                fontFamily: "'DM Serif Display', serif",
+                fontWeight: 400,
+                marginBottom: 20,
+                color: "#1a2e1a",
+              }}
+            >
+              Product not found
+            </h2>
+            <Link to="/shop">Return to shop</Link>
+          </div>
         </div>
       </div>
     );
   }
 
   const relatedProducts = products
-    .filter((p) => p.category === product.category && p.id !== product.id)
+    .filter(
+      (prod) => prod.category === product.category && prod.id !== product.id,
+    )
     .slice(0, 4);
 
   const handleAddToCart = () => {
-    for (let i = 0; i < quantity; i++) {
-      addToCart(product);
-    }
+    for (let i = 0; i < quantity; i++) addToCart(product);
     setJustAdded(true);
     setTimeout(() => setJustAdded(false), 2000);
   };
@@ -51,177 +554,224 @@ export function ProductDetail() {
     navigate("/cart");
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#F8F8F8] to-[#FFF5F5]">
-      {/* Back Button */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-gray-500 hover:text-gray-900 transition-colors mb-8"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          {p.backToShop}
-        </button>
-      </div>
+  const fav = isFavorite(product.id);
 
-      {/* Product Details */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid md:grid-cols-2 gap-12">
-          {/* Product Image */}
-          <div>
-            <div className="bg-white rounded-3xl overflow-hidden shadow-2xl sticky top-20">
-              <img
-                src={product.imageUrl}
-                alt={product.name}
-                className="w-full aspect-square object-cover"
-              />
-            </div>
+  return (
+    <>
+      <style>{styles}</style>
+      <div className="pd-root">
+        <div className="pd-container">
+          {/* Back */}
+          <div className="pd-top-bar">
+            <button className="pd-back-btn" onClick={() => navigate(-1)}>
+              <ArrowLeft style={{ width: 14, height: 14 }} />
+              {p.backToShop}
+            </button>
           </div>
 
-          {/* Product Info */}
-          <div>
-            <div className="bg-white rounded-3xl p-8 shadow-lg">
-              <div className="text-sm text-[#4ECDC4] uppercase tracking-wide mb-2">
-                {product.category}
-              </div>
-              <h1 className="mb-4">{product.name}</h1>
+          {/* Main grid */}
+          <div className="pd-grid">
+            {/* Image */}
+            <div className="pd-image-wrap">
+              <img src={product.imageUrl} alt={product.name} />
+            </div>
+
+            {/* Info */}
+            <div className="pd-info">
+              <div className="pd-category">{product.category}</div>
+              <h1 className="pd-title">{product.name}</h1>
 
               {/* Rating */}
-              <div className="flex items-center space-x-2 mb-6">
-                <div className="flex">
+              <div className="pd-rating">
+                <div className="pd-stars">
                   {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className="w-5 h-5 fill-[#FFE66D] text-[#FFE66D]"
-                    />
+                    <Star key={i} className="pd-star" />
                   ))}
                 </div>
-                <span className="text-gray-600">(47 reviews)</span>
+                <span className="pd-reviews">47 reviews</span>
               </div>
 
+              <div className="pd-divider" />
+
               {/* Price */}
-              <div className="flex items-center space-x-4 mb-6">
-                <span className="text-4xl font-bold text-[#FF6B6B]">
-                  ${product.price}
-                </span>
+              <div className="pd-price-row">
+                <span className="pd-price">${product.price}</span>
                 {product.originalPrice && (
                   <>
-                    <span className="text-2xl text-gray-400 line-through">
+                    <span className="pd-original-price">
                       ${product.originalPrice}
                     </span>
-                    <span className="bg-[#FF6B6B] text-white px-3 py-1 rounded-full text-sm">
-                      Save ${product.originalPrice - product.price}
+                    <span className="pd-save-badge">
+                      −${product.originalPrice - product.price}
                     </span>
                   </>
                 )}
               </div>
 
               {/* Description */}
-              <p className="text-gray-700 leading-relaxed mb-6">
-                {product.description}
-              </p>
+              <p className="pd-description">{product.description}</p>
 
               {/* Details */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-gray-50 rounded-xl p-4">
-                  <div className="text-sm text-gray-600 mb-1">Condition</div>
-                  <div className="font-medium">{product.condition}</div>
+              <div className="pd-details-grid">
+                <div className="pd-detail-box">
+                  <div className="pd-detail-label">Condition</div>
+                  <div className="pd-detail-value">{product.condition}</div>
                 </div>
                 {product.size && (
-                  <div className="bg-gray-50 rounded-xl p-4">
-                    <div className="text-sm text-gray-600 mb-1">Size</div>
-                    <div className="font-medium">{product.size}</div>
+                  <div className="pd-detail-box">
+                    <div className="pd-detail-label">Size</div>
+                    <div className="pd-detail-value">{product.size}</div>
                   </div>
                 )}
               </div>
 
               {/* Quantity */}
-              <div className="mb-6">
-                <label className="block mb-2">Quantity</label>
-                <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="text-xl w-12 text-center">{quantity}</span>
-                  <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="w-10 h-10 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
+              <div className="pd-qty-label">Quantity</div>
+              <div className="pd-qty-row">
+                <button
+                  className="pd-qty-btn"
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                >
+                  −
+                </button>
+                <div className="pd-qty-num">{quantity}</div>
+                <button
+                  className="pd-qty-btn"
+                  onClick={() => setQuantity(quantity + 1)}
+                >
+                  +
+                </button>
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex gap-3">
+              {/* Actions */}
+              <div className="pd-actions">
                 <button
+                  className={`pd-add-btn ${justAdded ? "added" : "normal"}`}
                   onClick={handleAddToCart}
-                  className="flex-1 flex items-center justify-center gap-2 py-4 rounded-full text-white transition-all duration-300"
-                  style={{ background: justAdded ? "#22C55E" : "linear-gradient(135deg, #FF6B6B, #4ECDC4)" }}
                 >
-                  <ShoppingCart className="w-5 h-5" />
+                  <ShoppingCart style={{ width: 16, height: 16 }} />
                   {justAdded ? p.addedToCart : p.addToCart}
                 </button>
                 <button
-                  onClick={() => {
-                    if (isFavorite(product.id)) {
-                      removeFromFavorites(product.id);
-                    } else {
-                      addToFavorites(product);
-                    }
-                  }}
-                  className="p-4 rounded-full border-2 transition-all duration-200"
-                  style={{ borderColor: isFavorite(product.id) ? "#FF6B6B" : "#E5E7EB", color: isFavorite(product.id) ? "#FF6B6B" : "#9CA3AF" }}
+                  className={`pd-fav-btn ${fav ? "active" : ""}`}
+                  onClick={() =>
+                    fav
+                      ? removeFromFavorites(product.id)
+                      : addToFavorites(product)
+                  }
                 >
-                  <Heart className={`w-5 h-5 ${isFavorite(product.id) ? "fill-current" : ""}`} />
+                  <Heart
+                    className={`pd-fav-icon`}
+                    style={fav ? { fill: "#7aaa7a" } : {}}
+                  />
                 </button>
               </div>
 
-              {/* Features */}
-              <div className="grid grid-cols-3 gap-4 pt-6 border-t border-gray-200">
-                <div className="text-center">
-                  <Package className="w-4 h-4 text-green-500 mx-auto mb-1" />
-                  <span className="text-green-600 text-sm">{p.inStock}</span>
+              {/* Feature strip */}
+              <div className="pd-features">
+                <div className="pd-feature eco">
+                  <Package />
+                  {p.inStock}
                 </div>
-                <div className="text-center">
-                  <AlertCircle className="w-4 h-4 text-[#FF6B6B] mx-auto mb-1" />
-                  <span className="text-[#FF6B6B] text-sm">No Returns</span>
+                <div className="pd-feature warn">
+                  <AlertCircle />
+                  No Returns
                 </div>
-                <div className="text-center">
-                  <Recycle className="w-4 h-4 text-[#4A9E4A] mx-auto mb-1" />
-                  <span className="text-[#4A9E4A] text-sm">{p.sustainableNote}</span>
+                <div className="pd-feature eco">
+                  <Recycle />
+                  {p.sustainableNote}
                 </div>
               </div>
 
-              {/* No-returns notice */}
-              <div
-                className="mt-5 flex items-center gap-3 rounded-xl px-4 py-3"
-                style={{ background: "rgba(255,107,107,0.08)", border: "1px solid rgba(255,107,107,0.25)" }}
-              >
-                <AlertCircle className="w-4 h-4 text-[#FF6B6B] flex-shrink-0" />
-                <p className="text-[#FF6B6B] text-xs">
-                  <strong>❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ</strong> — All sales final. No returns or exchanges accepted.
+              {/* Notice */}
+              <div className="pd-notice">
+                <AlertCircle />
+                <p>
+                  <strong>❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ</strong> — All sales
+                  final. No returns or exchanges accepted.
                 </p>
               </div>
             </div>
           </div>
-        </div>
 
-        {/* Related Products */}
-        {relatedProducts.length > 0 && (
-          <div className="mt-20">
-            <h2 className="mb-8">{p.relatedTitle}</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {relatedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+          {/* Related */}
+          {relatedProducts.length > 0 && (
+            <div className="pd-related">
+              <div className="pd-related-inner">
+                <div className="pd-related-header">
+                  <div>
+                    <p className="pd-related-subtitle">You may also like</p>
+                    <h2 className="pd-related-title">{p.relatedTitle}</h2>
+                  </div>
+                  <span className="pd-related-count">
+                    {relatedProducts.length} items
+                  </span>
+                </div>
+                <div className="pd-related-grid">
+                  {relatedProducts.map((prod) => (
+                    <div
+                      key={prod.id}
+                      className="pd-rcard"
+                      onClick={() => navigate("/product/" + prod.id)}
+                    >
+                      <img
+                        className="pd-rcard-img"
+                        src={prod.imageUrl}
+                        alt={prod.name}
+                      />
+                      <div className="pd-rcard-body">
+                        <span className="pd-rcard-cat">{prod.category}</span>
+                        <p className="pd-rcard-name">{prod.name}</p>
+                        <div className="pd-rcard-footer">
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "baseline",
+                              gap: 6,
+                            }}
+                          >
+                            <span className="pd-rcard-price">
+                              ${prod.price}
+                            </span>
+                            {prod.originalPrice && (
+                              <span className="pd-rcard-orig">
+                                ${prod.originalPrice}
+                              </span>
+                            )}
+                          </div>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                            }}
+                          >
+                            {prod.originalPrice && (
+                              <span className="pd-rcard-badge">
+                                −${prod.originalPrice - prod.price}
+                              </span>
+                            )}
+                            <button
+                              className="pd-rcard-add"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                addToCart(prod);
+                              }}
+                              title="Add to cart"
+                            >
+                              <ShoppingCart />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

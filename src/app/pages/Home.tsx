@@ -162,7 +162,7 @@ export function Home() {
             margin: "0 0 22px",
             maxWidth: 860,
           }}>
-            ♻️ Pre-Loved<br />Fashion<br />Store.
+            Pre-Loved<br />Fashion<br />Store.
           </h1>
           <p className="nf3" style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", marginBottom: 30, maxWidth: 400, lineHeight: 1.65 }}>
             Affordable prices, quality finds —<br />pre-loved fashion for everyone. Every piece has a story.
