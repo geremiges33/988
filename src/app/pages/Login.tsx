@@ -1,6 +1,6 @@
 import React from "react";
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
@@ -24,6 +24,10 @@ const css = `
     --border-hi:    rgba(92,184,96,0.45);
     --error:        #c0533a;
     --error-bg:     rgba(192,83,58,0.08);
+    --admin-accent: #c8a96e;
+    --admin-dim:    #8a7048;
+    --admin-bg:     rgba(200,169,110,0.06);
+    --admin-border: rgba(200,169,110,0.22);
   }
 
   html, body { height: 100%; background: var(--bg); }
@@ -37,7 +41,6 @@ const css = `
     overflow: hidden;
   }
 
-  /* Atmospheric background */
   .auth-root::before {
     content: '';
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -47,7 +50,6 @@ const css = `
       radial-gradient(ellipse 80% 30% at 50% 100%, rgba(13,25,14,0.8) 0%, transparent 50%);
   }
 
-  /* Grain texture */
   .auth-root::after {
     content: '';
     position: fixed; inset: 0; z-index: 0; pointer-events: none;
@@ -69,7 +71,6 @@ const css = `
     overflow: hidden;
   }
 
-  /* Vertical green stripe accent */
   .auth-left::before {
     content: '';
     position: absolute;
@@ -78,7 +79,6 @@ const css = `
     background: linear-gradient(to bottom, transparent 0%, var(--border-hi) 30%, var(--border) 70%, transparent 100%);
   }
 
-  /* Large decorative circle */
   .auth-deco-ring {
     position: absolute;
     bottom: -120px; left: -80px;
@@ -97,7 +97,6 @@ const css = `
     pointer-events: none;
   }
 
-  /* Subtle green glow blob */
   .auth-glow {
     position: absolute;
     top: 30%; left: 10%;
@@ -119,9 +118,7 @@ const css = `
     transition: opacity 0.2s;
   }
 
-  .auth-wordmark:hover {
-    opacity: 0.8;
-  }
+  .auth-wordmark:hover { opacity: 0.8; }
 
   .auth-wordmark-icon {
     width: 36px; height: 36px;
@@ -129,55 +126,38 @@ const css = `
     border-radius: 6px;
     display: flex; align-items: center; justify-content: center;
     font-family: 'Playfair Display', serif;
-    font-size: 16px;
-    font-weight: 700;
+    font-size: 16px; font-weight: 700;
     color: var(--g4);
     background: rgba(42,92,44,0.2);
   }
 
   .auth-wordmark-name {
     font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 13px; font-weight: 500;
     letter-spacing: 0.18em;
     text-transform: uppercase;
     color: var(--cream-dim);
   }
 
-  .auth-hero {
-    position: relative;
-    z-index: 1;
-    padding-bottom: 20px;
-  }
+  .auth-hero { position: relative; z-index: 1; padding-bottom: 20px; }
 
   .auth-eyebrow {
-    font-size: 11px;
-    font-weight: 400;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--g4);
-    margin-bottom: 28px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    font-size: 11px; font-weight: 400;
+    letter-spacing: 0.3em; text-transform: uppercase;
+    color: var(--g4); margin-bottom: 28px;
+    display: flex; align-items: center; gap: 12px;
   }
 
   .auth-eyebrow::after {
-    content: '';
-    flex: 1;
-    max-width: 48px;
-    height: 1px;
-    background: var(--g3);
-    opacity: 0.5;
+    content: ''; flex: 1; max-width: 48px; height: 1px;
+    background: var(--g3); opacity: 0.5;
   }
 
   .auth-headline {
     font-family: 'Playfair Display', serif;
     font-size: clamp(54px, 6vw, 80px);
-    font-weight: 400;
-    line-height: 1.0;
-    color: var(--cream);
-    letter-spacing: -0.02em;
+    font-weight: 400; line-height: 1.0;
+    color: var(--cream); letter-spacing: -0.02em;
     margin-bottom: 28px;
   }
 
@@ -190,51 +170,34 @@ const css = `
   }
 
   .auth-subtext {
-    font-size: 14px;
-    font-weight: 300;
-    line-height: 1.8;
-    color: var(--cream-mute);
-    max-width: 340px;
+    font-size: 14px; font-weight: 300; line-height: 1.8;
+    color: var(--cream-mute); max-width: 340px;
   }
 
-  .auth-stats {
-    display: flex;
-    gap: 40px;
-    position: relative;
-    z-index: 1;
-  }
+  .auth-stats { display: flex; gap: 40px; position: relative; z-index: 1; }
 
   .auth-stat-val {
     font-family: 'Playfair Display', serif;
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--cream);
-    line-height: 1;
-    margin-bottom: 4px;
+    font-size: 28px; font-weight: 700;
+    color: var(--cream); line-height: 1; margin-bottom: 4px;
   }
 
   .auth-stat-label {
-    font-size: 11px;
-    font-weight: 300;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
+    font-size: 11px; font-weight: 300;
+    letter-spacing: 0.12em; text-transform: uppercase;
     color: var(--cream-mute);
   }
 
   /* ── Right auth panel ── */
   .auth-right {
     flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     padding: 48px 32px;
-    position: relative;
-    z-index: 2;
+    position: relative; z-index: 2;
   }
 
   .auth-card {
-    width: 100%;
-    max-width: 420px;
+    width: 100%; max-width: 420px;
     animation: cardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
@@ -243,47 +206,7 @@ const css = `
     to   { opacity: 1; transform: translateY(0) scale(1); }
   }
 
-  /* Tab switcher */
-  .auth-tabs {
-    display: flex;
-    gap: 0;
-    margin-bottom: 32px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 4px;
-  }
-
-  .auth-tab {
-    flex: 1;
-    padding: 10px;
-    background: none;
-    border: none;
-    border-radius: 7px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 400;
-    letter-spacing: 0.06em;
-    color: var(--cream-mute);
-    cursor: pointer;
-    transition: all 0.25s ease;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-  }
-
-  .auth-tab.active {
-    background: var(--g1);
-    color: var(--g5);
-    border: 1px solid rgba(61,138,64,0.3);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-  }
-
-  .auth-tab:hover:not(.active) {
-    color: var(--cream-dim);
-    background: rgba(255,255,255,0.03);
-  }
-
-  /* Card glass surface */
+  /* ── Glass card ── */
   .auth-glass {
     background: rgba(22, 33, 25, 0.7);
     backdrop-filter: blur(24px);
@@ -296,73 +219,135 @@ const css = `
       0 0 0 1px rgba(255,255,255,0.02) inset,
       0 24px 60px rgba(0,0,0,0.5),
       0 0 40px rgba(42,92,44,0.08);
+    transition: border-color 0.4s ease, box-shadow 0.4s ease;
   }
 
-  /* Top glow line */
+  .auth-glass.admin-mode {
+    border-color: var(--admin-border);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 24px 60px rgba(0,0,0,0.5),
+      0 0 40px rgba(200,169,110,0.1);
+  }
+
   .auth-glass::before {
     content: '';
     position: absolute;
-    top: -1px; left: 40px; right: 40px;
-    height: 1px;
+    top: -1px; left: 40px; right: 40px; height: 1px;
     background: linear-gradient(90deg, transparent, var(--g3), var(--g4), var(--g3), transparent);
     opacity: 0.6;
+    transition: opacity 0.4s ease, background 0.4s ease;
+  }
+
+  .auth-glass.admin-mode::before {
+    background: linear-gradient(90deg, transparent, var(--admin-dim), var(--admin-accent), var(--admin-dim), transparent);
+    opacity: 0.8;
+  }
+
+  /* ── Card header ── */
+  .auth-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 12px;
   }
 
   .auth-card-title {
     font-family: 'Playfair Display', serif;
-    font-size: 26px;
-    font-weight: 400;
-    color: var(--cream);
-    letter-spacing: -0.01em;
-    margin-bottom: 6px;
+    font-size: 26px; font-weight: 400;
+    color: var(--cream); letter-spacing: -0.01em;
+  }
+
+  /* ── Admin toggle button ── */
+  .admin-toggle-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: none;
+    border: 1px solid var(--cream-mute);
+    border-radius: 20px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream-mute);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    margin-top: 4px;
+  }
+
+  .admin-toggle-btn:hover {
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+    background: var(--admin-bg);
+  }
+
+  .admin-toggle-btn.active {
+    border-color: var(--admin-accent);
+    color: var(--admin-accent);
+    background: var(--admin-bg);
+    box-shadow: 0 0 12px rgba(200,169,110,0.15);
+  }
+
+  .admin-toggle-btn svg {
+    width: 12px; height: 12px;
+    stroke: currentColor; stroke-width: 2;
+    fill: none;
+    flex-shrink: 0;
+  }
+
+  /* ── Admin mode badge ── */
+  .admin-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: rgba(200,169,110,0.1);
+    border: 1px solid rgba(200,169,110,0.3);
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--admin-accent);
+    margin-bottom: 20px;
+  }
+
+  .admin-badge-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--admin-accent);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
   }
 
   .auth-card-sub {
-    font-size: 13px;
-    font-weight: 300;
-    font-style: italic;
-    color: var(--cream-mute);
-    margin-bottom: 32px;
-    line-height: 1.6;
+    font-size: 13px; font-weight: 300; font-style: italic;
+    color: var(--cream-mute); margin-bottom: 28px; line-height: 1.6;
   }
 
-  .auth-form {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
+  .auth-form { display: flex; flex-direction: column; gap: 16px; }
 
-  .auth-row {
-    display: flex;
-    gap: 12px;
-  }
-
-  .auth-row .auth-field {
-    flex: 1;
-  }
-
-  .auth-field {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
+  .auth-field { display: flex; flex-direction: column; gap: 6px; }
 
   .auth-label {
-    font-size: 10px;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--cream-mute);
-    transition: color 0.2s;
+    font-size: 10px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--cream-mute); transition: color 0.2s;
   }
 
-  .auth-field:focus-within .auth-label {
-    color: var(--g4);
-  }
+  .auth-field:focus-within .auth-label { color: var(--g4); }
+  .admin-mode .auth-field:focus-within .auth-label { color: var(--admin-accent); }
 
-  .auth-input-wrap {
-    position: relative;
-  }
+  .auth-input-wrap { position: relative; }
 
   .auth-input {
     width: 100%;
@@ -371,8 +356,7 @@ const css = `
     border-radius: 8px;
     padding: 11px 14px;
     font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 300;
+    font-size: 14px; font-weight: 300;
     color: var(--cream);
     outline: none;
     transition: all 0.22s ease;
@@ -395,27 +379,28 @@ const css = `
     background: rgba(255,255,255,0.035);
   }
 
-  .auth-input.with-icon {
-    padding-right: 42px;
+  .auth-input.with-icon { padding-right: 42px; }
+
+  /* Admin inputs */
+  .admin-mode .auth-input:focus {
+    border-color: var(--admin-dim);
+    background: rgba(200,169,110,0.05);
+    box-shadow: 0 0 0 3px rgba(200,169,110,0.08), 0 0 20px rgba(200,169,110,0.08);
+  }
+
+  .admin-mode .auth-input:hover:not(:focus) {
+    border-color: rgba(200,169,110,0.2);
   }
 
   .auth-input-icon {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--cream-mute);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 2px;
-    transition: color 0.2s;
+    position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; color: var(--cream-mute);
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    padding: 2px; transition: color 0.2s;
   }
 
   .auth-input-icon:hover { color: var(--g4); }
+  .admin-mode .auth-input-icon:hover { color: var(--admin-accent); }
   .auth-input-icon svg { width: 15px; height: 15px; stroke-width: 1.8; }
 
   .auth-error {
@@ -424,29 +409,22 @@ const css = `
     border-radius: 8px;
     padding: 10px 14px;
     font-size: 12.5px;
-    color: #d9806a;
-    font-style: italic;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+    color: #d9806a; font-style: italic;
+    display: flex; align-items: center; gap: 8px;
   }
 
+  /* ── Primary buttons ── */
   .auth-btn {
-    width: 100%;
-    padding: 14px;
+    width: 100%; padding: 14px;
     background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 50%, var(--g1) 100%);
     background-size: 200% auto;
     border: 1px solid rgba(61,138,64,0.4);
     border-radius: 8px;
     color: var(--g5);
     font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
+    font-size: 12px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    cursor: pointer; position: relative; overflow: hidden;
     transition: all 0.3s ease;
     box-shadow: 0 4px 20px rgba(26,58,28,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     margin-top: 4px;
@@ -454,14 +432,12 @@ const css = `
 
   .auth-btn::before {
     content: '';
-    position: absolute;
-    inset: 0;
+    position: absolute; inset: 0;
     background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
     pointer-events: none;
   }
 
   .auth-btn:hover:not(:disabled) {
-    background-position: right center;
     background: linear-gradient(135deg, var(--g2) 0%, var(--g3) 50%, var(--g2) 100%);
     border-color: rgba(61,138,64,0.6);
     box-shadow: 0 6px 28px rgba(42,92,44,0.5), 0 0 20px rgba(61,138,64,0.2);
@@ -469,60 +445,49 @@ const css = `
     color: #b8f5b8;
   }
 
-  .auth-btn:active:not(:disabled) {
-    transform: translateY(0);
+  .auth-btn:active:not(:disabled) { transform: translateY(0); }
+  .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Admin submit button */
+  .auth-btn.admin-btn {
+    background: linear-gradient(135deg, rgba(100,75,30,0.6) 0%, rgba(140,105,45,0.5) 50%, rgba(100,75,30,0.6) 100%);
+    border-color: rgba(200,169,110,0.35);
+    color: var(--admin-accent);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.04);
   }
 
-  .auth-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
+  .auth-btn.admin-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, rgba(140,105,45,0.6) 0%, rgba(180,140,60,0.55) 50%, rgba(140,105,45,0.6) 100%);
+    border-color: rgba(200,169,110,0.6);
+    box-shadow: 0 6px 28px rgba(0,0,0,0.4), 0 0 20px rgba(200,169,110,0.15);
+    color: #f0d898;
+    transform: translateY(-2px);
   }
 
   .auth-divider {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin: 4px 0;
+    display: flex; align-items: center; gap: 12px; margin: 4px 0;
   }
 
-  .auth-divider-line {
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+  .auth-divider-line { flex: 1; height: 1px; background: var(--border); }
 
   .auth-divider-txt {
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--cream-mute);
-    opacity: 0.5;
+    font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--cream-mute); opacity: 0.5;
   }
 
   .auth-footer {
-    text-align: center;
-    font-size: 13px;
-    font-weight: 300;
-    font-style: italic;
-    color: var(--cream-mute);
+    text-align: center; font-size: 13px;
+    font-weight: 300; font-style: italic; color: var(--cream-mute);
   }
 
   .auth-footer a {
-    color: var(--g4);
-    text-decoration: none;
-    font-style: normal;
-    font-weight: 400;
+    color: var(--g4); text-decoration: none;
+    font-style: normal; font-weight: 400;
     border-bottom: 1px solid rgba(92,184,96,0.3);
-    padding-bottom: 1px;
-    transition: all 0.2s;
-    cursor: pointer;
+    padding-bottom: 1px; transition: all 0.2s; cursor: pointer;
   }
 
-  .auth-footer a:hover {
-    color: var(--g5);
-    border-color: var(--g4);
-  }
+  .auth-footer a:hover { color: var(--g5); border-color: var(--g4); }
 
   .auth-spinner {
     display: inline-block;
@@ -534,28 +499,15 @@ const css = `
     vertical-align: middle;
   }
 
+  .auth-spinner.admin-spinner {
+    border-color: rgba(200,169,110,0.2);
+    border-top-color: var(--admin-accent);
+  }
+
   @keyframes spin { to { transform: rotate(360deg); } }
 
   .auth-success-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* Terms note */
-  .auth-terms {
-    font-size: 11px;
-    font-weight: 300;
-    color: var(--cream-mute);
-    opacity: 0.6;
-    text-align: center;
-    line-height: 1.6;
-  }
-
-  .auth-terms a {
-    color: var(--g3);
-    text-decoration: underline;
-    text-decoration-color: rgba(61,138,64,0.3);
+    display: inline-flex; align-items: center; gap: 8px;
   }
 
   /* Form slide animation */
@@ -568,6 +520,30 @@ const css = `
     to   { opacity: 1; transform: translateX(0); }
   }
 
+  /* Admin panel slide-down */
+  .admin-panel {
+    overflow: hidden;
+    animation: adminSlideDown 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes adminSlideDown {
+    from { opacity: 0; transform: translateY(-10px); max-height: 0; }
+    to   { opacity: 1; transform: translateY(0); max-height: 600px; }
+  }
+
+  /* Separator between user and admin sections */
+  .auth-mode-sep {
+    display: flex; align-items: center; gap: 12px;
+    margin: 20px 0 0;
+  }
+
+  .auth-mode-sep-line { flex: 1; height: 1px; background: rgba(200,169,110,0.15); }
+
+  .auth-mode-sep-txt {
+    font-size: 9px; letter-spacing: 0.25em; text-transform: uppercase;
+    color: rgba(200,169,110,0.4);
+  }
+
   @media (max-width: 720px) {
     .auth-left { display: none; }
     .auth-right { padding: 24px 20px; }
@@ -576,27 +552,27 @@ const css = `
 `;
 
 export function AuthPage() {
-  const navigate = useNavigate();
-  const [mode, setMode] = useState<"login" | "signup">("login");
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
-  // Login state
+  // User login state
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPass, setLoginPass] = useState("");
   const [showLoginPass, setShowLoginPass] = useState(false);
 
-  // Signup state
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [signupEmail, setSignupEmail] = useState("");
-  const [signupPass, setSignupPass] = useState("");
-  const [showSignupPass, setShowSignupPass] = useState(false);
+  // Admin login state
+  const [adminEmail, setAdminEmail] = useState("");
+  const [adminPass, setAdminPass] = useState("");
+  const [showAdminPass, setShowAdminPass] = useState(false);
 
   const [error, setError] = useState("");
+  const [adminError, setAdminError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [adminLoading, setAdminLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [adminSuccess, setAdminSuccess] = useState(false);
 
   useEffect(() => {
-    const id = "auth-css-v2";
+    const id = "auth-css-v3";
     if (!document.getElementById(id)) {
       const el = document.createElement("style");
       el.id = id;
@@ -606,10 +582,10 @@ export function AuthPage() {
     return () => { document.getElementById(id)?.remove(); };
   }, []);
 
-  const switchMode = (m: "login" | "signup") => {
-    setMode(m);
-    setError("");
-    setSuccess(false);
+  const toggleAdminMode = () => {
+    setIsAdminMode(p => !p);
+    setAdminError("");
+    setAdminSuccess(false);
   };
 
   const handleLogin = async (e: FormEvent) => {
@@ -634,27 +610,43 @@ export function AuthPage() {
     setLoading(false);
   };
 
-  const handleSignup = async (e: FormEvent) => {
+  const handleAdminLogin = async (e: FormEvent) => {
     e.preventDefault();
-    setError("");
-    if (!firstName || !signupEmail || !signupPass) { setError("Бүх талбарыг бөглөнө үү"); return; }
-    setLoading(true);
+    setAdminError("");
+    if (!adminEmail || !adminPass) { setAdminError("Admin credentials required"); return; }
+    setAdminLoading(true);
     try {
-      const res = await fetch("http://localhost:8080/signup", {
+      const res = await fetch("http://localhost:8080/admin/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, email: signupEmail, password: signupPass }),
+        body: JSON.stringify({ email: adminEmail, password: adminPass }),
       });
       const data = await res.json();
-      if (!res.ok) { setError(data.message ?? "Бүртгэл амжилтгүй"); setLoading(false); return; }
-      localStorage.setItem("data", data.data ?? "");
-      setSuccess(true);
-      setTimeout(() => { window.location.href = "/"; }, 1200);
+      if (!res.ok) { setAdminError(data.message ?? "Admin login failed"); setAdminLoading(false); return; }
+      localStorage.setItem("adminData", data.data ?? "");
+      localStorage.setItem("isAdmin", "true");
+      setAdminSuccess(true);
+      setTimeout(() => { window.location.href = "/admin"; }, 1200);
     } catch {
-      setError("Сервертэй холбогдох боломжгүй");
+      setAdminError("Could not connect to server");
     }
-    setLoading(false);
+    setAdminLoading(false);
   };
+
+  const EyeOpen = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
+      <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  );
+
+  const EyeOff = () => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
+      <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
+    </svg>
+  );
 
   return (
     <div className="auth-root">
@@ -698,167 +690,127 @@ export function AuthPage() {
       {/* ── Right auth ── */}
       <div className="auth-right">
         <div className="auth-card">
-          {/* Tab switcher */}
-          <div className="auth-tabs">
-            <button className={`auth-tab ${mode === "login" ? "active" : ""}`} onClick={() => switchMode("login")}>
-              Sign in
-            </button>
-          </div>
+          <div className={`auth-glass ${isAdminMode ? "admin-mode" : ""}`}>
 
-          <div className="auth-glass">
-            {mode === "login" ? (
-              <div className="auth-form-wrap" key="login">
-                <div className="auth-card-title">Welcome back</div>
-                <div className="auth-card-sub">Good to see you — sign in to your wardrobe.</div>
+            {/* Card header with title + Admin toggle */}
+            <div className="auth-card-header">
+              <div className="auth-card-title">Welcome back</div>
+              <button
+                className={`admin-toggle-btn ${isAdminMode ? "active" : ""}`}
+                onClick={toggleAdminMode}
+                type="button"
+              >
+                <svg viewBox="0 0 24 24">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+                Admin
+              </button>
+            </div>
 
-                <form className="auth-form" onSubmit={handleLogin}>
+            <div className="auth-card-sub" style={{ marginBottom: "24px" }}>
+              {isAdminMode
+                ? "Shop owner access — manage your store."
+                : "Good to see you — sign in to your wardrobe."}
+            </div>
+
+            {/* ── User login form ── */}
+            <div className="auth-form-wrap" key="user-login">
+              <form className="auth-form" onSubmit={handleLogin}>
+                <div className="auth-field">
+                  <label className="auth-label">Email address</label>
+                  <input
+                    type="email"
+                    className="auth-input"
+                    placeholder="you@email.com"
+                    value={loginEmail}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginEmail(e.target.value)}
+                  />
+                </div>
+
+                <div className="auth-field">
+                  <label className="auth-label">Password</label>
+                  <div className="auth-input-wrap">
+                    <input
+                      type={showLoginPass ? "text" : "password"}
+                      className="auth-input with-icon"
+                      placeholder="············"
+                      value={loginPass}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginPass(e.target.value)}
+                    />
+                    <button type="button" className="auth-input-icon" onClick={() => setShowLoginPass(p => !p)}>
+                      {showLoginPass ? <EyeOff /> : <EyeOpen />}
+                    </button>
+                  </div>
+                </div>
+
+                {error && <div className="auth-error">⚠ {error}</div>}
+
+                <button className="auth-btn" type="submit" disabled={loading || success}>
+                  {success
+                    ? <span className="auth-success-check">✓ Welcome back!</span>
+                    : loading
+                    ? <span className="auth-spinner" />
+                    : "Sign in"}
+                </button>
+              </form>
+            </div>
+
+            {/* ── Admin login panel (revealed when Admin is toggled) ── */}
+            {isAdminMode && (
+              <div className="admin-panel">
+                <div className="auth-mode-sep">
+                  <div className="auth-mode-sep-line" />
+                  <span className="auth-mode-sep-txt">Admin access</span>
+                  <div className="auth-mode-sep-line" />
+                </div>
+
+                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleAdminLogin}>
+                  <div className="admin-badge">
+                    <span className="admin-badge-dot" />
+                    Owner credentials
+                  </div>
+
                   <div className="auth-field">
-                    <label className="auth-label">Email address</label>
+                    <label className="auth-label">Admin email</label>
                     <input
                       type="email"
                       className="auth-input"
-                      placeholder="you@email.com"
-                      value={loginEmail}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginEmail(e.target.value)}
+                      placeholder="admin@988thrift.com"
+                      value={adminEmail}
+                      onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminEmail(e.target.value)}
                     />
                   </div>
 
                   <div className="auth-field">
-                    <label className="auth-label">Password</label>
+                    <label className="auth-label">Admin password</label>
                     <div className="auth-input-wrap">
                       <input
-                        type={showLoginPass ? "text" : "password"}
+                        type={showAdminPass ? "text" : "password"}
                         className="auth-input with-icon"
                         placeholder="············"
-                        value={loginPass}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginPass(e.target.value)}
+                        value={adminPass}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPass(e.target.value)}
                       />
-                      <button type="button" className="auth-input-icon" onClick={() => setShowLoginPass(p => !p)}>
-                        {showLoginPass ? (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
-                          </svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
-                            <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
+                      <button type="button" className="auth-input-icon" onClick={() => setShowAdminPass(p => !p)}>
+                        {showAdminPass ? <EyeOff /> : <EyeOpen />}
                       </button>
                     </div>
                   </div>
 
-                  {error && <div className="auth-error">⚠ {error}</div>}
+                  {adminError && <div className="auth-error">⚠ {adminError}</div>}
 
-                  <button className="auth-btn" type="submit" disabled={loading || success}>
-                    {success ? <span className="auth-success-check">✓ Welcome back!</span>
-                      : loading ? <span className="auth-spinner" />
-                      : "Sign in"}
+                  <button className="auth-btn admin-btn" type="submit" disabled={adminLoading || adminSuccess}>
+                    {adminSuccess
+                      ? <span className="auth-success-check">✓ Entering dashboard…</span>
+                      : adminLoading
+                      ? <span className="auth-spinner admin-spinner" />
+                      : "Access dashboard"}
                   </button>
-
-                  <div className="auth-divider">
-                    <div className="auth-divider-line" />
-                    <span className="auth-divider-txt">or</span>
-                    <div className="auth-divider-line" />
-                  </div>
-
-                  <div className="auth-footer">
-                    New here? <a onClick={() => switchMode("signup")}>Create an account</a>
-                  </div>
-                </form>
-              </div>
-            ) : (
-              <div className="auth-form-wrap" key="signup">
-                <div className="auth-card-sub" style={{marginBottom: "24px", marginTop: "4px"}}>Create your account and start finding pieces you'll love.</div>
-
-                <form className="auth-form" onSubmit={handleSignup}>
-                  <div className="auth-row">
-                    <div className="auth-field">
-                      <label className="auth-label">First name</label>
-                      <input
-                        type="text"
-                        className="auth-input"
-                        placeholder="Alex"
-                        value={firstName}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
-                      />
-                    </div>
-                    <div className="auth-field">
-                      <label className="auth-label">Last name</label>
-                      <input
-                        type="text"
-                        className="auth-input"
-                        placeholder="Kim"
-                        value={lastName}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
-                      />
-                    </div>
-                  </div>
-
-                  <div className="auth-field">
-                    <label className="auth-label">Email address</label>
-                    <input
-                      type="email"
-                      className="auth-input"
-                      placeholder="you@email.com"
-                      value={signupEmail}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setSignupEmail(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="auth-field">
-                    <label className="auth-label">Password</label>
-                    <div className="auth-input-wrap">
-                      <input
-                        type={showSignupPass ? "text" : "password"}
-                        className="auth-input with-icon"
-                        placeholder="············"
-                        value={signupPass}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setSignupPass(e.target.value)}
-                      />
-                      <button type="button" className="auth-input-icon" onClick={() => setShowSignupPass(p => !p)}>
-                        {showSignupPass ? (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
-                            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
-                            <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
-                          </svg>
-                        ) : (
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
-                            <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                  </div>
-
-                  {error && <div className="auth-error">⚠ {error}</div>}
-
-                  <button className="auth-btn" type="submit" disabled={loading || success}>
-                    {success ? <span className="auth-success-check">✓ Welcome to the shop!</span>
-                      : loading ? <span className="auth-spinner" />
-                      : "Create account"}
-                  </button>
-
-                  <div className="auth-terms">
-                    By joining you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
-                  </div>
-
-                  <div className="auth-divider">
-                    <div className="auth-divider-line" />
-                    <span className="auth-divider-txt">or</span>
-                    <div className="auth-divider-line" />
-                  </div>
-
-                  <div className="auth-footer">
-                    Already a member? <a onClick={() => switchMode("login")}>Sign in</a>
-                  </div>
                 </form>
               </div>
             )}
+
           </div>
         </div>
       </div>
@@ -866,5 +818,4 @@ export function AuthPage() {
   );
 }
 
-// Also export as Login for backward compatibility
 export { AuthPage as Login };
