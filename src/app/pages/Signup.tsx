@@ -1,394 +1,707 @@
-import { useState, useEffect } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
-import { Eye, EyeOff, ArrowRight, Check, ShieldCheck, Users, KeyRound } from "lucide-react";
-import { useAuth } from "../context/AuthContext";
-import { useLanguage } from "../context/LanguageContext";
-import {
-  LeftPanel, Divider, Field, inputCls, ErrorBanner, Spinner,
-} from "./Login";
+import { useState, useEffect, FormEvent, ChangeEvent } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
-// Signup page component
-const PANEL_IMG =
-  "https://images.unsplash.com/photo-1701769454078-2ba2f3788bc2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxjb2xvcmZ1bCUyMHRocmlmdCUyMHN0b3JlJTIwY2xvdGhpbmclMjByYWNrJTIwYWVzdGhldGljJTIwd2FybXxlbnwxfHx8fDE3NzI1MDE0OTR8MA&ixlib=rb-4.1.0&q=80&w=1080";
+const css = `
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
-const SOCIAL_BUTTONS = [
-  {
-    label: "Sign up with Google",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-4 h-4" xmlns="http://www.w3.org/2000/svg">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-      </svg>
-    ),
-  },
-  {
-    label: "Sign up with Apple",
-    icon: (
-      <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" xmlns="http://www.w3.org/2000/svg">
-        <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.42c1.32.07 2.24.73 3.04.77.94-.15 1.84-.76 2.86-.82 1.22-.07 2.31.38 3.12 1.14-2.82 1.64-2.3 5.37.46 6.63-.57 1.44-1.3 2.87-2.48 4.14zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
-      </svg>
-    ),
-  },
-];
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* Password strength */
-function getStrength(pw: string): { score: number; label: string; color: string } {
-  let score = 0;
-  if (pw.length >= 8) score++;
-  if (/[A-Z]/.test(pw)) score++;
-  if (/[0-9]/.test(pw)) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const map = [
-    { label: "Too short", color: "#E5E7EB" },
-    { label: "Weak", color: "#FF6B6B" },
-    { label: "Fair", color: "#F59E0B" },
-    { label: "Good", color: "#4ECDC4" },
-    { label: "Strong", color: "#22C55E" },
-  ];
-  return { score, ...map[score] };
+  :root {
+    --bg:           #080e09;
+    --bg2:          #0c1510;
+    --surface:      #111a12;
+    --surface2:     #162119;
+    --g1:           #1a3a1c;
+    --g2:           #2a5c2c;
+    --g3:           #3d8a40;
+    --g4:           #5cb860;
+    --g5:           #85d488;
+    --cream:        #e6dfc9;
+    --cream-dim:    #9a9282;
+    --cream-mute:   #5a554b;
+    --border:       rgba(61,138,64,0.18);
+    --border-hi:    rgba(92,184,96,0.45);
+    --error:        #c0533a;
+    --error-bg:     rgba(192,83,58,0.08);
+  }
+
+  html, body { height: 100%; background: var(--bg); }
+
+  .su-root {
+    min-height: 100vh;
+    background: var(--bg);
+    display: flex;
+    font-family: 'DM Sans', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .su-root::before {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background:
+      radial-gradient(ellipse 60% 50% at 15% 50%, rgba(42,92,44,0.18) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 60% at 85% 20%, rgba(26,58,28,0.12) 0%, transparent 60%),
+      radial-gradient(ellipse 80% 30% at 50% 100%, rgba(13,25,14,0.8) 0%, transparent 50%);
+  }
+
+  .su-root::after {
+    content: '';
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    background-size: 160px;
+    mix-blend-mode: overlay;
+  }
+
+  /* ── Left branding panel ── */
+  .su-left {
+    width: 52%;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 56px 64px;
+    overflow: hidden;
+  }
+
+  .su-left::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 1px;
+    background: linear-gradient(to bottom, transparent 0%, var(--border-hi) 30%, var(--border) 70%, transparent 100%);
+  }
+
+  .su-deco-ring {
+    position: absolute;
+    bottom: -120px; left: -80px;
+    width: 520px; height: 520px;
+    border-radius: 50%;
+    border: 1px solid rgba(61,138,64,0.06);
+    pointer-events: none;
+  }
+
+  .su-deco-ring2 {
+    position: absolute;
+    bottom: -180px; left: -140px;
+    width: 660px; height: 660px;
+    border-radius: 50%;
+    border: 1px solid rgba(61,138,64,0.04);
+    pointer-events: none;
+  }
+
+  .su-glow {
+    position: absolute;
+    top: 30%; left: 10%;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(42,92,44,0.22) 0%, transparent 70%);
+    pointer-events: none;
+    filter: blur(40px);
+  }
+
+  .su-wordmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .su-wordmark:hover { opacity: 0.8; }
+
+  .su-wordmark-icon {
+    width: 36px; height: 36px;
+    border: 1.5px solid var(--g3);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--g4);
+    background: rgba(42,92,44,0.2);
+  }
+
+  .su-wordmark-name {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--cream-dim);
+  }
+
+  .su-hero {
+    position: relative;
+    z-index: 1;
+    padding-bottom: 20px;
+  }
+
+  .su-eyebrow {
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--g4);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .su-eyebrow::after {
+    content: '';
+    flex: 1;
+    max-width: 48px;
+    height: 1px;
+    background: var(--g3);
+    opacity: 0.5;
+  }
+
+  .su-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(54px, 6vw, 80px);
+    font-weight: 400;
+    line-height: 1.0;
+    color: var(--cream);
+    letter-spacing: -0.02em;
+    margin-bottom: 28px;
+  }
+
+  .su-headline em {
+    font-style: italic;
+    background: linear-gradient(135deg, var(--g4) 0%, var(--g5) 50%, var(--g4) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .su-subtext {
+    font-size: 14px;
+    font-weight: 300;
+    line-height: 1.8;
+    color: var(--cream-mute);
+    max-width: 340px;
+  }
+
+  .su-stats {
+    display: flex;
+    gap: 40px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .su-stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--cream);
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .su-stat-label {
+    font-size: 11px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--cream-mute);
+  }
+
+  /* ── Right auth panel ── */
+  .su-right {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .su-card {
+    width: 100%;
+    max-width: 420px;
+    animation: suCardIn 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes suCardIn {
+    from { opacity: 0; transform: translateY(24px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  .su-glass {
+    background: rgba(22, 33, 25, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    position: relative;
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 24px 60px rgba(0,0,0,0.5),
+      0 0 40px rgba(42,92,44,0.08);
+  }
+
+  .su-glass::before {
+    content: '';
+    position: absolute;
+    top: -1px; left: 40px; right: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--g3), var(--g4), var(--g3), transparent);
+    opacity: 0.6;
+  }
+
+  .su-card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 400;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    margin-bottom: 6px;
+  }
+
+  .su-card-sub {
+    font-size: 13px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream-mute);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .su-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .su-row {
+    display: flex;
+    gap: 12px;
+  }
+
+  .su-row .su-field { flex: 1; }
+
+  .su-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .su-label {
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--cream-mute);
+    transition: color 0.2s;
+  }
+
+  .su-field:focus-within .su-label { color: var(--g4); }
+
+  .su-input-wrap { position: relative; }
+
+  .su-input {
+    width: 100%;
+    background: rgba(255,255,255,0.025);
+    border: 1px solid rgba(61,138,64,0.15);
+    border-radius: 8px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--cream);
+    outline: none;
+    transition: all 0.22s ease;
+    -webkit-appearance: none;
+  }
+
+  .su-input::placeholder {
+    color: rgba(154,146,130,0.3);
+    font-style: italic;
+  }
+
+  .su-input:focus {
+    border-color: var(--g3);
+    background: rgba(42,92,44,0.08);
+    box-shadow: 0 0 0 3px rgba(61,138,64,0.1), 0 0 20px rgba(42,92,44,0.12);
+  }
+
+  .su-input:hover:not(:focus) {
+    border-color: rgba(61,138,64,0.3);
+    background: rgba(255,255,255,0.035);
+  }
+
+  .su-input.with-icon { padding-right: 42px; }
+
+  .su-input-icon {
+    position: absolute;
+    right: 12px; top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--cream-mute);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    padding: 2px;
+    transition: color 0.2s;
+  }
+
+  .su-input-icon:hover { color: var(--g4); }
+  .su-input-icon svg { width: 15px; height: 15px; stroke-width: 1.8; }
+
+  .su-error {
+    background: var(--error-bg);
+    border: 1px solid rgba(192,83,58,0.25);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12.5px;
+    color: #d9806a;
+    font-style: italic;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .su-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, var(--g1) 0%, var(--g2) 50%, var(--g1) 100%);
+    border: 1px solid rgba(61,138,64,0.4);
+    border-radius: 8px;
+    color: var(--g5);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 20px rgba(26,58,28,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    margin-top: 4px;
+  }
+
+  .su-btn::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+    pointer-events: none;
+  }
+
+  .su-btn:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--g2) 0%, var(--g3) 50%, var(--g2) 100%);
+    border-color: rgba(61,138,64,0.6);
+    box-shadow: 0 6px 28px rgba(42,92,44,0.5), 0 0 20px rgba(61,138,64,0.2);
+    transform: translateY(-2px);
+    color: #b8f5b8;
+  }
+
+  .su-btn:active:not(:disabled) { transform: translateY(0); }
+  .su-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  .su-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 4px 0;
+  }
+
+  .su-divider-line { flex: 1; height: 1px; background: var(--border); }
+
+  .su-divider-txt {
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--cream-mute);
+    opacity: 0.5;
+  }
+
+  .su-footer {
+    text-align: center;
+    font-size: 13px;
+    font-weight: 300;
+    font-style: italic;
+    color: var(--cream-mute);
+  }
+
+  .su-footer a {
+    color: var(--g4);
+    text-decoration: none;
+    font-style: normal;
+    font-weight: 400;
+    border-bottom: 1px solid rgba(92,184,96,0.3);
+    padding-bottom: 1px;
+    transition: all 0.2s;
+  }
+
+  .su-footer a:hover { color: var(--g5); border-color: var(--g4); }
+
+  .su-terms {
+    font-size: 11px;
+    font-weight: 300;
+    color: var(--cream-mute);
+    opacity: 0.6;
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  .su-terms a {
+    color: var(--g3);
+    text-decoration: underline;
+    text-decoration-color: rgba(61,138,64,0.3);
+  }
+
+  .su-spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(133,212,136,0.25);
+    border-top-color: var(--g5);
+    border-radius: 50%;
+    animation: suSpin 0.7s linear infinite;
+    vertical-align: middle;
+  }
+
+  @keyframes suSpin { to { transform: rotate(360deg); } }
+
+  .su-success-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 720px) {
+    .su-left { display: none; }
+    .su-right { padding: 24px 20px; }
+    .su-glass { padding: 28px 22px; }
+    .su-row { flex-direction: column; }
+  }
+`;
+
+interface SignupPayload {
+  first_name: string;
+  last_name: string;
+  email: string;
+  password: string;
 }
 
-const PERKS = [
-  "Early access to new arrivals",
-  "Exclusive member-only discounts",
-  "Personalised recommendations",
-  "Track all your orders in one place",
-];
-
-const ADMIN_ACCESS_CODE = "THRIFT2024";
+interface ApiResponse {
+  message?: string;
+  data?: string;
+}
 
 export function Signup() {
-  const { signup, user } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
-  const { t } = useLanguage();
-  const a = t.auth;
-  const from = (location.state as { from?: string })?.from || "/";
 
-  const [role, setRole]           = useState<"customer" | "admin">("customer");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName]   = useState("");
-  const [email, setEmail]         = useState("");
-  const [password, setPassword]   = useState("");
-  const [confirm, setConfirm]     = useState("");
-  const [accessCode, setAccessCode] = useState("");
-  const [agreed, setAgreed]       = useState(false);
-  const [showPass, setShowPass]   = useState(false);
-  const [showConf, setShowConf]   = useState(false);
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
-  const [success, setSuccess]     = useState(false);
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+  const [firstName,    setFirstName]    = useState<string>("");
+  const [lastName,     setLastName]     = useState<string>("");
+  const [email,        setEmail]        = useState<string>("");
+  const [password,     setPassword]     = useState<string>("");
+  const [showPass,     setShowPass]     = useState<boolean>(false);
+  const [error,        setError]        = useState<string>("");
+  const [loading,      setLoading]      = useState<boolean>(false);
+  const [success,      setSuccess]      = useState<boolean>(false);
 
-  useEffect(() => { if (user) navigate(user.isAdmin ? "/admin" : from, { replace: true }); }, [user]);
-
-  /* reset fields when switching roles */
   useEffect(() => {
-    setEmail(""); setPassword(""); setConfirm(""); setAccessCode(""); setError(""); setFieldErrors({});
-  }, [role]);
+    const id = "su-css";
+    if (!document.getElementById(id)) {
+      const el = document.createElement("style");
+      el.id = id;
+      el.textContent = css;
+      document.head.appendChild(el);
+    }
+    return () => { document.getElementById(id)?.remove(); };
+  }, []);
 
-  const strength = getStrength(password);
-  const isAdmin = role === "admin";
-
-  const validate = () => {
-    const errs: Record<string, string> = {};
-    if (!firstName.trim()) errs.firstName = "Required";
-    if (!lastName.trim()) errs.lastName = "Required";
-    if (!email.includes("@")) errs.email = "Enter a valid email";
-    if (password.length < 8) errs.password = "At least 8 characters required";
-    if (password !== confirm) errs.confirm = "Passwords don't match";
-    if (!agreed) errs.agreed = "You must agree to the terms";
-    if (isAdmin && accessCode.toUpperCase() !== ADMIN_ACCESS_CODE)
-      errs.accessCode = "Invalid admin access code";
-    return errs;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
-    const errs = validate();
-    setFieldErrors(errs);
-    if (Object.keys(errs).length > 0) return;
+
+    if (!firstName || !lastName || !email || !password) {
+      setError("Бүх талбарыг бөглөнө үү");
+      return;
+    }
 
     setLoading(true);
-    const result = await signup(firstName.trim(), lastName.trim(), email.trim(), password, isAdmin);
-    setLoading(false);
 
-    if (result.success) {
+    try {
+      const payload: SignupPayload = { first_name: firstName, last_name: lastName, email, password };
+
+      const res = await fetch("http://localhost:8080/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      const data: ApiResponse = await res.json();
+
+      if (!res.ok) {
+        setError(data.message ?? "Бүртгэл амжилтгүй");
+        setLoading(false);
+        return;
+      }
+
+      if (data.data) localStorage.setItem("data", data.data);
+
       setSuccess(true);
-      setTimeout(() => navigate(isAdmin ? "/admin" : from, { replace: true }), 700);
-    } else {
-      setError(result.error || "Sign up failed.");
+      setTimeout(() => { window.location.href = "/"; }, 1200);
+
+    } catch {
+      setError("Сервертэй холбогдох боломжгүй");
     }
+
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex">
-      {/* Left panel */}
-      <LeftPanel
-        img={PANEL_IMG}
-        headline={<>Join the<br /><span style={{ color: isAdmin ? "#4ECDC4" : "#4ECDC4", fontStyle: "italic", fontWeight: 300 }}>{isAdmin ? "Team." : "Community."}</span></>}
-        sub={isAdmin ? "Create an admin account to manage the 988 Thrift platform." : "Create your free account and discover thousands of unique pre-loved pieces."}
-        quotes={[
-          { text: "Signed up in 30 seconds, found something amazing within minutes!", author: "Priya M." },
-          { text: "Love being notified about new vintage drops first.", author: "Jake R." },
-        ]}
-      />
+    <div className="su-root">
+      {/* ── Left branding ── */}
+      <div className="su-left">
+        <div className="su-glow" />
+        <div className="su-deco-ring" />
+        <div className="su-deco-ring2" />
 
-      {/* Right form */}
-      <div className="flex-1 flex items-center justify-center px-8 py-12 bg-white overflow-y-auto">
-        <div className="w-full max-w-md">
-          <Link to="/" className="inline-flex items-center gap-2 mb-8">
-            <div className="w-7 h-7 rounded-full" style={{ background: "linear-gradient(135deg,#FF6B6B,#4ECDC4)" }} />
-            <span className="text-lg tracking-[0.15em] uppercase text-gray-900">988 Thrift</span>
-          </Link>
+        <Link to="/" className="su-wordmark">
+          <div className="su-wordmark-icon">9</div>
+          <div className="su-wordmark-name">988 Thrift</div>
+        </Link>
 
-          {/* Role toggle */}
-          <div className="flex bg-gray-100 rounded-2xl p-1 mb-8">
-            <button
-              type="button"
-              onClick={() => setRole("customer")}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm transition-all duration-200"
-              style={role === "customer"
-                ? { background: "#fff", color: "#0A0A0A", fontWeight: 600, boxShadow: "0 1px 8px rgba(0,0,0,0.08)" }
-                : { color: "#9CA3AF" }}
-            >
-              <Users className="w-4 h-4" />
-              {a.customer}
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole("admin")}
-              className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm transition-all duration-200"
-              style={role === "admin"
-                ? { background: "#0A0A0A", color: "#fff", fontWeight: 600, boxShadow: "0 1px 8px rgba(0,0,0,0.15)" }
-                : { color: "#9CA3AF" }}
-            >
-              <ShieldCheck className="w-4 h-4" />
-              {a.admin}
-            </button>
-          </div>
-
-          <h1 className="text-gray-900 mb-2" style={{ fontSize: "2rem", fontWeight: 800, letterSpacing: "-0.02em" }}>
-            {isAdmin ? a.createAdminAccount : a.createAccount}
+        <div className="su-hero">
+          <div className="su-eyebrow">New arrivals daily</div>
+          <h1 className="su-headline">
+            Start<br />your<br /><em>story.</em>
           </h1>
-          <p className="text-gray-400 text-sm mb-6">
-            {a.alreadyHave}{" "}
-            <Link to="/login" state={{ from }} className="text-[#FF6B6B] hover:underline">
-              {a.signInInstead}
-            </Link>
+          <p className="su-subtext">
+            Pre-loved, hand-picked, and priced right. Every piece has a past — yours starts here.
           </p>
+        </div>
 
-          {/* Perks / Admin info */}
-          {isAdmin ? (
-            <div className="rounded-2xl p-4 mb-6 border" style={{ background: "linear-gradient(135deg,#0A0A0A04,#4ECDC410)", borderColor: "#4ECDC440" }}>
-              <div className="flex items-center gap-2 mb-3">
-                <ShieldCheck className="w-4 h-4 text-[#4ECDC4]" />
-                <span className="text-xs tracking-widest uppercase text-[#0D5E5A]" style={{ fontWeight: 700 }}>{a.adminPrivilegesTitle}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {[a.priv1, a.priv2, a.priv3, a.priv4].map(p => (
-                  <div key={p} className="flex items-start gap-2">
-                    <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "#CCFBF1" }}>
-                      <Check className="w-2.5 h-2.5 text-[#0D9488]" />
-                    </div>
-                    <p className="text-gray-500 text-xs leading-snug">{p}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <>
-              <div className="grid grid-cols-2 gap-2 mb-6">
-                {[a.perk1, a.perk2, a.perk3, a.perk4].map(p => (
-                  <div key={p} className="flex items-start gap-2">
-                    <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center mt-0.5" style={{ background: "#DCFCE7" }}>
-                      <Check className="w-2.5 h-2.5 text-[#16A34A]" />
-                    </div>
-                    <p className="text-gray-500 text-xs leading-snug">{p}</p>
-                  </div>
-                ))}
-              </div>
+        <div className="su-stats">
+          <div>
+            <div className="su-stat-val">4k+</div>
+            <div className="su-stat-label">Items listed</div>
+          </div>
+          <div>
+            <div className="su-stat-val">12k</div>
+            <div className="su-stat-label">Members</div>
+          </div>
+          <div>
+            <div className="su-stat-val">Free</div>
+            <div className="su-stat-label">To join</div>
+          </div>
+        </div>
+      </div>
 
-              {/* Social */}
-              <div className="flex gap-3 mb-5">
-                {[
-                  { label: a.signUpGoogle, icon: SOCIAL_BUTTONS[0].icon },
-                  { label: a.signUpApple, icon: SOCIAL_BUTTONS[1].icon },
-                ].map(btn => (
-                  <button
-                    key={btn.label}
-                    type="button"
-                    className="flex-1 flex items-center justify-center gap-2 border border-gray-200 rounded-xl py-3 text-sm text-gray-700 hover:bg-gray-50 hover:border-gray-300 transition-all duration-200"
-                  >
-                    {btn.icon}
-                    <span className="hidden sm:inline text-xs">{btn.label.replace("Sign up with ", "")}</span>
-                  </button>
-                ))}
-              </div>
-              <Divider label={a.orDivider} />
-            </>
-          )}
+      {/* ── Right auth ── */}
+      <div className="su-right">
+        <div className="su-card">
+          <div className="su-glass">
+            <div className="su-card-title">Join the shop</div>
+            <div className="su-card-sub">Create a free account and start browsing.</div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Name row */}
-            <div className="grid grid-cols-2 gap-3">
-              <Field label={a.firstName} error={fieldErrors.firstName || ""}>
-                <input
-                  type="text"
-                  placeholder="Alex"
-                  autoComplete="given-name"
-                  className={inputCls(!!fieldErrors.firstName)}
-                  value={firstName}
-                  onChange={e => { setFirstName(e.target.value); setFieldErrors(p => ({ ...p, firstName: "" })); }}
-                />
-              </Field>
-              <Field label={a.lastName} error={fieldErrors.lastName || ""}>
-                <input
-                  type="text"
-                  placeholder="Smith"
-                  autoComplete="family-name"
-                  className={inputCls(!!fieldErrors.lastName)}
-                  value={lastName}
-                  onChange={e => { setLastName(e.target.value); setFieldErrors(p => ({ ...p, lastName: "" })); }}
-                />
-              </Field>
-            </div>
+            <form className="su-form" onSubmit={handleSignup}>
 
-            <Field label={a.email} error={fieldErrors.email || ""}>
-              <input
-                type="email"
-                placeholder="you@example.com"
-                autoComplete="email"
-                className={inputCls(!!fieldErrors.email)}
-                value={email}
-                onChange={e => { setEmail(e.target.value); setFieldErrors(p => ({ ...p, email: "" })); }}
-              />
-            </Field>
-
-            <Field label={a.password} error={fieldErrors.password || ""}>
-              <div className="relative">
-                <input
-                  type={showPass ? "text" : "password"}
-                  placeholder="Min. 8 characters"
-                  autoComplete="new-password"
-                  className={inputCls(!!fieldErrors.password) + " pr-12"}
-                  value={password}
-                  onChange={e => { setPassword(e.target.value); setFieldErrors(p => ({ ...p, password: "" })); }}
-                />
-                <button
-                  type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  onClick={() => setShowPass(v => !v)}
-                >
-                  {showPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-              </div>
-              {/* Password strength bar */}
-              {password.length > 0 && (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
-                    {[1, 2, 3, 4].map(i => (
-                      <div
-                        key={i}
-                        className="flex-1 h-1 rounded-full transition-all duration-300"
-                        style={{ background: i <= strength.score ? strength.color : "#E5E7EB" }}
-                      />
-                    ))}
-                  </div>
-                  <p className="text-[10px]" style={{ color: strength.color }}>{strength.label}</p>
-                </div>
-              )}
-            </Field>
-
-            <Field label={a.confirmPassword} error={fieldErrors.confirm || ""}>
-              <div className="relative">
-                <input
-                  type={showConf ? "text" : "password"}
-                  placeholder="Repeat your password"
-                  autoComplete="new-password"
-                  className={inputCls(!!fieldErrors.confirm) + " pr-12"}
-                  value={confirm}
-                  onChange={e => { setConfirm(e.target.value); setFieldErrors(p => ({ ...p, confirm: "" })); }}
-                />
-                <button
-                  type="button"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
-                  onClick={() => setShowConf(v => !v)}
-                >
-                  {showConf ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                </button>
-                {confirm.length > 0 && password === confirm && (
-                  <div className="absolute right-10 top-1/2 -translate-y-1/2">
-                    <Check className="w-4 h-4 text-[#22C55E]" />
-                  </div>
-                )}
-              </div>
-            </Field>
-
-            {/* Admin access code */}
-            {isAdmin && (
-              <Field label={a.adminAccessCode} error={fieldErrors.accessCode || ""}>
-                <div className="relative">
+              <div className="su-row">
+                <div className="su-field">
+                  <label className="su-label">First name</label>
                   <input
                     type="text"
-                    placeholder="Enter access code"
-                    className={inputCls(!!fieldErrors.accessCode) + " pr-12 font-mono tracking-widest uppercase"}
-                    value={accessCode}
-                    onChange={e => { setAccessCode(e.target.value); setFieldErrors(p => ({ ...p, accessCode: "" })); }}
+                    className="su-input"
+                    placeholder="Alex"
+                    value={firstName}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
                   />
-                  <KeyRound className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                 </div>
-                <p className="text-[10px] text-gray-400 mt-1.5">
-                  {a.adminCodeHint}: <span className="font-mono text-[#4ECDC4] cursor-pointer" onClick={() => setAccessCode("THRIFT2024")}>THRIFT2024</span>
-                </p>
-              </Field>
-            )}
-
-            {/* Terms */}
-            <label
-              className={`flex items-start gap-3 cursor-pointer ${fieldErrors.agreed ? "text-[#FF6B6B]" : ""}`}
-              onClick={() => { setAgreed(v => !v); setFieldErrors(p => ({ ...p, agreed: "" })); }}
-            >
-              <div
-                className="w-4 h-4 rounded flex items-center justify-center flex-shrink-0 mt-0.5 transition-all duration-150"
-                style={agreed ? { background: "#FF6B6B", border: "2px solid #FF6B6B" } : { border: `2px solid ${fieldErrors.agreed ? "#FF6B6B" : "#E5E7EB"}` }}
-              >
-                {agreed && <Check className="w-2.5 h-2.5 text-white" />}
+                <div className="su-field">
+                  <label className="su-label">Last name</label>
+                  <input
+                    type="text"
+                    className="su-input"
+                    placeholder="Kim"
+                    value={lastName}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
+                  />
+                </div>
               </div>
-              <p className="text-xs text-gray-500 leading-relaxed">
-                {a.agreeTerms}{" "}
-                <span className="underline text-gray-700 hover:text-black">{a.termsOfService}</span> {a.and}{" "}
-                <span className="underline text-gray-700 hover:text-black">{a.privacyPolicy}</span>
-              </p>
-            </label>
-            {fieldErrors.agreed && <p className="text-[#FF6B6B] text-xs -mt-2">{fieldErrors.agreed}</p>}
 
-            {error && <ErrorBanner message={error} />}
+              <div className="su-field">
+                <label className="su-label">Email address</label>
+                <input
+                  type="email"
+                  className="su-input"
+                  placeholder="you@email.com"
+                  value={email}
+                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                />
+              </div>
 
-            <button
-              type="submit"
-              disabled={loading || success}
-              className="w-full flex items-center justify-center gap-3 py-4 rounded-xl text-sm tracking-widest uppercase transition-all duration-300 disabled:opacity-60"
-              style={success ? { background: "#22C55E", color: "#fff" } : { background: "#0A0A0A", color: "#fff" }}
-            >
-              {success ? (
-                <><Check className="w-4 h-4" />{isAdmin ? a.adminAccountCreated : a.accountCreated}</>
-              ) : loading ? (
-                <Spinner />
-              ) : (
-                <>{isAdmin ? <><ShieldCheck className="w-4 h-4" />{a.createAdminAccountBtn}</> : <>{a.createAccountBtn} <ArrowRight className="w-4 h-4" /></>}</>
-              )}
-            </button>
-          </form>
+              <div className="su-field">
+                <label className="su-label">Password</label>
+                <div className="su-input-wrap">
+                  <input
+                    type={showPass ? "text" : "password"}
+                    className="su-input with-icon"
+                    placeholder="············"
+                    value={password}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="su-input-icon"
+                    onClick={() => setShowPass(p => !p)}
+                    aria-label={showPass ? "Hide password" : "Show password"}
+                  >
+                    {showPass ? (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
+                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
+                        <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
+                      </svg>
+                    ) : (
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
+                        <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    )}
+                  </button>
+                </div>
+              </div>
 
-          <p className="text-center text-xs text-gray-400 mt-6 leading-relaxed">
-            {a.byCreating}{" "}
-            <span className="underline cursor-pointer hover:text-gray-600">{a.termsOfService}</span> {a.and}{" "}
-            <span className="underline cursor-pointer hover:text-gray-600">{a.privacyPolicy}</span>.
-          </p>
+              {error && <div className="su-error">⚠ {error}</div>}
+
+              <button className="su-btn" type="submit" disabled={loading || success}>
+                {success
+                  ? <span className="su-success-check">✓ Welcome to the shop!</span>
+                  : loading
+                  ? <span className="su-spinner" />
+                  : "Create account"
+                }
+              </button>
+
+              <div className="su-terms">
+                By joining you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+              </div>
+
+              <div className="su-divider">
+                <div className="su-divider-line" />
+                <span className="su-divider-txt">or</span>
+                <div className="su-divider-line" />
+              </div>
+
+              <div className="su-footer">
+                Already a member? <a onClick={() => navigate("/login")}>Sign in</a>
+              </div>
+
+            </form>
+          </div>
         </div>
       </div>
     </div>

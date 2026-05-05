@@ -14,11 +14,11 @@ const CONDITIONS = ["Excellent", "Very Good", "Good", "Fair"];
 const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
 const MAX_PRICE = 400;
 
-const CONDITION_COLORS: Record<string, { bg: string; text: string }> = {
-  Excellent:   { bg: "#DCFCE7", text: "#16A34A" },
-  "Very Good": { bg: "#DBEAFE", text: "#2563EB" },
-  Good:        { bg: "#FEF9C3", text: "#CA8A04" },
-  Fair:        { bg: "#FEE2E2", text: "#DC2626" },
+const CONDITION_COLORS: Record<string, { backgroundColor: string; color: string }> = {
+  Excellent:   { backgroundColor: "#DCFCE7", color: "#16A34A" },
+  "Very Good": { backgroundColor: "#DBEAFE", color: "#2563EB" },
+  Good:        { backgroundColor: "#FEF9C3", color: "#CA8A04" },
+  Fair:        { backgroundColor: "#FEE2E2", color: "#DC2626" },
 };
 
 const CAT_ICONS: Record<string, string> = {
@@ -400,7 +400,7 @@ export function Shop() {
                           <div className="flex items-center gap-1.5">
                             <span
                               className="text-[9px] px-2 py-0.5 rounded-full"
-                              style={CONDITION_COLORS[c]}
+                              style={{ backgroundColor: CONDITION_COLORS[c].backgroundColor, color: CONDITION_COLORS[c].color }}
                             >
                               {c.slice(0, 1)}
                             </span>
@@ -853,7 +853,7 @@ function ShopCard({ product, index, onAddToCart }: {
       <div className="p-4 flex flex-col flex-1">
         <div className="flex items-start justify-between gap-2 mb-1">
           <p className="text-gray-400 text-[10px] tracking-[0.2em] uppercase">{product.category}</p>
-          <span className="text-[9px] px-2 py-0.5 rounded-full flex-shrink-0" style={{ background: cond.bg, color: cond.text, fontWeight: 600 }}>
+          <span className="text-[9px] px-2 py-0.5 rounded-full flex-shrink-0" style={{ backgroundColor: cond.backgroundColor, color: cond.color, fontWeight: 600 }}>
             {product.condition}
           </span>
         </div>
@@ -919,7 +919,7 @@ function ListCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
               {product.size && (
                 <span className="text-xs text-gray-400 border border-gray-200 px-2 py-0.5 rounded-lg">{product.size}</span>
               )}
-              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ background: cond.bg, color: cond.text, fontWeight: 600 }}>
+              <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ backgroundColor: cond.backgroundColor, color: cond.color, fontWeight: 600 }}>
                 {product.condition}
               </span>
             </div>

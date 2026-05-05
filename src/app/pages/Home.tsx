@@ -1,25 +1,20 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
-import {
-  ArrowRight, Phone, MapPin, Clock, ShoppingBag,
-  Recycle, Tag, ChevronRight, Sparkles, AlertCircle,
-  Heart
-} from "lucide-react";
 import { useProducts } from "../context/ProductContext";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
-import logo from "/Documents and Settings/Nest/Downloads/Thrift Shop Website (0)/src/assets/logo.png";
+import logo from "../../assets/logo.png";
 
-/* ── Images ───────────────────────────────────────────────── */
-const STORE_IMG   = "https://images.unsplash.com/photo-1763888476700-aaf0881361da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwdGhyaWZ0JTIwc3RvcmUlMjBjbG90aGluZyUyMHJhY2slMjBjb2xvcmZ1bHxlbnwxfHx8fDE3NzM4MDEwODB8MA&ixlib=rb-4.1.0&q=80&w=1080";
-const CAT_WOMEN   = "https://images.unsplash.com/photo-1651745314013-094e433d79a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwd29tZW4lMjBmYXNoaW9uJTIwc2Vjb25kaGFuZCUyMHN0eWxlJTIwZWRpdG9yaWFsfGVufDF8fHx8MTc3MzgwMTA3OXww&ixlib=rb-4.1.0&q=80&w=1080";
-const CAT_MEN     = "https://images.unsplash.com/photo-1741915313755-208c59c21165?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwc3RyZWV0d2VhciUyMHRocmlmdCUyMHN0eWxlfGVufDF8fHx8MTc3MzgwMTA4MHww&ixlib=rb-4.1.0&q=80&w=1080";
-const CAT_ACC     = "https://images.unsplash.com/photo-1717201395289-03e4700ca8b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwYWNjZXNzb3JpZXMlMjB0aHJpZnQlMjBoYW5kYmFnJTIwc3VuZ2xhc3Nlc3xlbnwxfHx8fDE3NzM4MDEwODB8MA&ixlib=rb-4.1.0&q=80&w=1080";
-const CAT_KIDS    = "https://images.unsplash.com/photo-1656424692994-736ccef90d8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxraWRzJTIwdmludGFnZSUyMGNvbG9yZnVsJTIwY2xvdGhpbmclMjBmYXNoaW9ufGVufDF8fHx8MTc3MzgwMTA4MHww&ixlib=rb-4.1.0&q=80&w=1080";
-const ECO_IMG     = "https://images.unsplash.com/photo-1596456692790-2da19d2e6159?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXN0YWluYWJsZSUyMGVjbyUyMGZhc2hpb24lMjBncmVlbiUyMGNsb3RoaW5nJTIwcHJlLWxvdmVkfGVufDF8fHx8MTc3MzgwMTA4M3ww&ixlib=rb-4.1.0&q=80&w=1080";
-const DENIM_IMG   = "https://images.unsplash.com/photo-1565532070333-43edd7d75c90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwZGVuaW0lMjBqYWNrZXQlMjBzZWNvbmRoYW5kJTIwZmFzaGlvbiUyMHN0cmVldHxlbnwxfHx8fDE3NzM4MDEwODN8MA&ixlib=rb-4.1.0&q=80&w=1080";
+/* ── Images ─────────────────────────────────────────────────── */
+const STORE_IMG = "https://images.unsplash.com/photo-1763888476700-aaf0881361da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwdGhyaWZ0JTIwc3RvcmUlMjBjbG90aGluZyUyMHJhY2slMjBjb2xvcmZ1bHxlbnwxfHx8fDE3NzM4MDEwODB8MA&ixlib=rb-4.1.0&q=80&w=1080";
+const CAT_WOMEN = "https://images.unsplash.com/photo-1651745314013-094e433d79a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwd29tZW4lMjBmYXNoaW9uJTIwc2Vjb25kaGFuZCUyMHN0eWxlJTIwZWRpdG9yaWFsfGVufDF8fHx8MTc3MzgwMTA3OXww&ixlib=rb-4.1.0&q=80&w=1080";
+const CAT_MEN   = "https://images.unsplash.com/photo-1741915313755-208c59c21165?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwc3RyZWV0d2VhciUyMHRocmlmdCUyMHN0eWxlfGVufDF8fHx8MTc3MzgwMTA4MHww&ixlib=rb-4.1.0&q=80&w=1080";
+const CAT_ACC   = "https://images.unsplash.com/photo-1717201395289-03e4700ca8b6?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwYWNjZXNzb3JpZXMlMjB0aHJpZnQlMjBoYW5kYmFnJTIwc3VuZ2xhc3Nlc3xlbnwxfHx8fDE3NzM4MDEwODB8MA&ixlib=rb-4.1.0&q=80&w=1080";
+const CAT_KIDS  = "https://images.unsplash.com/photo-1656424692994-736ccef90d8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxraWRzJTIwdmludGFnZSUyMGNvbG9yZnVsJTIwY2xvdGhpbmclMjBmYXNoaW9ufGVufDF8fHx8MTc3MzgwMTA4MHww&ixlib=rb-4.1.0&q=80&w=1080";
+const ECO_IMG   = "https://images.unsplash.com/photo-1596456692790-2da19d2e6159?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzdXN0YWluYWJsZSUyMGVjbyUyMGZhc2hpb24lMjBncmVlbiUyMGNsb3RoaW5nJTIwcHJlLWxvdmVkfGVufDF8fHx8MTc3MzgwMTA4M3ww&ixlib=rb-4.1.0&q=80&w=1080";
+const DENIM_IMG = "https://images.unsplash.com/photo-1565532070333-43edd7d75c90?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwZGVuaW0lMjBqYWNrZXQlMjBzZWNvbmRoYW5kJTIwZmFzaGlvbiUyMHN0cmVldHxlbnwxfHx8fDE3NzM4MDEwODN8MA&ixlib=rb-4.1.0&q=80&w=1080";
 
-/* ── Countdown helper ─────────────────────────────────────── */
+/* ── Countdown ──────────────────────────────────────────────── */
 function useCountdown(h0: number, m0: number, s0: number) {
   const [time, setTime] = useState({ h: h0, m: m0, s: s0 });
   useEffect(() => {
@@ -47,666 +42,477 @@ export function Home() {
   const trending = products.slice(0, 8);
   const countdown = useCountdown(6, 28, 44);
 
-  /* Ticker */
-  const tickerText = [
-    "♻️ ХУУЧИН ХУВЦАСНЫ ДЭЛГҮҮР",
-    "•",
-    "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
-    "•",
-    "📍 НАТУР, 36A БАЙР",
-    "•",
-    "🟢 11:00 – 20:00 ЦАГ",
-    "•",
-    "📲 85144414 / 86310103",
-    "•",
-    "VINTAGE FINDS · UNIQUE PIECES",
-    "•",
+  const tickerItems = [
+    "PRE-LOVED CLOTHING STORE",
+    "ALL SALES FINAL — NO RETURNS OR EXCHANGES",
+    "NATUR BUILDING · UNIT 36A",
+    "OPEN 11:00 AM – 7:00 PM",
+    "CALL 85144414",
+    "VINTAGE FINDS",
+    "UNIQUE PIECES",
+    "PRE-LOVED FASHION",
   ];
 
   return (
-    <div className="overflow-x-hidden">
+    <div style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", background: "#fff", color: "#111", overflowX: "hidden" }}>
+      <style>{`
+        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* HERO                                                  */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section
-        className="relative min-h-[100vh] flex items-center overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #0D1A0D 0%, #1A3A1A 45%, #0D2010 100%)" }}
-      >
-        {/* Background store image */}
-        <div className="absolute inset-0 lg:left-[50%] overflow-hidden">
-          <img src={STORE_IMG} alt="988 Thrift Shop" className="w-full h-full object-cover opacity-40" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0D1A0D 0%, #0D1A0D/70 40%, transparent 100%)" }} />
-        </div>
+        .nf1 { animation: fadeUp 0.55s ease both 0.05s; }
+        .nf2 { animation: fadeUp 0.55s ease both 0.18s; }
+        .nf3 { animation: fadeUp 0.55s ease both 0.3s; }
+        .nf4 { animation: fadeUp 0.55s ease both 0.42s; }
 
-        {/* Green glow blobs */}
-        <div className="absolute top-20 left-[35%] w-80 h-80 rounded-full blur-3xl opacity-15" style={{ background: "#4A9E4A" }} />
-        <div className="absolute bottom-20 left-[20%] w-64 h-64 rounded-full blur-3xl opacity-10" style={{ background: "#72C172" }} />
+        .n-btn-w {
+          display: inline-block; padding: 14px 28px;
+          background: #fff; color: #111; font-size: 13px; font-weight: 700;
+          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+          border-radius: 30px; border: none; cursor: pointer;
+          transition: background 0.18s;
+        }
+        .n-btn-w:hover { background: #e5e5e5; }
 
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16 py-20 w-full">
-          <div className="max-w-[600px]">
+        .n-btn-b {
+          display: inline-block; padding: 14px 28px;
+          background: #111; color: #fff; font-size: 13px; font-weight: 700;
+          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+          border-radius: 30px; border: none; cursor: pointer;
+          transition: background 0.18s;
+        }
+        .n-btn-b:hover { background: #333; }
 
-            {/* Logo + Name */}
-            <div className="flex items-center gap-5 mb-10">
-              <div className="relative">
-                <img
-                  src={logo}
-                  alt="988 Thrift Shop"
-                  className="w-28 h-28 rounded-full object-cover"
-                  style={{ border: "3px solid #4A9E4A", boxShadow: "0 0 40px rgba(74,158,74,0.4)" }}
-                />
-                <div className="absolute -bottom-1 -right-1 bg-[#4A9E4A] text-white text-[9px] px-2 py-0.5 rounded-full tracking-widest uppercase">
-                  Open
-                </div>
-              </div>
-              <div>
-                <h1
-                  className="text-white"
-                  style={{ fontSize: "clamp(2.2rem, 4vw, 3.6rem)", fontWeight: 900, letterSpacing: "-0.02em", lineHeight: 1 }}
-                >
-                  988<br />
-                  <span style={{ color: "#4A9E4A" }}>Thrift</span>
-                  <span className="text-white/70"> Shop</span>
-                </h1>
-              </div>
-            </div>
+        .n-btn-ol {
+          display: inline-block; padding: 13px 27px;
+          background: transparent; color: #fff; font-size: 13px; font-weight: 700;
+          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+          border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.4); cursor: pointer;
+          transition: background 0.18s, color 0.18s, border-color 0.18s;
+        }
+        .n-btn-ol:hover { background: #fff; color: #111; border-color: #fff; }
 
-            {/* Mongolian tagline */}
-            <div className="flex items-center gap-3 mb-6">
-              <span className="text-3xl">♻️</span>
-              <p className="text-green-300 text-xl" style={{ fontWeight: 600 }}>
-                Хуучин хувцасны дэлгүүр
-              </p>
-            </div>
+        .n-btn-ol-dark {
+          display: inline-block; padding: 13px 27px;
+          background: transparent; color: #111; font-size: 13px; font-weight: 700;
+          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
+          border-radius: 30px; border: 1.5px solid #111; cursor: pointer;
+          transition: background 0.18s, color 0.18s;
+        }
+        .n-btn-ol-dark:hover { background: #111; color: #fff; }
 
-            <p className="text-white/55 text-base mb-8 leading-relaxed max-w-md">
-              Unique vintage & pre-loved fashion at unbeatable prices. Give clothes a second life.
-            </p>
+        .n-cat { position: relative; overflow: hidden; cursor: pointer; display: block; text-decoration: none; }
+        .n-cat img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.55s cubic-bezier(.25,.8,.25,1); }
+        .n-cat:hover img { transform: scale(1.04); }
+        .n-cat:hover .n-cat-btn { opacity: 1 !important; }
 
-            {/* No-returns notice */}
-            <div
-              className="inline-flex items-center gap-2 mb-8 px-4 py-2 rounded-full text-sm"
-              style={{ background: "rgba(255,107,107,0.15)", border: "1px solid rgba(255,107,107,0.4)", color: "#FF6B6B" }}
-            >
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ</span>
-            </div>
+        .n-card { background: #f6f6f6; }
+        .n-card img { transition: transform 0.45s cubic-bezier(.25,.8,.25,1); }
+        .n-card:hover img { transform: scale(1.05); }
+        .n-card:hover .n-qadd { opacity: 1 !important; transform: translateY(0) !important; }
 
-            {/* CTA Buttons */}
-            <div className="flex flex-wrap gap-4 mb-12">
-              <Link
-                to="/shop"
-                className="group inline-flex items-center gap-3 px-8 py-4 rounded-full text-sm tracking-widest uppercase transition-all duration-300"
-                style={{ background: "#4A9E4A", color: "white" }}
-              >
-                <ShoppingBag className="w-4 h-4" />
-                Shop Now
-                <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-              <a
-                href="tel:85144414"
-                className="inline-flex items-center gap-3 border border-white/20 text-white px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:border-[#4A9E4A] hover:text-[#4A9E4A] transition-all"
-              >
-                <Phone className="w-4 h-4" />
-                Call Us
-              </a>
-            </div>
+        .n-lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #757575; }
+        .n-title { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: #111; margin: 0 0 32px; }
+        .n-ulink { font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #111; text-decoration: underline; text-underline-offset: 3px; }
+        .n-ulink:hover { color: #555; }
 
-            {/* Store quick info */}
-            <div className="flex flex-wrap gap-6">
-              {[
-                { icon: MapPin, text: "Натур, 36A байр", color: "#4A9E4A" },
-                { icon: Clock,  text: "11:00 – 20:00",   color: "#FFE66D" },
-                { icon: Phone,  text: "85144414",          color: "#4ECDC4" },
-              ].map(({ icon: Icon, text, color }) => (
-                <div key={text} className="flex items-center gap-2">
-                  <Icon className="w-4 h-4 flex-shrink-0" style={{ color }} />
-                  <span className="text-white/60 text-sm">{text}</span>
-                </div>
-              ))}
-            </div>
+        .n-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); border-top: 1px solid #e5e5e5; border-left: 1px solid #e5e5e5; }
+        .n-info-cell { padding: 28px 24px; border-right: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+
+        .n-cat-grid { display: grid; grid-template-columns: 5fr 4fr 3fr; grid-template-rows: 1fr 1fr; gap: 6px; height: 580px; }
+
+        .n-prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+
+        .n-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 520px; }
+
+        .n-trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+        /* Flash sale stat boxes */
+        .fs-stat { display: flex; flex-direction: column; gap: 4px; padding: 20px 24px; border: 1px solid rgba(255,255,255,0.1); }
+        .fs-stat-num { font-size: 2.2rem; font-weight: 900; color: #fff; letter-spacing: -0.04em; line-height: 1; }
+        .fs-stat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+
+        @media (max-width: 900px) {
+          .n-split { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 720px) {
+          .n-cat-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; height: auto; }
+        }
+      `}</style>
+
+      {/* ════════════════════════════════ HERO ══════════════ */}
+      <section style={{ position: "relative", height: "92vh", minHeight: 540, overflow: "hidden", background: "#111" }}>
+        <img
+          src={STORE_IMG}
+          alt="988 Thrift Shop"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.52 }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.08) 55%, transparent 100%)" }} />
+
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 40px 56px" }}>
+          <p className="n-lbl nf1" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 14 }}>
+            Ulaanbaatar · Natur Building, Unit 36A · Open 11:00 AM – 7:00 PM
+          </p>
+          <h1 className="nf2" style={{
+            fontWeight: 900,
+            fontSize: "clamp(3.4rem, 8vw, 7rem)",
+            letterSpacing: "-0.04em",
+            lineHeight: 0.9,
+            color: "#fff",
+            margin: "0 0 22px",
+            maxWidth: 860,
+          }}>
+            ♻️ Pre-Loved<br />Fashion<br />Store.
+          </h1>
+          <p className="nf3" style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", marginBottom: 30, maxWidth: 400, lineHeight: 1.65 }}>
+            Affordable prices, quality finds —<br />pre-loved fashion for everyone. Every piece has a story.
+          </p>
+          <div className="nf4" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link to="/shop" className="n-btn-w">Shop Now</Link>
+            <a href="tel:85144414" className="n-btn-ol">Call Us: 85144414</a>
           </div>
-        </div>
-
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-30">
-          <div className="w-[1px] h-12 bg-green-400 animate-pulse" />
-          <span className="text-green-400 text-[10px] tracking-widest uppercase">Scroll</span>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TICKER TAPE                                           */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <div className="bg-[#1A3A1A] py-3 overflow-hidden border-y border-[#2E6B2E]">
-        <div
-          className="whitespace-nowrap inline-block"
-          style={{ animation: "ticker 30s linear infinite" }}
-        >
-          {Array(4).fill(tickerText.join("  ")).join("  ")}
-        </div>
-        <style>{`
-          @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-        `}</style>
+      {/* ════════════════════════════ POLICY BAR ════════════ */}
+      <div style={{ background: "#111", padding: "11px 24px", textAlign: "center" }}>
+        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff" }}>
+          ALL SALES FINAL &nbsp;·&nbsp; No Returns or Exchanges
+        </p>
       </div>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* NO-RETURNS POLICY ALERT                               */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="bg-[#FF6B6B] py-5">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-white text-center">
-            <AlertCircle className="w-6 h-6 flex-shrink-0" />
-            <p className="text-base tracking-wide">
-              <span className="font-bold">❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ</span>
-              <span className="mx-3 opacity-60">·</span>
-              <span className="text-white/85">All sales final — No returns or exchanges accepted.</span>
-            </p>
-            <AlertCircle className="w-6 h-6 flex-shrink-0 hidden sm:block" />
-          </div>
+      {/* ═══════════════════════════════ TICKER ════════════ */}
+      <div style={{ background: "#f5f5f5", borderBottom: "1px solid #e5e5e5", padding: "10px 0", overflow: "hidden" }}>
+        <div style={{ display: "inline-flex", whiteSpace: "nowrap", animation: "ticker 32s linear infinite" }}>
+          {Array(5).fill(null).flatMap((_, i) =>
+            tickerItems.map((item, j) => (
+              <span key={`${i}-${j}`}>
+                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#111", padding: "0 28px" }}>{item}</span>
+                <span style={{ fontSize: 11, color: "#bbb", padding: "0 4px" }}>·</span>
+              </span>
+            ))
+          )}
         </div>
-      </section>
+      </div>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* STORE INFO CARDS                                      */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="py-10 bg-[#F7F5F2]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                icon: MapPin,
-                title: "Байршил",
-                subtitle: "Our Location",
-                text: "Натур, Шинэ Монгол сургуулийн хойно 36A байр",
-                color: "#4A9E4A",
-                bg: "#F0FAF0",
-              },
-              {
-                icon: Clock,
-                title: "Цагийн хуваарь",
-                subtitle: "Working Hours",
-                text: "🟢 11:00 – 20:00 цаг · Өдөр бүр",
-                color: "#2D7A2D",
-                bg: "#F0FAF0",
-              },
-              {
-                icon: Phone,
-                title: "Утас",
-                subtitle: "Call Us",
-                text: "📲 85144414\n86310103",
-                color: "#4ECDC4",
-                bg: "#F0FAFA",
-              },
-              {
-                icon: AlertCircle,
-                title: "Бодлого",
-                subtitle: "Store Policy",
-                text: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
-                color: "#FF6B6B",
-                bg: "#FFF5F5",
-              },
-            ].map(({ icon: Icon, title, subtitle, text, color, bg }) => (
-              <div
-                key={title}
-                className="rounded-2xl p-5 flex flex-col gap-3"
-                style={{ background: bg, border: `1px solid ${color}22` }}
-              >
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: color + "15" }}>
-                  <Icon className="w-5 h-5" style={{ color }} />
-                </div>
-                <div>
-                  <p className="text-gray-900 text-sm" style={{ fontWeight: 700 }}>{title}</p>
-                  <p className="text-gray-400 text-xs tracking-widest uppercase mb-1">{subtitle}</p>
-                  <p className="text-gray-600 text-sm whitespace-pre-line leading-snug">{text}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* CATEGORIES                                            */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          {/* Header */}
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="text-[#4A9E4A] text-xs tracking-[0.3em] uppercase mb-2">Browse</p>
-              <h2
-                className="text-gray-900"
-                style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1 }}
-              >
-                {h.categoriesTitle}
-              </h2>
-            </div>
-            <Link
-              to="/shop"
-              className="hidden md:inline-flex items-center gap-2 text-sm text-gray-500 hover:text-[#4A9E4A] transition-colors tracking-widest uppercase"
-            >
-              View All <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          {/* Asymmetric grid */}
-          <div className="grid grid-cols-12 grid-rows-2 gap-4 h-[600px]">
-
-            {/* Women – tall left */}
-            <Link to="/shop/clothing" className="group col-span-5 row-span-2 relative overflow-hidden rounded-2xl">
-              <img src={CAT_WOMEN} alt="Women" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-              <div className="absolute top-5 left-5">
-                <span className="bg-[#4A9E4A] text-white text-[10px] tracking-widest uppercase px-3 py-1 rounded-full">New In</span>
-              </div>
-              <div className="absolute bottom-6 left-6 right-6">
-                <span className="text-white/60 text-xs tracking-widest uppercase">Collection</span>
-                <h3 className="text-white mt-1 mb-3" style={{ fontSize: "2rem", fontWeight: 700, lineHeight: 1.1 }}>{h.cat_women}</h3>
-                <div className="inline-flex items-center gap-2 text-white text-xs tracking-widest uppercase opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[#4A9E4A] px-4 py-2 rounded-full">
-                  {h.shopNow} <ArrowRight className="w-3 h-3" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Men – top right */}
-            <Link to="/shop/clothing" className="group col-span-4 row-span-1 relative overflow-hidden rounded-2xl">
-              <img src={CAT_MEN} alt="Men" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-5 left-5">
-                <h3 className="text-white" style={{ fontSize: "1.5rem", fontWeight: 700 }}>{h.cat_men}</h3>
-                <div className="flex items-center gap-1 text-white/70 text-xs tracking-widest uppercase mt-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  {h.shopNow} <ArrowRight className="w-3 h-3" />
-                </div>
-              </div>
-            </Link>
-
-            {/* Accessories – top far right */}
-            <Link to="/shop/accessories" className="group col-span-3 row-span-1 relative overflow-hidden rounded-2xl">
-              <img src={CAT_ACC} alt="Accessories" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-              <div className="absolute bottom-5 left-5">
-                <h3 className="text-white" style={{ fontSize: "1.1rem", fontWeight: 700 }}>{h.cat_accessories}</h3>
-              </div>
-            </Link>
-
-            {/* Kids – bottom right wide */}
-            <Link to="/shop" className="group col-span-7 row-span-1 relative overflow-hidden rounded-2xl">
-              <img src={CAT_KIDS} alt="Kids" className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105" />
-              <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/20 to-transparent" />
-              <div className="absolute left-6 top-1/2 -translate-y-1/2">
-                <span className="text-white/60 text-xs tracking-widest uppercase">For the little ones</span>
-                <h3 className="text-white mt-1" style={{ fontSize: "1.6rem", fontWeight: 700 }}>{h.cat_kids}</h3>
-                <div className="flex items-center gap-2 text-white text-xs tracking-widest uppercase mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                  Explore <ArrowRight className="w-3 h-3" />
-                </div>
-              </div>
-              <div className="absolute top-5 right-5 bg-[#FFE66D] text-black text-[10px] tracking-widest uppercase px-3 py-1 rounded-full" style={{ fontWeight: 600 }}>
-                Best Deals
-              </div>
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TRENDING NOW                                          */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="py-20 bg-[#F7F5F2]">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="flex items-end justify-between mb-10">
-            <div>
-              <p className="text-[#4A9E4A] text-xs tracking-[0.3em] uppercase mb-2">Just In</p>
-              <h2 style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1, color: "#0A0A0A" }}>
-                {h.trendingTitle}
-              </h2>
-            </div>
-            <Link
-              to="/shop"
-              className="hidden md:inline-flex items-center gap-2 bg-[#1A3A1A] text-white px-6 py-3 rounded-full text-xs tracking-widest uppercase hover:bg-[#4A9E4A] transition-colors"
-            >
-              {h.viewAll} <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {trending.map((product, i) => (
-              <ThriftCard
-                key={product.id}
-                product={product}
-                index={i}
-                onAddToCart={() => addToCart(product)}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* FLASH SALE BANNER                                     */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden py-20" style={{ background: "#0D1A0D" }}>
-        {/* Background denim image */}
-        <div className="absolute inset-0">
-          <img src={DENIM_IMG} alt="Sale" className="w-full h-full object-cover opacity-15" />
-          <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, #0D1A0D 0%, transparent 60%)" }} />
-        </div>
-
-        {/* Green diagonal accent */}
-        <div
-          className="absolute inset-y-0 right-0 w-2/5 opacity-5"
-          style={{ background: "linear-gradient(135deg, #4A9E4A, #72C172)", clipPath: "polygon(20% 0%, 100% 0%, 100% 100%, 0% 100%)" }}
-        />
-
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="max-w-2xl">
-            {/* Badge */}
-            <div
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm tracking-widest uppercase mb-8"
-              style={{ background: "#4A9E4A22", color: "#72C172", border: "1px solid #4A9E4A44" }}
-            >
-              <Sparkles className="w-4 h-4" />
-              Flash Deals — Today Only
-            </div>
-
-            <h2
-              className="text-white mb-4"
-              style={{ fontSize: "clamp(3rem, 7vw, 6rem)", fontWeight: 900, letterSpacing: "-0.04em", lineHeight: 0.9 }}
-            >
-              UP TO<br />
-              <span style={{ color: "#FFE66D" }}>70% OFF</span>
-            </h2>
-            <p className="text-white/50 text-lg mb-10 max-w-sm leading-relaxed">
-              Hundreds of pre-loved pieces, drastically reduced. Grab them before they're gone!
-            </p>
-
-            {/* Countdown */}
-            <div className="flex gap-4 mb-10">
-              {[
-                { label: h.hours,   val: countdown.h },
-                { label: h.minutes, val: countdown.m },
-                { label: h.seconds, val: countdown.s },
-              ].map(({ label, val }) => (
-                <div key={label} className="text-center">
-                  <div
-                    className="w-20 h-20 rounded-xl flex items-center justify-center text-white mb-2"
-                    style={{ background: "rgba(74,158,74,0.12)", border: "1px solid rgba(74,158,74,0.25)", fontSize: "2.2rem", fontWeight: 800 }}
-                  >
-                    {String(val).padStart(2, "0")}
-                  </div>
-                  <p className="text-white/40 text-[10px] tracking-widest uppercase">{label}</p>
-                </div>
-              ))}
-            </div>
-
-            <Link
-              to="/shop?sale=true"
-              className="group inline-flex items-center gap-3 bg-[#4A9E4A] text-white px-10 py-5 rounded-full text-sm tracking-widest uppercase transition-all duration-300 hover:bg-[#FFE66D] hover:text-black"
-            >
-              {h.flashSaleTitle}
-              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </div>
-        </div>
-
-        {/* Floating badges */}
+      {/* ═══════════════════════ STORE INFO GRID ════════════ */}
+      <div className="n-info-grid">
         {[
-          { label: "Vintage", color: "#4A9E4A", top: "15%", right: "12%" },
-          { label: "Unique",  color: "#FFE66D", top: "55%", right: "8%" },
-          { label: "Sale ♻️", color: "#4ECDC4", top: "35%", right: "25%" },
-        ].map((tag) => (
-          <div
-            key={tag.label}
-            className="hidden lg:flex absolute items-center gap-1.5 px-4 py-2 rounded-full text-xs tracking-widest uppercase"
-            style={{ top: tag.top, right: tag.right, background: tag.color + "22", color: tag.color, border: `1px solid ${tag.color}55` }}
-          >
-            <Tag className="w-3 h-3" />
-            {tag.label}
+          { label: "Location", title: "Natur Building, Unit 36A",   text: "Behind New Mongolia School\nUlaanbaatar" },
+          { label: "Hours",    title: "11:00 AM – 7:00 PM",         text: "Open every day\nNo appointment needed" },
+          { label: "Contact",  title: "85144414",                    text: "Call or message\nduring store hours" },
+          { label: "Policy",   title: "All Sales Final",             text: "No returns or exchanges\non any items" },
+        ].map(({ label, title, text }) => (
+          <div key={label} className="n-info-cell">
+            <p style={{ margin: "0 0 5px", fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#999" }}>{label}</p>
+            <p style={{ margin: "0 0 5px", fontSize: 14, fontWeight: 800, color: "#111", letterSpacing: "-0.01em" }}>{title}</p>
+            <p style={{ margin: 0, fontSize: 13, color: "#555", lineHeight: 1.5, whiteSpace: "pre-line" }}>{text}</p>
           </div>
         ))}
+      </div>
+
+      {/* ═══════════════════════════ CATEGORIES ════════════ */}
+      <section style={{ padding: "64px 0 0" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 24px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 24 }}>
+            <div>
+              <p className="n-lbl" style={{ marginBottom: 8 }}>Browse</p>
+              <h2 className="n-title">{h.categoriesTitle}</h2>
+            </div>
+            <Link to="/shop" className="n-ulink">View All</Link>
+          </div>
+
+          <div className="n-cat-grid">
+
+            {/* Women — tall */}
+            <Link to="/shop/clothing" className="n-cat" style={{ gridColumn: 1, gridRow: "1 / 3" }}>
+              <img src={CAT_WOMEN} alt="Women" style={{ height: "100%" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 50%)" }} />
+              <div style={{ position: "absolute", top: 20, left: 20 }}>
+                <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 2 }}>New In</span>
+              </div>
+              <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
+                <h3 style={{ color: "#fff", fontSize: "2.4rem", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1, margin: "0 0 16px" }}>{h.cat_women}</h3>
+                <span className="n-cat-btn n-btn-w" style={{ fontSize: 12, padding: "10px 22px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+              </div>
+            </Link>
+
+            {/* Men */}
+            <Link to="/shop/clothing" className="n-cat" style={{ gridColumn: 2, gridRow: 1 }}>
+              <img src={CAT_MEN} alt="Men" />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", bottom: 20, left: 20 }}>
+                <h3 style={{ color: "#fff", fontSize: "1.7rem", fontWeight: 900, letterSpacing: "-0.02em", margin: "0 0 10px" }}>{h.cat_men}</h3>
+                <span className="n-cat-btn n-btn-w" style={{ fontSize: 11, padding: "9px 18px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+              </div>
+            </Link>
+
+            {/* Accessories */}
+            <Link to="/shop/accessories" className="n-cat" style={{ gridColumn: 3, gridRow: 1 }}>
+              <img src={CAT_ACC} alt="Accessories" />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", bottom: 20, left: 20 }}>
+                <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 900, letterSpacing: "-0.01em", margin: "0 0 8px" }}>{h.cat_accessories}</h3>
+                <span className="n-cat-btn n-btn-w" style={{ fontSize: 10, padding: "8px 16px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+              </div>
+            </Link>
+
+            {/* Kids — wide bottom */}
+            <Link to="/shop" className="n-cat" style={{ gridColumn: "2 / 4", gridRow: 2 }}>
+              <img src={CAT_KIDS} alt="Kids" style={{ objectPosition: "top" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.68) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", left: 24, top: "50%", transform: "translateY(-50%)" }}>
+                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, margin: "0 0 6px" }}>For the little ones</p>
+                <h3 style={{ color: "#fff", fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.03em", margin: "0 0 14px" }}>{h.cat_kids}</h3>
+                <span className="n-cat-btn n-btn-w" style={{ fontSize: 11, padding: "9px 18px", opacity: 0, transition: "opacity 0.3s" }}>Explore</span>
+              </div>
+              <div style={{ position: "absolute", top: 18, right: 20 }}>
+                <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 2 }}>Best Value</span>
+              </div>
+            </Link>
+          </div>
+        </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* ABOUT / ECO BANNER                                    */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="py-20 bg-white">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            {/* Image */}
-            <div className="relative rounded-3xl overflow-hidden h-96">
-              <img src={ECO_IMG} alt="Sustainable" className="w-full h-full object-cover" />
-              <div className="absolute inset-0" style={{ background: "linear-gradient(135deg, rgba(13,26,13,0.6) 0%, transparent 60%)" }} />
-              <div className="absolute bottom-8 left-8">
-                <div className="inline-flex items-center gap-2 bg-[#4A9E4A] text-white px-4 py-2 rounded-full text-xs tracking-widest uppercase">
-                  <Recycle className="w-4 h-4" />
-                  Eco-Friendly Shopping
-                </div>
+      {/* ═══════════════════════════ TRENDING ══════════════ */}
+      <section style={{ padding: "80px 0" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 24px" }}>
+          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 28 }}>
+            <div>
+              <p className="n-lbl" style={{ marginBottom: 8 }}>Just In</p>
+              <h2 className="n-title">{h.trendingTitle}</h2>
+            </div>
+            <Link to="/shop" className="n-ulink">{h.viewAll}</Link>
+          </div>
+          <div className="n-prod-grid">
+            {trending.map((product, i) => (
+              <ThriftCard key={product.id} product={product} index={i} onAddToCart={() => addToCart(product)} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════ FLASH SALE — REDESIGNED ════════════ */}
+      <section style={{ background: "#111", borderTop: "1px solid #222" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto" }}>
+          {/* Top bar */}
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "28px 48px 0", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase", padding: "6px 14px", borderRadius: 2 }}>Flash Sale</span>
+              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.45)", letterSpacing: "0.04em" }}>Ends in</p>
+              <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                {[
+                  { val: countdown.h, label: "hr" },
+                  { val: countdown.m, label: "min" },
+                  { val: countdown.s, label: "sec" },
+                ].map(({ val, label }, idx) => (
+                  <span key={label} style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
+                    {idx > 0 && <span style={{ color: "rgba(255,255,255,0.25)", fontWeight: 900, fontSize: 18, marginRight: 3 }}>:</span>}
+                    <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>{String(val).padStart(2, "0")}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>{label}</span>
+                  </span>
+                ))}
+              </div>
+            </div>
+            <Link to="/shop?sale=true" className="n-btn-ol" style={{ fontSize: 12, padding: "10px 22px" }}>View All Deals</Link>
+          </div>
+
+          {/* Main content */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 440 }}>
+            {/* Left: image with overlay headline */}
+            <div style={{ position: "relative", overflow: "hidden", minHeight: 400 }}>
+              <img src={DENIM_IMG} alt="Flash Sale" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,0,0,0.6) 0%, transparent 70%)" }} />
+              <div style={{ position: "absolute", top: 40, left: 40 }}>
+                <h2 style={{ fontWeight: 900, fontSize: "clamp(3rem, 5vw, 5rem)", letterSpacing: "-0.05em", lineHeight: 0.88, color: "#fff", margin: 0 }}>
+                  Up To<br />70%<br />Off.
+                </h2>
               </div>
             </div>
 
-            {/* Text */}
-            <div>
-              <p className="text-[#4A9E4A] text-xs tracking-[0.3em] uppercase mb-4">About 988 Thrift</p>
-              <h2
-                className="text-gray-900 mb-6"
-                style={{ fontSize: "clamp(2rem, 3vw, 2.8rem)", fontWeight: 800, letterSpacing: "-0.02em", lineHeight: 1.1 }}
-              >
-                ♻️ Хуучин хувцасны<br />
-                <span style={{ color: "#4A9E4A" }}>дэлгүүр</span>
-              </h2>
-              <p className="text-gray-600 text-base leading-relaxed mb-8">
-                We are 988 Thrift Shop — a vintage clothing store located in Ulaanbaatar, Mongolia.
-                Every item we carry has its own story, and we believe pre-loved fashion deserves a second life.
-              </p>
+            {/* Right: stat grid + copy */}
+            <div style={{ padding: "40px 48px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 32 }}>
+              <div>
+                <p style={{ margin: "0 0 12px", fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>
+                  Hundreds of pre-loved pieces, drastically reduced. Affordable prices, quality finds — shop today's best deals before they're gone.
+                </p>
+              </div>
 
-              {/* Info list */}
-              <div className="space-y-4 mb-8">
+              {/* Stats row */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.08)" }}>
+                <div className="fs-stat">
+                  <span className="fs-stat-num">70%</span>
+                  <span className="fs-stat-label">Max Discount</span>
+                </div>
+                <div className="fs-stat" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+                  <span className="fs-stat-num">200+</span>
+                  <span className="fs-stat-label">Items on Sale</span>
+                </div>
+                <div className="fs-stat" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
+                  <span className="fs-stat-num">1 Day</span>
+                  <span className="fs-stat-label">Only</span>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                <Link to="/shop?sale=true" className="n-btn-w">Shop the Sale</Link>
+                <Link to="/shop" className="n-btn-ol" style={{ fontSize: 12, padding: "10px 22px" }}>Browse All</Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════ ABOUT — REDESIGNED ════════════ */}
+      <section style={{ borderTop: "1px solid #e5e5e5", background: "#fafafa" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "80px 48px" }}>
+
+          {/* Top label */}
+          <p className="n-lbl" style={{ marginBottom: 12 }}>Our Story</p>
+
+          {/* Two-column layout */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
+
+            {/* Left: headline + description */}
+            <div>
+              <h2 style={{ fontWeight: 900, fontSize: "clamp(2.4rem, 3.5vw, 3.8rem)", letterSpacing: "-0.04em", lineHeight: 0.95, color: "#111", margin: "0 0 28px" }}>
+                Ulaanbaatar's<br />Favourite<br />Thrift Shop.
+              </h2>
+              <p style={{ fontSize: 15, color: "#555", lineHeight: 1.8, marginBottom: 20, maxWidth: 440 }}>
+                988 Thrift Shop is Ulaanbaatar's go-to destination for pre-loved clothing. With over 54,000 followers on Instagram, we've built a community around the idea that great style shouldn't cost a fortune.
+              </p>
+              <p style={{ fontSize: 15, color: "#555", lineHeight: 1.8, marginBottom: 36, maxWidth: 440 }}>
+                Every item we carry is hand-picked for quality and character. Whether you're hunting for a vintage denim jacket or a one-of-a-kind accessory, you'll find it here at an honest price.
+              </p>
+              <Link to="/shop" className="n-btn-b">Browse the Collection</Link>
+            </div>
+
+            {/* Right: info table + photo */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
+              {/* Photo */}
+              <div style={{ position: "relative", overflow: "hidden", borderRadius: 4, aspectRatio: "4/3" }}>
+                <img src={ECO_IMG} alt="988 Thrift Shop" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+              </div>
+
+              {/* Details table */}
+              <div style={{ borderTop: "1px solid #e5e5e5" }}>
                 {[
-                  { icon: MapPin, label: "Натур, Шинэ Монгол сургуулийн хойно 36A байр", color: "#4A9E4A" },
-                  { icon: Clock,  label: "Нээлттэй: 11:00 – 20:00 цаг, өдөр бүр",        color: "#2D7A2D" },
-                  { icon: Phone,  label: "📲 85144414 · 86310103",                         color: "#4ECDC4" },
-                  { icon: AlertCircle, label: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",           color: "#FF6B6B" },
-                ].map(({ icon: Icon, label, color }) => (
-                  <div key={label} className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style={{ background: color + "15" }}>
-                      <Icon className="w-4 h-4" style={{ color }} />
-                    </div>
-                    <p className="text-gray-700 text-sm pt-1.5">{label}</p>
+                  { label: "Address",  value: "Natur Building, Unit 36A\nBehind New Mongolia School, Ulaanbaatar" },
+                  { label: "Hours",    value: "11:00 AM – 7:00 PM · Open every day" },
+                  { label: "Phone",    value: "85144414" },
+                  { label: "Policy",   value: "All sales final — no returns or exchanges" },
+                  { label: "Community", value: "54,000+ followers on Instagram" },
+                ].map(({ label, value }) => (
+                  <div key={label} style={{ display: "flex", gap: 20, padding: "13px 0", borderBottom: "1px solid #e5e5e5" }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999", width: 90, flexShrink: 0 }}>{label}</span>
+                    <span style={{ fontSize: 13, color: "#111", lineHeight: 1.6, whiteSpace: "pre-line" }}>{value}</span>
                   </div>
                 ))}
               </div>
-
-              <Link
-                to="/shop"
-                className="inline-flex items-center gap-3 bg-[#1A3A1A] text-white px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:bg-[#4A9E4A] transition-all duration-300"
-              >
-                Browse Collection
-                <ArrowRight className="w-4 h-4" />
-              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* TRUST BAR                                             */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="bg-[#0D1A0D] border-y border-[#2E6B2E]/30 py-12">
-        <div className="max-w-[1440px] mx-auto px-6 lg:px-16">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-8">
-            {[
-              { icon: Recycle,     title: "♻️ Eco Fashion",   sub: "Give clothes a second life" },
-              { icon: Tag,         title: "Unique Pieces",    sub: "One-of-a-kind vintage finds" },
-              { icon: ShoppingBag, title: "Great Prices",     sub: "Quality at affordable costs" },
-              { icon: Heart,       title: "Trusted Store",    sub: "Real vintage, real quality" },
-            ].map(({ icon: Icon, title, sub }) => (
-              <div key={title} className="flex items-center gap-4">
-                <div className="w-11 h-11 rounded-xl bg-[#1A3A1A] flex items-center justify-center shadow-sm flex-shrink-0">
-                  <Icon className="w-5 h-5 text-[#4A9E4A]" />
-                </div>
-                <div>
-                  <p className="text-white text-sm" style={{ fontWeight: 600 }}>{title}</p>
-                  <p className="text-white/40 text-xs mt-0.5">{sub}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+      {/* ═══════════════════════════ TRUST STRIP ══════════ */}
+      <section style={{ borderTop: "1px solid #e5e5e5", background: "#f5f5f5" }}>
+        <div className="n-trust">
+          {[
+            { title: "Pre-Loved Fashion",   sub: "Every piece has a second story" },
+            { title: "One-of-a-Kind Finds", sub: "No two items are the same" },
+            { title: "Affordable Prices",   sub: "Great style, honest prices" },
+            { title: "54K Community",       sub: "Trusted by Ulaanbaatar" },
+          ].map(({ title, sub }, i, arr) => (
+            <div key={title} style={{ padding: "32px 28px", borderRight: i < arr.length - 1 ? "1px solid #e5e5e5" : "none" }}>
+              <p style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.01em", color: "#111", margin: "0 0 4px" }}>{title}</p>
+              <p style={{ fontSize: 12, color: "#757575", margin: 0 }}>{sub}</p>
+            </div>
+          ))}
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════════════════ */}
-      {/* CONTACT CTA                                           */}
-      {/* ══════════════════════════════════════════════════════ */}
-      <section className="relative py-24 bg-[#0D1A0D] overflow-hidden">
-        {/* Glow */}
-        <div className="absolute top-0 left-1/3 w-96 h-96 rounded-full blur-3xl opacity-8" style={{ background: "#4A9E4A" }} />
-        <div className="absolute bottom-0 right-1/3 w-64 h-64 rounded-full blur-3xl opacity-6" style={{ background: "#72C172" }} />
-
-        <div className="relative z-10 max-w-[1440px] mx-auto px-6 lg:px-16 text-center">
-          {/* Logo */}
-          <div className="flex justify-center mb-8">
-            <img
-              src={logo}
-              alt="988 Thrift Shop"
-              className="w-24 h-24 rounded-full object-cover"
-              style={{ border: "3px solid #4A9E4A44", boxShadow: "0 0 60px rgba(74,158,74,0.2)" }}
-            />
-          </div>
-
-          <span className="inline-block text-[#4A9E4A] text-xs tracking-[0.3em] uppercase mb-5">Come Visit Us</span>
-          <h2
-            className="text-white mx-auto mb-5"
-            style={{ fontSize: "clamp(2.5rem, 5vw, 4.5rem)", fontWeight: 800, letterSpacing: "-0.03em", lineHeight: 1, maxWidth: "700px" }}
-          >
-            Find Us in<br />
-            <span style={{ color: "#4A9E4A" }}>Ulaanbaatar</span>
-          </h2>
-          <p className="text-white/50 text-base mb-10 max-w-lg mx-auto leading-relaxed">
-            📍 Натур, Шинэ Монгол сургуулийн хойно 36A байр<br />
-            🟢 11:00 – 20:00 цаг · Өдөр бүр нээлттэй
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="tel:85144414"
-              className="inline-flex items-center gap-3 bg-[#4A9E4A] text-white px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:bg-[#72C172] transition-all duration-300"
-            >
-              <Phone className="w-4 h-4" />
-              📲 85144414
-            </a>
-            <a
-              href="tel:86310103"
-              className="inline-flex items-center gap-3 border border-[#4A9E4A]/40 text-[#4A9E4A] px-8 py-4 rounded-full text-sm tracking-widest uppercase hover:border-[#4A9E4A] hover:bg-[#4A9E4A]/10 transition-all"
-            >
-              <Phone className="w-4 h-4" />
-              📲 86310103
-            </a>
-          </div>
-
-          {/* No-returns reminder */}
-          <div
-            className="inline-flex items-center gap-2 mt-10 px-5 py-2.5 rounded-full text-sm"
-            style={{ background: "rgba(255,107,107,0.1)", border: "1px solid rgba(255,107,107,0.25)", color: "#FF6B6B" }}
-          >
-            <AlertCircle className="w-4 h-4" />
-            ❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — All sales are final.
-          </div>
+      {/* ════════════════════════ CONTACT CTA ════════════ */}
+      <section style={{ background: "#111", padding: "96px 24px", textAlign: "center" }}>
+        <img
+          src={logo}
+          alt="988 Thrift Shop"
+          style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", marginBottom: 32, display: "inline-block", border: "1.5px solid rgba(255,255,255,0.15)", filter: "grayscale(15%)" }}
+        />
+        <p className="n-lbl" style={{ color: "rgba(255,255,255,0.4)", marginBottom: 18 }}>Find Us</p>
+        <h2 style={{ fontWeight: 900, fontSize: "clamp(2.8rem, 7vw, 5.5rem)", letterSpacing: "-0.05em", lineHeight: 0.9, color: "#fff", margin: "0 auto 24px", maxWidth: 700 }}>
+          Visit Us in<br />Ulaanbaatar.
+        </h2>
+        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", lineHeight: 1.8, margin: "0 auto 40px", maxWidth: 400 }}>
+          Natur Building, Unit 36A<br />
+          Behind New Mongolia School, Ulaanbaatar<br />
+          Open 11:00 AM – 7:00 PM · Every day
+        </p>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
+          <a href="tel:85144414" className="n-btn-w">Call 85144414</a>
+          <Link to="/shop" className="n-btn-ol">Shop Online</Link>
         </div>
+        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", margin: 0 }}>
+          ALL SALES FINAL · No Returns or Exchanges
+        </p>
       </section>
+
     </div>
   );
 }
 
-/* ── Thrift Card ──────────────────────────────────────────── */
+/* ── Product Card ─────────────────────────────────────────── */
 function ThriftCard({
-  product,
-  index,
-  onAddToCart,
+  product, onAddToCart,
 }: {
   product: { id: string; name: string; price: number; originalPrice?: number; imageUrl: string; condition: string; category: string };
   index: number;
   onAddToCart: () => void;
 }) {
-  const [hovered, setHovered] = useState(false);
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
 
-  const tagColors = ["#4A9E4A", "#4ECDC4", "#FFE66D", "#FF6B6B", "#72C172", "#4A9E4A", "#FFE66D", "#4ECDC4"];
-  const accent = tagColors[index % tagColors.length];
-  const isDark = accent === "#4A9E4A" || accent === "#4ECDC4" || accent === "#FF6B6B" || accent === "#72C172";
-
   return (
-    <div
-      className="group relative rounded-2xl overflow-hidden cursor-pointer bg-[#F7F5F2]"
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-    >
+    <div className="n-card">
       {/* Image */}
-      <div className="relative overflow-hidden aspect-[3/4]">
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          className="w-full h-full object-cover transition-all duration-700"
-          style={{ transform: hovered ? "scale(1.07)" : "scale(1)" }}
-        />
-        <div
-          className="absolute inset-0 transition-opacity duration-400"
-          style={{ background: "linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)", opacity: hovered ? 1 : 0 }}
-        />
+      <div style={{ position: "relative", overflow: "hidden", aspectRatio: "3/4", background: "#f6f6f6" }}>
+        <img src={product.imageUrl} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
-        {/* Discount badge */}
         {discount && (
-          <div
-            className="absolute top-3 left-3 text-[11px] tracking-widest uppercase px-2.5 py-1 rounded-full"
-            style={{ background: "#FF6B6B", color: "white", fontWeight: 700 }}
-          >
-            -{discount}%
+          <div style={{ position: "absolute", top: 12, left: 12, background: "#111", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 10px" }}>
+            {discount}% Off
           </div>
         )}
-
-        {/* Condition badge */}
-        <div
-          className="absolute top-3 right-3 text-[10px] tracking-widest uppercase px-2.5 py-1 rounded-full"
-          style={{ background: accent, color: isDark ? "white" : "#0A0A0A", fontWeight: 600 }}
-        >
+        <div style={{ position: "absolute", top: 12, right: 12, background: "#fff", color: "#111", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", padding: "4px 8px" }}>
           {product.condition}
         </div>
 
-        {/* Quick add on hover */}
         <div
-          className="absolute bottom-0 left-0 right-0 p-4 transition-all duration-300"
-          style={{ opacity: hovered ? 1 : 0, transform: hovered ? "translateY(0)" : "translateY(10px)" }}
+          className="n-qadd"
+          style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 12, opacity: 0, transform: "translateY(6px)", transition: "opacity 0.25s, transform 0.25s" }}
         >
           <button
-            className="w-full py-3 rounded-xl text-sm tracking-widest uppercase transition-colors"
-            style={{ background: "#4A9E4A", color: "white", fontWeight: 600 }}
-            onClick={(e) => { e.preventDefault(); onAddToCart(); }}
+            style={{ width: "100%", padding: 11, background: "#111", color: "#fff", border: "none", fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", transition: "background 0.15s" }}
+            onClick={e => { e.preventDefault(); onAddToCart(); }}
+            onMouseOver={e => (e.currentTarget.style.background = "#333")}
+            onMouseOut={e => (e.currentTarget.style.background = "#111")}
           >
-            + Add to Cart
+            Add to Cart
           </button>
-        </div>
-
-        {/* Recycle tag */}
-        <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-0">
-          <span className="text-lg">♻️</span>
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-4">
-        <p className="text-gray-400 text-[10px] tracking-widest uppercase mb-1">{product.category}</p>
-        <p className="text-gray-900 text-sm truncate mb-2" style={{ fontWeight: 600 }}>{product.name}</p>
-        <div className="flex items-center gap-2">
-          <span className="text-gray-900" style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-            ${product.price.toFixed(2)}
-          </span>
+      <div style={{ padding: "12px 4px 16px" }}>
+        <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#757575" }}>{product.category}</p>
+        <p style={{ margin: "0 0 6px", fontWeight: 700, fontSize: 14, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "-0.01em" }}>{product.name}</p>
+        <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+          <span style={{ fontWeight: 800, fontSize: 14, color: "#111" }}>${product.price.toFixed(2)}</span>
           {product.originalPrice && (
-            <span className="text-gray-400 text-xs line-through">${product.originalPrice.toFixed(2)}</span>
+            <span style={{ fontSize: 12, color: "#999", textDecoration: "line-through" }}>${product.originalPrice.toFixed(2)}</span>
           )}
-          <span className="ml-auto text-white text-[9px] tracking-widest uppercase px-2 py-0.5 rounded-full" style={{ background: "#4A9E4A", fontWeight: 600 }}>
-            ♻️
-          </span>
+          {discount && (
+            <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#388e3c" }}>{discount}% off</span>
+          )}
         </div>
       </div>
     </div>

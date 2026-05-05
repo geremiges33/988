@@ -1,6 +1,6 @@
 import { Heart, Facebook, Instagram, Phone, MapPin, Clock } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
-import logo from "/Documents and Settings/Nest/Downloads/Thrift Shop Website (0)/src/assets/logo.png";
+import logo from "../../assets/logo.png";
 
 export function Footer() {
   const { t } = useLanguage();

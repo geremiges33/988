@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronDown, Phone, MapPin, AlertCircle, MessageCircle, ArrowRight } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
-import logo from "/Documents and Settings/Nest/Downloads/Thrift Shop Website (0)/src/assets/logo.png";
+import logo from "../../assets/logo.png";
 
 export function FAQ() {
   const { t } = useLanguage();

@@ -5,7 +5,7 @@ import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useFavorites } from "../context/FavoritesContext";
 import { useState, useRef, useEffect, useCallback } from "react";
-import logo from "/Documents and Settings/Nest/Downloads/Thrift Shop Website (0)/src/assets/logo.png";
+import logo from "../../assets/logo.png";
 
 /* ─────────────────────────── mega-menu data ─────────────────────────── */
 
@@ -381,8 +381,8 @@ export function Navbar() {
               <div className="w-px h-5 bg-gray-200" />
 
               {/* Auth section */}
-              {user ? (
-                <UserMenu user={user} onLogout={logout} />
+              {localStorage.getItem("data") ? (
+                <UserMenu user={user ?? undefined} onLogout={logout} />
               ) : (
                 <div className="flex items-center gap-3">
                   <Link
@@ -656,7 +656,7 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
 
 /* ─────────────────────────── UserMenu ─────────────────────────── */
 
-function UserMenu({ user, onLogout }: { user: { firstName: string; lastName: string; email: string; joinedAt: string }; onLogout: () => void }) {
+function UserMenu({ user, onLogout }: { user?: { firstName: string; lastName: string; email: string; joinedAt: string }; onLogout: () => void }) {
   const { t } = useLanguage();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
@@ -669,8 +669,8 @@ function UserMenu({ user, onLogout }: { user: { firstName: string; lastName: str
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
-  const initials = `${user.firstName[0] ?? ""}${user.lastName[0] ?? ""}`.toUpperCase();
-  const joinYear = new Date(user.joinedAt).getFullYear();
+  const initials = `${user?.firstName[0] ?? ""}${user?.lastName[0] ?? ""}`.toUpperCase();
+  // const joinYear = new Date(user?.joinedAt).getFullYear();
 
   const gradients = [
     "linear-gradient(135deg,#FF6B6B,#FFE66D)",
@@ -678,7 +678,7 @@ function UserMenu({ user, onLogout }: { user: { firstName: string; lastName: str
     "linear-gradient(135deg,#C5B9E4,#F4A3A8)",
     "linear-gradient(135deg,#FFA07A,#FFE66D)",
   ];
-  const gradientIdx = (user.firstName.charCodeAt(0) || 0) % gradients.length;
+  const gradientIdx = (user?.firstName.charCodeAt(0) || 0) % gradients.length;
 
   return (
     <div className="relative" ref={ref}>
@@ -692,7 +692,7 @@ function UserMenu({ user, onLogout }: { user: { firstName: string; lastName: str
         >
           {initials}
         </div>
-        <span className="text-sm text-gray-700 max-w-[80px] truncate">{user.firstName}</span>
+        <span className="text-sm text-gray-700 max-w-[80px] truncate">{user?.firstName}</span>
         <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </button>
 
@@ -714,13 +714,13 @@ function UserMenu({ user, onLogout }: { user: { firstName: string; lastName: str
                 </div>
                 <div className="min-w-0">
                   <p className="text-white text-sm truncate" style={{ fontWeight: 600 }}>
-                    {user.firstName} {user.lastName}
+                    {user?.firstName} {user?.lastName}
                   </p>
-                  <p className="text-white/40 text-xs truncate">{user.email}</p>
+                  <p className="text-white/40 text-xs truncate">{user?.email}</p>
                 </div>
               </div>
               <div className="mt-3 flex items-center gap-1.5">
-                <span className="bg-white/10 text-white/60 text-[9px] px-2 py-0.5 rounded-full tracking-widest uppercase">{t.user.memberSince} {joinYear}</span>
+                <span className="bg-white/10 text-white/60 text-[9px] px-2 py-0.5 rounded-full tracking-widest uppercase">{t.user.memberSince}</span>
               </div>
             </div>
 

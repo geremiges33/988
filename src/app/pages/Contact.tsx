@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Mail, Phone, MapPin, Send, Check, AlertCircle, Clock, ArrowRight } from "lucide-react";
 import { useLanguage } from "../context/LanguageContext";
 import { Link } from "react-router";
-import logo from "/Documents and Settings/Nest/Downloads/Thrift Shop Website (0)/src/assets/logo.png";
+import logo from "../../assets/logo.png";
 
 export function Contact() {
   const { t } = useLanguage();

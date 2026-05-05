@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, ReactNode, use } from "react";
 
 export interface User {
   id: string;
@@ -138,8 +138,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist(newUser);
     return { success: true };
   };
-
-  const logout = () => persist(null);
+  const logout = () => {persist(null);localStorage.removeItem("data"); window.location.href = "/login";};
 
   const updateUser = (data: Partial<User>) => {
     if (!user) return;
