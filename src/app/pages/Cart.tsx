@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight } from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useLanguage } from "../context/LanguageContext";
+import React from "react";
 
 const sans = { fontFamily: "'Inter', 'Helvetica Neue', Arial, sans-serif" };
 
