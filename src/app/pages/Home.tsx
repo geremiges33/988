@@ -44,247 +44,311 @@ export function Home() {
   const countdown = useCountdown(6, 28, 44);
 
   const tickerItems = [
-    "PRE-LOVED CLOTHING STORE",
-    "ALL SALES FINAL — NO RETURNS OR EXCHANGES",
+    "PRE-LOVED CLOTHING",
+    "ALL SALES FINAL",
     "NATUR BUILDING · UNIT 36A",
-    "OPEN 11:00 AM – 7:00 PM",
-    "CALL 85144414",
+    "OPEN 11 AM – 7 PM DAILY",
+    "CALL 8514 4414",
     "VINTAGE FINDS",
-    "UNIQUE PIECES",
-    "PRE-LOVED FASHION",
+    "ULAANBAATAR",
+    "SINCE DAY ONE",
   ];
 
   return (
-    <div style={{ fontFamily: "'Helvetica Neue', Helvetica, Arial, sans-serif", background: "#fff", color: "#111", overflowX: "hidden" }}>
+    <div style={{ fontFamily: "'Georgia', 'Times New Roman', serif", background: "#faf9f7", color: "#0d0d0d", overflowX: "hidden" }}>
       <style>{`
-        @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap');
 
-        .nf1 { animation: fadeUp 0.55s ease both 0.05s; }
-        .nf2 { animation: fadeUp 0.55s ease both 0.18s; }
-        .nf3 { animation: fadeUp 0.55s ease both 0.3s; }
-        .nf4 { animation: fadeUp 0.55s ease both 0.42s; }
+        * { box-sizing: border-box; }
 
-        .n-btn-w {
-          display: inline-block; padding: 14px 28px;
-          background: #fff; color: #111; font-size: 13px; font-weight: 700;
-          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
-          border-radius: 30px; border: none; cursor: pointer;
-          transition: background 0.18s;
+        body { font-family: 'DM Sans', sans-serif; }
+
+        @keyframes ticker {
+          0% { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
-        .n-btn-w:hover { background: #e5e5e5; }
-
-        .n-btn-b {
-          display: inline-block; padding: 14px 28px;
-          background: #111; color: #fff; font-size: 13px; font-weight: 700;
-          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
-          border-radius: 30px; border: none; cursor: pointer;
-          transition: background 0.18s;
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(28px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
-        .n-btn-b:hover { background: #333; }
-
-        .n-btn-ol {
-          display: inline-block; padding: 13px 27px;
-          background: transparent; color: #fff; font-size: 13px; font-weight: 700;
-          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
-          border-radius: 30px; border: 1.5px solid rgba(255,255,255,0.4); cursor: pointer;
-          transition: background 0.18s, color 0.18s, border-color 0.18s;
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.97); }
+          to   { opacity: 1; transform: scale(1); }
         }
-        .n-btn-ol:hover { background: #fff; color: #111; border-color: #fff; }
 
-        .n-btn-ol-dark {
-          display: inline-block; padding: 13px 27px;
-          background: transparent; color: #111; font-size: 13px; font-weight: 700;
-          letter-spacing: 0.06em; text-transform: uppercase; text-decoration: none;
-          border-radius: 30px; border: 1.5px solid #111; cursor: pointer;
-          transition: background 0.18s, color 0.18s;
+        .anim-1 { animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both 0.05s; }
+        .anim-2 { animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both 0.2s; }
+        .anim-3 { animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both 0.35s; }
+        .anim-4 { animation: fadeUp 0.7s cubic-bezier(.22,1,.36,1) both 0.48s; }
+
+        /* ── Buttons ── */
+        .btn-primary {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 14px 32px; background: #0d0d0d; color: #faf9f7;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+          text-transform: uppercase; text-decoration: none;
+          border: 1.5px solid #0d0d0d; border-radius: 2px; cursor: pointer;
+          transition: background 0.22s, color 0.22s;
         }
-        .n-btn-ol-dark:hover { background: #111; color: #fff; }
+        .btn-primary:hover { background: #2a2a2a; border-color: #2a2a2a; }
 
-        .n-cat { position: relative; overflow: hidden; cursor: pointer; display: block; text-decoration: none; }
-        .n-cat img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.55s cubic-bezier(.25,.8,.25,1); }
-        .n-cat:hover img { transform: scale(1.04); }
-        .n-cat:hover .n-cat-btn { opacity: 1 !important; }
+        .btn-ghost-light {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 13px 31px; background: transparent; color: #fff;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+          text-transform: uppercase; text-decoration: none;
+          border: 1.5px solid rgba(255,255,255,0.35); border-radius: 2px; cursor: pointer;
+          transition: background 0.22s, color 0.22s, border-color 0.22s;
+        }
+        .btn-ghost-light:hover { background: #fff; color: #0d0d0d; border-color: #fff; }
 
-        .n-card { background: #f6f6f6; }
-        .n-card img { transition: transform 0.45s cubic-bezier(.25,.8,.25,1); }
-        .n-card:hover img { transform: scale(1.05); }
-        .n-card:hover .n-qadd { opacity: 1 !important; transform: translateY(0) !important; }
+        .btn-ghost-dark {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 13px 31px; background: transparent; color: #0d0d0d;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+          text-transform: uppercase; text-decoration: none;
+          border: 1.5px solid #0d0d0d; border-radius: 2px; cursor: pointer;
+          transition: background 0.22s, color 0.22s;
+        }
+        .btn-ghost-dark:hover { background: #0d0d0d; color: #fff; }
 
-        .n-lbl { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: #757575; }
-        .n-title { font-size: clamp(1.8rem, 3.5vw, 2.8rem); font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: #111; margin: 0 0 32px; }
-        .n-ulink { font-size: 13px; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: #111; text-decoration: underline; text-underline-offset: 3px; }
-        .n-ulink:hover { color: #555; }
+        .btn-white {
+          display: inline-flex; align-items: center; gap: 8px;
+          padding: 14px 32px; background: #fff; color: #0d0d0d;
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; letter-spacing: 0.12em;
+          text-transform: uppercase; text-decoration: none;
+          border: 1.5px solid #fff; border-radius: 2px; cursor: pointer;
+          transition: background 0.22s, color 0.22s;
+        }
+        .btn-white:hover { background: #e8e6e1; border-color: #e8e6e1; }
 
-        .n-info-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); border-top: 1px solid #e5e5e5; border-left: 1px solid #e5e5e5; }
-        .n-info-cell { padding: 28px 24px; border-right: 1px solid #e5e5e5; border-bottom: 1px solid #e5e5e5; }
+        /* ── Category Cards ── */
+        .cat-card { position: relative; overflow: hidden; cursor: pointer; display: block; text-decoration: none; }
+        .cat-card img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform 0.65s cubic-bezier(.25,.8,.25,1); }
+        .cat-card:hover img { transform: scale(1.06); }
+        .cat-reveal { opacity: 0; transform: translateY(6px); transition: opacity 0.3s, transform 0.3s; }
+        .cat-card:hover .cat-reveal { opacity: 1; transform: translateY(0); }
 
-        .n-cat-grid { display: grid; grid-template-columns: 5fr 4fr 3fr; grid-template-rows: 1fr 1fr; gap: 6px; height: 580px; }
+        /* ── Product Card ── */
+        .prod-card { background: #fff; border: 1px solid #ece9e3; }
+        .prod-card img { transition: transform 0.5s cubic-bezier(.25,.8,.25,1); }
+        .prod-card:hover img { transform: scale(1.04); }
+        .prod-atc { opacity: 0; transform: translateY(4px); transition: opacity 0.25s, transform 0.25s; }
+        .prod-card:hover .prod-atc { opacity: 1; transform: translateY(0); }
 
-        .n-prod-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
+        /* ── Section labels ── */
+        .eyebrow {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 10px; font-weight: 600; letter-spacing: 0.22em;
+          text-transform: uppercase; color: #8a8278;
+        }
 
-        .n-split { display: grid; grid-template-columns: 1fr 1fr; min-height: 520px; }
+        .display-heading {
+          font-family: 'Playfair Display', Georgia, serif;
+          font-weight: 900; letter-spacing: -0.02em; line-height: 0.93;
+          color: #0d0d0d;
+        }
 
-        .n-trust { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        .body-text {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 15px; font-weight: 400; line-height: 1.8;
+          color: #5a554e;
+        }
 
-        /* Flash sale stat boxes */
-        .fs-stat { display: flex; flex-direction: column; gap: 4px; padding: 20px 24px; border: 1px solid rgba(255,255,255,0.1); }
-        .fs-stat-num { font-size: 2.2rem; font-weight: 900; color: #fff; letter-spacing: -0.04em; line-height: 1; }
-        .fs-stat-label { font-size: 11px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.35); }
+        .text-link {
+          font-family: 'DM Sans', sans-serif;
+          font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+          text-transform: uppercase; color: #0d0d0d;
+          text-decoration: none; border-bottom: 1.5px solid #0d0d0d;
+          padding-bottom: 1px;
+          transition: color 0.2s, border-color 0.2s;
+        }
+        .text-link:hover { color: #8a8278; border-color: #8a8278; }
+
+        /* ── Grids ── */
+        .cat-mosaic { display: grid; grid-template-columns: 5fr 4fr 3fr; grid-template-rows: 1fr 1fr; gap: 4px; height: 600px; }
+        .prod-grid  { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
+        .info-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); border-top: 1px solid #e8e4dd; }
+        .trust-row  { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+
+        /* ── Flash sale numerals ── */
+        .fs-box { padding: 22px 28px; border: 1px solid rgba(255,255,255,0.08); }
+        .fs-num { font-family: 'Playfair Display', serif; font-size: 2.6rem; font-weight: 900; color: #fff; letter-spacing: -0.04em; line-height: 1; }
+        .fs-lbl { font-family: 'DM Sans', sans-serif; font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-top: 4px; }
+
+        /* ── Dividers ── */
+        .rule { border: none; border-top: 1px solid #e8e4dd; margin: 0; }
 
         @media (max-width: 900px) {
-          .n-split { grid-template-columns: 1fr; }
+          .about-grid { grid-template-columns: 1fr !important; }
+          .flash-grid { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 720px) {
-          .n-cat-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; height: auto; }
+          .cat-mosaic { grid-template-columns: 1fr 1fr; grid-template-rows: auto; height: auto; }
         }
       `}</style>
 
-      {/* ════════════════════════════════ HERO ══════════════ */}
-      <section style={{ position: "relative", height: "92vh", minHeight: 540, overflow: "hidden", background: "#111" }}>
+      {/* ════════════════════════════════ HERO ════════════════════════════ */}
+      <section style={{ position: "relative", height: "94vh", minHeight: 560, overflow: "hidden", background: "#1a1714" }}>
         <img
           src={STORE_IMG}
           alt="988 Thrift Shop"
-          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.52 }}
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.45 }}
         />
-        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.86) 0%, rgba(0,0,0,0.08) 55%, transparent 100%)" }} />
+        {/* Rich gradient — depth without flatness */}
+        <div style={{ position: "absolute", inset: 0, background: "linear-gradient(160deg, rgba(13,13,13,0.15) 0%, rgba(13,13,13,0.9) 100%)" }} />
 
-        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 40px 56px" }}>
-          <p className="n-lbl nf1" style={{ color: "rgba(255,255,255,0.55)", marginBottom: 14 }}>
-            Ulaanbaatar · Natur Building, Unit 36A · Open 11:00 AM – 7:00 PM
-          </p>
-          <h1 className="nf2" style={{
-            fontWeight: 900,
-            fontSize: "clamp(3.4rem, 8vw, 7rem)",
-            letterSpacing: "-0.04em",
-            lineHeight: 0.9,
-            color: "#fff",
-            margin: "0 0 22px",
-            maxWidth: 860,
+        {/* Top-left badge */}
+        <div className="anim-1" style={{ position: "absolute", top: 36, left: 44 }}>
+          <span style={{
+            fontFamily: "'DM Sans', sans-serif",
+            fontSize: 10, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase",
+            color: "rgba(255,255,255,0.5)", border: "1px solid rgba(255,255,255,0.18)",
+            padding: "6px 14px", borderRadius: 1,
           }}>
-            Pre-Loved<br />Fashion<br />Store.
-          </h1>
-          <p className="nf3" style={{ fontSize: 15, color: "rgba(255,255,255,0.6)", marginBottom: 30, maxWidth: 400, lineHeight: 1.65 }}>
-            Affordable prices, quality finds —<br />pre-loved fashion for everyone. Every piece has a story.
+            Ulaanbaatar · Est. 988
+          </span>
+        </div>
+
+        {/* Centered bottom copy */}
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 44px 60px" }}>
+          <p className="eyebrow anim-1" style={{ color: "rgba(255,255,255,0.4)", marginBottom: 18 }}>
+            Pre-Loved Clothing Store &nbsp;·&nbsp; Natur Building, Unit 36A
           </p>
-          <div className="nf4" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-            <Link to="/shop" className="n-btn-w">Shop Now</Link>
-            <a href="tel:85144414" className="n-btn-ol">Call Us: 85144414</a>
+          <h1 className="anim-2 display-heading" style={{
+            fontSize: "clamp(3.8rem, 9vw, 8rem)",
+            color: "#fff", margin: "0 0 20px", maxWidth: 900,
+          }}>
+            Wear the<br />past. Own<br />the moment.
+          </h1>
+          <p className="anim-3 body-text" style={{ color: "rgba(255,255,255,0.5)", marginBottom: 34, maxWidth: 380, fontSize: 14 }}>
+            Carefully curated second-hand pieces at prices that make sense. Every item has a story — find yours.
+          </p>
+          <div className="anim-4" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Link to="/shop" className="btn-white">Explore Collection</Link>
+            <a href="tel:85144414" className="btn-ghost-light">8514 4414</a>
           </div>
         </div>
       </section>
 
-      {/* ════════════════════════════ POLICY BAR ════════════ */}
-      <div style={{ background: "#111", padding: "11px 24px", textAlign: "center" }}>
-        <p style={{ margin: 0, fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "#fff" }}>
-          ALL SALES FINAL &nbsp;·&nbsp; No Returns or Exchanges
+      {/* ════════════════════════════ POLICY BAR ══════════════════════════ */}
+      <div style={{ background: "#0d0d0d", padding: "12px 24px", textAlign: "center" }}>
+        <p style={{ margin: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>
+          All Sales Final &nbsp;·&nbsp; No Returns or Exchanges
         </p>
       </div>
 
-      {/* ═══════════════════════════════ TICKER ════════════ */}
-      <div style={{ background: "#f5f5f5", borderBottom: "1px solid #e5e5e5", padding: "10px 0", overflow: "hidden" }}>
-        <div style={{ display: "inline-flex", whiteSpace: "nowrap", animation: "ticker 32s linear infinite" }}>
-          {Array(5).fill(null).flatMap((_, i) =>
+      {/* ══════════════════════════════ TICKER ════════════════════════════ */}
+      <div style={{ background: "#f0ede7", borderBottom: "1px solid #e8e4dd", padding: "11px 0", overflow: "hidden" }}>
+        <div style={{ display: "inline-flex", whiteSpace: "nowrap", animation: "ticker 36s linear infinite" }}>
+          {Array(6).fill(null).flatMap((_, i) =>
             tickerItems.map((item, j) => (
               <span key={`${i}-${j}`}>
-                <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#111", padding: "0 28px" }}>{item}</span>
-                <span style={{ fontSize: 11, color: "#bbb", padding: "0 4px" }}>·</span>
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "#4a4540", padding: "0 32px" }}>{item}</span>
+                <span style={{ fontSize: 10, color: "#c4bfb7", padding: "0 2px" }}>✦</span>
               </span>
             ))
           )}
         </div>
       </div>
 
-      {/* ═══════════════════════ STORE INFO GRID ════════════ */}
-      <div className="n-info-grid">
+      {/* ═══════════════════════════ INFO STRIP ═══════════════════════════ */}
+      <div className="info-strip">
         {[
-          { label: "Location", title: "Natur Building, Unit 36A",   text: "Behind New Mongolia School\nUlaanbaatar" },
-          { label: "Hours",    title: "11:00 AM – 7:00 PM",         text: "Open every day\nNo appointment needed" },
-          { label: "Contact",  title: "85144414",                    text: "Call or message\nduring store hours" },
-          { label: "Policy",   title: "All Sales Final",             text: "No returns or exchanges\non any items" },
-        ].map(({ label, title, text }) => (
-          <div key={label} className="n-info-cell">
-            <p style={{ margin: "0 0 5px", fontSize: 10, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", color: "#999" }}>{label}</p>
-            <p style={{ margin: "0 0 5px", fontSize: 14, fontWeight: 800, color: "#111", letterSpacing: "-0.01em" }}>{title}</p>
-            <p style={{ margin: 0, fontSize: 13, color: "#555", lineHeight: 1.5, whiteSpace: "pre-line" }}>{text}</p>
+          { label: "Find us", heading: "Natur Building, Unit 36A", sub: "Behind New Mongolia School · Ulaanbaatar" },
+          { label: "Hours",   heading: "11:00 AM – 7:00 PM",       sub: "Open every day, no appointment needed" },
+          { label: "Contact", heading: "8514 4414",                 sub: "Call or text us during store hours" },
+          { label: "Policy",  heading: "All Sales Final",           sub: "Items sold as-is — no returns, no exchanges" },
+        ].map(({ label, heading, sub }) => (
+          <div key={label} style={{ padding: "28px 24px", borderRight: "1px solid #e8e4dd", borderBottom: "1px solid #e8e4dd" }}>
+            <p className="eyebrow" style={{ marginBottom: 6 }}>{label}</p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", margin: "0 0 4px", fontSize: 14, fontWeight: 600, color: "#0d0d0d", letterSpacing: "-0.01em" }}>{heading}</p>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", margin: 0, fontSize: 12, color: "#8a8278", lineHeight: 1.6 }}>{sub}</p>
           </div>
         ))}
       </div>
 
-      {/* ═══════════════════════════ CATEGORIES ════════════ */}
-      <section style={{ padding: "64px 0 0" }}>
-        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 24 }}>
+      {/* ═══════════════════════════ CATEGORIES ══════════════════════════ */}
+      <section style={{ padding: "72px 0 0" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 28px" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 28 }}>
             <div>
-              <p className="n-lbl" style={{ marginBottom: 8 }}>Browse</p>
-              <h2 className="n-title">{h.categoriesTitle}</h2>
+              <p className="eyebrow" style={{ marginBottom: 10 }}>Shop by Category</p>
+              <h2 className="display-heading" style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", margin: 0 }}>
+                {h.categoriesTitle}
+              </h2>
             </div>
-            <Link to="/shop" className="n-ulink">View All</Link>
+            <Link to="/shop" className="text-link">View all →</Link>
           </div>
 
-          <div className="n-cat-grid">
-
+          <div className="cat-mosaic">
             {/* Women — tall */}
-            <Link to="/shop/clothing" className="n-cat" style={{ gridColumn: 1, gridRow: "1 / 3" }}>
+            <Link to="/shop/clothing" className="cat-card" style={{ gridColumn: 1, gridRow: "1 / 3" }}>
               <img src={CAT_WOMEN} alt="Women" style={{ height: "100%" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.72) 0%, transparent 50%)" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,13,13,0.82) 0%, rgba(13,13,13,0.05) 50%)" }} />
               <div style={{ position: "absolute", top: 20, left: 20 }}>
-                <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.14em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 2 }}>New In</span>
+                <span style={{ background: "#faf9f7", color: "#0d0d0d", fontFamily: "'DM Sans',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.2em", textTransform: "uppercase", padding: "5px 12px" }}>New In</span>
               </div>
-              <div style={{ position: "absolute", bottom: 24, left: 24, right: 24 }}>
-                <h3 style={{ color: "#fff", fontSize: "2.4rem", fontWeight: 900, letterSpacing: "-0.03em", lineHeight: 1, margin: "0 0 16px" }}>{h.cat_women}</h3>
-                <span className="n-cat-btn n-btn-w" style={{ fontSize: 12, padding: "10px 22px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+              <div style={{ position: "absolute", bottom: 28, left: 28, right: 28 }}>
+                <h3 className="display-heading" style={{ color: "#fff", fontSize: "2.6rem", margin: "0 0 18px" }}>{h.cat_women}</h3>
+                <span className="btn-white cat-reveal" style={{ fontSize: 11, padding: "9px 20px" }}>{h.shopNow}</span>
               </div>
             </Link>
 
             {/* Men */}
-            <Link to="/shop/clothing" className="n-cat" style={{ gridColumn: 2, gridRow: 1 }}>
+            <Link to="/shop/clothing" className="cat-card" style={{ gridColumn: 2, gridRow: 1 }}>
               <img src={CAT_MEN} alt="Men" />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
-              <div style={{ position: "absolute", bottom: 20, left: 20 }}>
-                <h3 style={{ color: "#fff", fontSize: "1.7rem", fontWeight: 900, letterSpacing: "-0.02em", margin: "0 0 10px" }}>{h.cat_men}</h3>
-                <span className="n-cat-btn n-btn-w" style={{ fontSize: 11, padding: "9px 18px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,13,13,0.75) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", bottom: 22, left: 22 }}>
+                <h3 className="display-heading" style={{ color: "#fff", fontSize: "1.8rem", margin: "0 0 12px" }}>{h.cat_men}</h3>
+                <span className="btn-white cat-reveal" style={{ fontSize: 10, padding: "8px 18px" }}>{h.shopNow}</span>
               </div>
             </Link>
 
             {/* Accessories */}
-            <Link to="/shop/accessories" className="n-cat" style={{ gridColumn: 3, gridRow: 1 }}>
+            <Link to="/shop/accessories" className="cat-card" style={{ gridColumn: 3, gridRow: 1 }}>
               <img src={CAT_ACC} alt="Accessories" />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(13,13,13,0.75) 0%, transparent 55%)" }} />
               <div style={{ position: "absolute", bottom: 20, left: 20 }}>
-                <h3 style={{ color: "#fff", fontSize: "1.2rem", fontWeight: 900, letterSpacing: "-0.01em", margin: "0 0 8px" }}>{h.cat_accessories}</h3>
-                <span className="n-cat-btn n-btn-w" style={{ fontSize: 10, padding: "8px 16px", opacity: 0, transition: "opacity 0.3s" }}>{h.shopNow}</span>
+                <h3 className="display-heading" style={{ color: "#fff", fontSize: "1.25rem", margin: "0 0 10px" }}>{h.cat_accessories}</h3>
+                <span className="btn-white cat-reveal" style={{ fontSize: 10, padding: "7px 15px" }}>{h.shopNow}</span>
               </div>
             </Link>
 
-            {/* Kids — wide bottom */}
-            <Link to="/shop" className="n-cat" style={{ gridColumn: "2 / 4", gridRow: 2 }}>
+            {/* Kids */}
+            <Link to="/shop" className="cat-card" style={{ gridColumn: "2 / 4", gridRow: 2 }}>
               <img src={CAT_KIDS} alt="Kids" style={{ objectPosition: "top" }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(0,0,0,0.68) 0%, transparent 55%)" }} />
-              <div style={{ position: "absolute", left: 24, top: "50%", transform: "translateY(-50%)" }}>
-                <p style={{ color: "rgba(255,255,255,0.55)", fontSize: 11, letterSpacing: "0.16em", textTransform: "uppercase", fontWeight: 600, margin: "0 0 6px" }}>For the little ones</p>
-                <h3 style={{ color: "#fff", fontSize: "1.9rem", fontWeight: 900, letterSpacing: "-0.03em", margin: "0 0 14px" }}>{h.cat_kids}</h3>
-                <span className="n-cat-btn n-btn-w" style={{ fontSize: 11, padding: "9px 18px", opacity: 0, transition: "opacity 0.3s" }}>Explore</span>
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to right, rgba(13,13,13,0.75) 0%, transparent 55%)" }} />
+              <div style={{ position: "absolute", left: 28, top: "50%", transform: "translateY(-50%)" }}>
+                <p className="eyebrow" style={{ color: "rgba(255,255,255,0.45)", marginBottom: 8 }}>For the little ones</p>
+                <h3 className="display-heading" style={{ color: "#fff", fontSize: "2rem", margin: "0 0 16px" }}>{h.cat_kids}</h3>
+                <span className="btn-white cat-reveal" style={{ fontSize: 10, padding: "8px 18px" }}>Explore</span>
               </div>
-              <div style={{ position: "absolute", top: 18, right: 20 }}>
-                <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", padding: "5px 12px", borderRadius: 2 }}>Best Value</span>
+              <div style={{ position: "absolute", top: 20, right: 22 }}>
+                <span style={{ background: "#faf9f7", color: "#0d0d0d", fontFamily: "'DM Sans',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase", padding: "5px 12px" }}>Best Value</span>
               </div>
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════ TRENDING ══════════════ */}
-      <section style={{ padding: "80px 0" }}>
-        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 24px" }}>
-          <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 28 }}>
+      {/* ═══════════════════════════ TRENDING ════════════════════════════ */}
+      <section style={{ padding: "88px 0" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "0 28px" }}>
+          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 32 }}>
             <div>
-              <p className="n-lbl" style={{ marginBottom: 8 }}>Just In</p>
-              <h2 className="n-title">{h.trendingTitle}</h2>
+              <p className="eyebrow" style={{ marginBottom: 10 }}>Just Arrived</p>
+              <h2 className="display-heading" style={{ fontSize: "clamp(2rem, 3.5vw, 3rem)", margin: 0 }}>
+                {h.trendingTitle}
+              </h2>
             </div>
-            <Link to="/shop" className="n-ulink">{h.viewAll}</Link>
+            <Link to="/shop" className="text-link">{h.viewAll} →</Link>
           </div>
-          <div className="n-prod-grid">
+          <div className="prod-grid">
             {trending.map((product, i) => (
               <ThriftCard key={product.id} product={product} index={i} onAddToCart={() => addToCart(product)} />
             ))}
@@ -292,14 +356,19 @@ export function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════ FLASH SALE — REDESIGNED ════════════ */}
-      <section style={{ background: "#111", borderTop: "1px solid #222" }}>
+      {/* ════════════════════════════ FLASH SALE ═════════════════════════ */}
+      <section style={{ background: "#0d0d0d", borderTop: "1px solid #1c1c1c" }}>
         <div style={{ maxWidth: 1440, margin: "0 auto" }}>
+
           {/* Top bar */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "28px 48px 0", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-              <span style={{ background: "#fff", color: "#111", fontSize: 10, fontWeight: 900, letterSpacing: "0.18em", textTransform: "uppercase", padding: "6px 14px", borderRadius: 2 }}>Flash Sale</span>
-              <p style={{ margin: 0, fontSize: 13, color: "rgba(255,255,255,0.45)", letterSpacing: "0.04em" }}>Ends in</p>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <span style={{ background: "#fff", color: "#0d0d0d", fontFamily: "'DM Sans',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.22em", textTransform: "uppercase", padding: "6px 14px" }}>
+                Flash Sale
+              </span>
+              <p style={{ margin: 0, fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: "rgba(255,255,255,0.35)", letterSpacing: "0.04em" }}>
+                Ends in
+              </p>
               <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
                 {[
                   { val: countdown.h, label: "hr" },
@@ -307,105 +376,103 @@ export function Home() {
                   { val: countdown.s, label: "sec" },
                 ].map(({ val, label }, idx) => (
                   <span key={label} style={{ display: "flex", alignItems: "baseline", gap: 3 }}>
-                    {idx > 0 && <span style={{ color: "rgba(255,255,255,0.25)", fontWeight: 900, fontSize: 18, marginRight: 3 }}>:</span>}
-                    <span style={{ fontSize: "1.5rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.03em", fontVariantNumeric: "tabular-nums" }}>{String(val).padStart(2, "0")}</span>
-                    <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "rgba(255,255,255,0.3)" }}>{label}</span>
+                    {idx > 0 && <span style={{ color: "rgba(255,255,255,0.2)", fontWeight: 700, fontSize: 16, marginRight: 2 }}>:</span>}
+                    <span style={{ fontFamily: "'Playfair Display',serif", fontSize: "1.6rem", fontWeight: 900, color: "#fff", letterSpacing: "-0.04em", fontVariantNumeric: "tabular-nums" }}>
+                      {String(val).padStart(2, "0")}
+                    </span>
+                    <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 9, fontWeight: 600, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(255,255,255,0.25)" }}>{label}</span>
                   </span>
                 ))}
               </div>
             </div>
-            <Link to="/shop?sale=true" className="n-btn-ol" style={{ fontSize: 12, padding: "10px 22px" }}>View All Deals</Link>
+            <Link to="/shop?sale=true" className="btn-ghost-light" style={{ fontSize: 11, padding: "10px 22px" }}>View All Deals</Link>
           </div>
 
-          {/* Main content */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 440 }}>
-            {/* Left: image with overlay headline */}
-            <div style={{ position: "relative", overflow: "hidden", minHeight: 400 }}>
-              <img src={DENIM_IMG} alt="Flash Sale" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.7 }} />
-              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(0,0,0,0.6) 0%, transparent 70%)" }} />
-              <div style={{ position: "absolute", top: 40, left: 40 }}>
-                <h2 style={{ fontWeight: 900, fontSize: "clamp(3rem, 5vw, 5rem)", letterSpacing: "-0.05em", lineHeight: 0.88, color: "#fff", margin: 0 }}>
-                  Up To<br />70%<br />Off.
+          {/* Main split */}
+          <div className="flash-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", minHeight: 460 }}>
+            {/* Left: image */}
+            <div style={{ position: "relative", overflow: "hidden", minHeight: 420 }}>
+              <img src={DENIM_IMG} alt="Flash Sale" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", opacity: 0.6 }} />
+              <div style={{ position: "absolute", inset: 0, background: "linear-gradient(135deg, rgba(13,13,13,0.65) 0%, transparent 65%)" }} />
+              <div style={{ position: "absolute", top: 44, left: 44 }}>
+                <h2 className="display-heading" style={{
+                  fontSize: "clamp(3.2rem, 5.5vw, 5.5rem)",
+                  color: "#fff", margin: 0, lineHeight: 0.88,
+                }}>
+                  Up to<br />70%<br />off.
                 </h2>
               </div>
             </div>
 
-            {/* Right: stat grid + copy */}
-            <div style={{ padding: "40px 48px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 32 }}>
+            {/* Right: copy + stats */}
+            <div style={{ padding: "44px 52px", display: "flex", flexDirection: "column", justifyContent: "center", gap: 36 }}>
               <div>
-                <p style={{ margin: "0 0 12px", fontSize: 13, color: "rgba(255,255,255,0.4)", lineHeight: 1.7 }}>
-                  Hundreds of pre-loved pieces, drastically reduced. Affordable prices, quality finds — shop today's best deals before they're gone.
+                <p className="eyebrow" style={{ color: "rgba(255,255,255,0.3)", marginBottom: 14 }}>Today only</p>
+                <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 15, color: "rgba(255,255,255,0.45)", lineHeight: 1.8, margin: 0, maxWidth: 360 }}>
+                  Hundreds of hand-picked pieces, steeply reduced. Affordable prices, real quality — the best deals we've had all season.
                 </p>
               </div>
 
-              {/* Stats row */}
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.08)" }}>
-                <div className="fs-stat">
-                  <span className="fs-stat-num">70%</span>
-                  <span className="fs-stat-label">Max Discount</span>
-                </div>
-                <div className="fs-stat" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span className="fs-stat-num">200+</span>
-                  <span className="fs-stat-label">Items on Sale</span>
-                </div>
-                <div className="fs-stat" style={{ borderLeft: "1px solid rgba(255,255,255,0.08)" }}>
-                  <span className="fs-stat-num">1 Day</span>
-                  <span className="fs-stat-label">Only</span>
-                </div>
+              {/* Stats */}
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 1, background: "rgba(255,255,255,0.06)" }}>
+                {[
+                  { num: "70%",   lbl: "Max Off" },
+                  { num: "200+",  lbl: "Items" },
+                  { num: "1 Day", lbl: "Only" },
+                ].map(({ num, lbl }, i) => (
+                  <div key={lbl} className="fs-box" style={i > 0 ? { borderLeft: "1px solid rgba(255,255,255,0.06)" } : {}}>
+                    <div className="fs-num">{num}</div>
+                    <div className="fs-lbl">{lbl}</div>
+                  </div>
+                ))}
               </div>
 
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-                <Link to="/shop?sale=true" className="n-btn-w">Shop the Sale</Link>
-                <Link to="/shop" className="n-btn-ol" style={{ fontSize: 12, padding: "10px 22px" }}>Browse All</Link>
+                <Link to="/shop?sale=true" className="btn-white">Shop the Sale</Link>
+                <Link to="/shop" className="btn-ghost-light" style={{ fontSize: 11, padding: "10px 22px" }}>Browse All</Link>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* ═══════════════════════════════ ABOUT — REDESIGNED ════════════ */}
-      <section style={{ borderTop: "1px solid #e5e5e5", background: "#fafafa" }}>
-        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "80px 48px" }}>
+      {/* ════════════════════════════ ABOUT ══════════════════════════════ */}
+      <section style={{ borderTop: "1px solid #e8e4dd", background: "#faf9f7" }}>
+        <div style={{ maxWidth: 1440, margin: "0 auto", padding: "88px 52px" }}>
+          <p className="eyebrow" style={{ marginBottom: 14 }}>Our Story</p>
 
-          {/* Top label */}
-          <p className="n-lbl" style={{ marginBottom: 12 }}>Our Story</p>
-
-          {/* Two-column layout */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 80, alignItems: "start" }}>
-
-            {/* Left: headline + description */}
+          <div className="about-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 88, alignItems: "start" }}>
+            {/* Left */}
             <div>
-              <h2 style={{ fontWeight: 900, fontSize: "clamp(2.4rem, 3.5vw, 3.8rem)", letterSpacing: "-0.04em", lineHeight: 0.95, color: "#111", margin: "0 0 28px" }}>
-                Ulaanbaatar's<br />Favourite<br />Thrift Shop.
+              <h2 className="display-heading" style={{ fontSize: "clamp(2.6rem, 4vw, 4.2rem)", margin: "0 0 32px" }}>
+                Ulaanbaatar's<br />favourite<br />thrift shop.
               </h2>
-              <p style={{ fontSize: 15, color: "#555", lineHeight: 1.8, marginBottom: 20, maxWidth: 440 }}>
-                988 Thrift Shop is Ulaanbaatar's go-to destination for pre-loved clothing. With over 54,000 followers on Instagram, we've built a community around the idea that great style shouldn't cost a fortune.
+              <p className="body-text" style={{ marginBottom: 20, maxWidth: 460 }}>
+                988 Thrift Shop is where Ulaanbaatar comes to find pre-loved clothing that doesn't cost a fortune. With over 54,000 followers on Instagram, we've built something bigger than a store — a community that believes in style without waste.
               </p>
-              <p style={{ fontSize: 15, color: "#555", lineHeight: 1.8, marginBottom: 36, maxWidth: 440 }}>
-                Every item we carry is hand-picked for quality and character. Whether you're hunting for a vintage denim jacket or a one-of-a-kind accessory, you'll find it here at an honest price.
+              <p className="body-text" style={{ marginBottom: 40, maxWidth: 460 }}>
+                Every piece is hand-selected for quality and character. Vintage denim, rare accessories, everyday staples — all at honest prices, because great fashion should be for everyone.
               </p>
-              <Link to="/shop" className="n-btn-b">Browse the Collection</Link>
+              <Link to="/shop" className="btn-primary">Browse the Collection</Link>
             </div>
 
-            {/* Right: info table + photo */}
-            <div style={{ display: "flex", flexDirection: "column", gap: 32 }}>
-              {/* Photo */}
-              <div style={{ position: "relative", overflow: "hidden", borderRadius: 4, aspectRatio: "4/3" }}>
+            {/* Right */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 36 }}>
+              <div style={{ position: "relative", overflow: "hidden", borderRadius: 2, aspectRatio: "4/3" }}>
                 <img src={ECO_IMG} alt="988 Thrift Shop" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
 
-              {/* Details table */}
-              <div style={{ borderTop: "1px solid #e5e5e5" }}>
+              <div style={{ borderTop: "1px solid #e8e4dd" }}>
                 {[
-                  { label: "Address",  value: "Natur Building, Unit 36A\nBehind New Mongolia School, Ulaanbaatar" },
-                  { label: "Hours",    value: "11:00 AM – 7:00 PM · Open every day" },
-                  { label: "Phone",    value: "85144414" },
-                  { label: "Policy",   value: "All sales final — no returns or exchanges" },
+                  { label: "Address",   value: "Natur Building, Unit 36A\nBehind New Mongolia School, Ulaanbaatar" },
+                  { label: "Hours",     value: "11:00 AM – 7:00 PM · Open every day" },
+                  { label: "Phone",     value: "8514 4414" },
+                  { label: "Policy",    value: "All sales final — no returns or exchanges" },
                   { label: "Community", value: "54,000+ followers on Instagram" },
                 ].map(({ label, value }) => (
-                  <div key={label} style={{ display: "flex", gap: 20, padding: "13px 0", borderBottom: "1px solid #e5e5e5" }}>
-                    <span style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "#999", width: 90, flexShrink: 0 }}>{label}</span>
-                    <span style={{ fontSize: 13, color: "#111", lineHeight: 1.6, whiteSpace: "pre-line" }}>{value}</span>
+                  <div key={label} style={{ display: "flex", gap: 24, padding: "14px 0", borderBottom: "1px solid #e8e4dd" }}>
+                    <span className="eyebrow" style={{ width: 88, flexShrink: 0, paddingTop: 2 }}>{label}</span>
+                    <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: "#0d0d0d", lineHeight: 1.65, whiteSpace: "pre-line" }}>{value}</span>
                   </div>
                 ))}
               </div>
@@ -414,45 +481,48 @@ export function Home() {
         </div>
       </section>
 
-      {/* ═══════════════════════════ TRUST STRIP ══════════ */}
-      <section style={{ borderTop: "1px solid #e5e5e5", background: "#f5f5f5" }}>
-        <div className="n-trust">
+      {/* ═══════════════════════════ TRUST STRIP ═════════════════════════ */}
+      <section style={{ borderTop: "1px solid #e8e4dd", background: "#f0ede7" }}>
+        <div className="trust-row">
           {[
-            { title: "Pre-Loved Fashion",   sub: "Every piece has a second story" },
-            { title: "One-of-a-Kind Finds", sub: "No two items are the same" },
-            { title: "Affordable Prices",   sub: "Great style, honest prices" },
-            { title: "54K Community",       sub: "Trusted by Ulaanbaatar" },
+            { title: "Pre-Loved Fashion",   sub: "Every piece carries a story" },
+            { title: "One-of-a-Kind Finds", sub: "No two items are ever the same" },
+            { title: "Honest Prices",       sub: "Great style, no markups" },
+            { title: "54K Community",       sub: "Trusted across Ulaanbaatar" },
           ].map(({ title, sub }, i, arr) => (
-            <div key={title} style={{ padding: "32px 28px", borderRight: i < arr.length - 1 ? "1px solid #e5e5e5" : "none" }}>
-              <p style={{ fontSize: 14, fontWeight: 800, letterSpacing: "-0.01em", color: "#111", margin: "0 0 4px" }}>{title}</p>
-              <p style={{ fontSize: 12, color: "#757575", margin: 0 }}>{sub}</p>
+            <div key={title} style={{ padding: "32px 28px", borderRight: i < arr.length - 1 ? "1px solid #e8e4dd" : "none" }}>
+              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 14, fontWeight: 600, letterSpacing: "-0.01em", color: "#0d0d0d", margin: "0 0 5px" }}>{title}</p>
+              <p style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: "#8a8278", margin: 0 }}>{sub}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ════════════════════════ CONTACT CTA ════════════ */}
-      <section style={{ background: "#111", padding: "96px 24px", textAlign: "center" }}>
+      {/* ═══════════════════════════ CONTACT CTA ═════════════════════════ */}
+      <section style={{ background: "#0d0d0d", padding: "108px 28px", textAlign: "center" }}>
         <img
           src={logo}
           alt="988 Thrift Shop"
-          style={{ width: 60, height: 60, borderRadius: "50%", objectFit: "cover", marginBottom: 32, display: "inline-block", border: "1.5px solid rgba(255,255,255,0.15)", filter: "grayscale(15%)" }}
+          style={{ width: 56, height: 56, borderRadius: "50%", objectFit: "cover", marginBottom: 36, display: "inline-block", border: "1.5px solid rgba(255,255,255,0.12)", filter: "grayscale(20%)" }}
         />
-        <p className="n-lbl" style={{ color: "rgba(255,255,255,0.4)", marginBottom: 18 }}>Find Us</p>
-        <h2 style={{ fontWeight: 900, fontSize: "clamp(2.8rem, 7vw, 5.5rem)", letterSpacing: "-0.05em", lineHeight: 0.9, color: "#fff", margin: "0 auto 24px", maxWidth: 700 }}>
-          Visit Us in<br />Ulaanbaatar.
+        <p className="eyebrow" style={{ color: "rgba(255,255,255,0.3)", marginBottom: 20 }}>Come see us</p>
+        <h2 className="display-heading" style={{
+          fontSize: "clamp(3rem, 8vw, 6.5rem)",
+          color: "#fff", margin: "0 auto 24px", maxWidth: 760,
+        }}>
+          Visit us in<br />Ulaanbaatar.
         </h2>
-        <p style={{ fontSize: 15, color: "rgba(255,255,255,0.4)", lineHeight: 1.8, margin: "0 auto 40px", maxWidth: 400 }}>
+        <p className="body-text" style={{ color: "rgba(255,255,255,0.35)", margin: "0 auto 44px", maxWidth: 380, fontSize: 14, lineHeight: 1.9 }}>
           Natur Building, Unit 36A<br />
-          Behind New Mongolia School, Ulaanbaatar<br />
+          Behind New Mongolia School<br />
           Open 11:00 AM – 7:00 PM · Every day
         </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 40 }}>
-          <a href="tel:85144414" className="n-btn-w">Call 85144414</a>
-          <Link to="/shop" className="n-btn-ol">Shop Online</Link>
+        <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 44 }}>
+          <a href="tel:85144414" className="btn-white">Call 8514 4414</a>
+          <Link to="/shop" className="btn-ghost-light">Shop Online</Link>
         </div>
-        <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase", color: "rgba(255,255,255,0.22)", margin: 0 }}>
-          ALL SALES FINAL · No Returns or Exchanges
+        <p className="eyebrow" style={{ color: "rgba(255,255,255,0.18)" }}>
+          All Sales Final &nbsp;·&nbsp; No Returns or Exchanges
         </p>
       </section>
 
@@ -460,7 +530,7 @@ export function Home() {
   );
 }
 
-/* ── Product Card ─────────────────────────────────────────── */
+/* ════════════════════════════ PRODUCT CARD ══════════════════════════ */
 function ThriftCard({
   product, onAddToCart,
 }: {
@@ -473,29 +543,43 @@ function ThriftCard({
     : null;
 
   return (
-    <div className="n-card">
+    <div className="prod-card">
       {/* Image */}
-      <div style={{ position: "relative", overflow: "hidden", aspectRatio: "3/4", background: "#f6f6f6" }}>
+      <div style={{ position: "relative", overflow: "hidden", aspectRatio: "3/4", background: "#f0ede7" }}>
         <img src={product.imageUrl} alt={product.name} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
 
         {discount && (
-          <div style={{ position: "absolute", top: 12, left: 12, background: "#111", color: "#fff", fontSize: 10, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", padding: "4px 10px" }}>
-            {discount}% Off
+          <div style={{
+            position: "absolute", top: 12, left: 12,
+            background: "#0d0d0d", color: "#fff",
+            fontFamily: "'DM Sans',sans-serif", fontSize: 9, fontWeight: 700, letterSpacing: "0.18em", textTransform: "uppercase",
+            padding: "4px 10px",
+          }}>
+            −{discount}%
           </div>
         )}
-        <div style={{ position: "absolute", top: 12, right: 12, background: "#fff", color: "#111", fontSize: 9, fontWeight: 800, letterSpacing: "0.12em", textTransform: "uppercase", padding: "4px 8px" }}>
+        <div style={{
+          position: "absolute", top: 12, right: 12,
+          background: "rgba(250,249,247,0.92)", color: "#0d0d0d",
+          fontFamily: "'DM Sans',sans-serif", fontSize: 8, fontWeight: 700, letterSpacing: "0.16em", textTransform: "uppercase",
+          padding: "4px 9px",
+        }}>
           {product.condition}
         </div>
 
-        <div
-          className="n-qadd"
-          style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: 12, opacity: 0, transform: "translateY(6px)", transition: "opacity 0.25s, transform 0.25s" }}
-        >
+        {/* Quick add */}
+        <div className="prod-atc" style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "12px" }}>
           <button
-            style={{ width: "100%", padding: 11, background: "#111", color: "#fff", border: "none", fontSize: 12, fontWeight: 800, letterSpacing: "0.1em", textTransform: "uppercase", cursor: "pointer", transition: "background 0.15s" }}
+            style={{
+              width: "100%", padding: "11px",
+              background: "#0d0d0d", color: "#fff",
+              fontFamily: "'DM Sans',sans-serif",
+              border: "none", fontSize: 11, fontWeight: 700, letterSpacing: "0.14em", textTransform: "uppercase",
+              cursor: "pointer", transition: "background 0.15s",
+            }}
             onClick={e => { e.preventDefault(); onAddToCart(); }}
-            onMouseOver={e => (e.currentTarget.style.background = "#333")}
-            onMouseOut={e => (e.currentTarget.style.background = "#111")}
+            onMouseOver={e => (e.currentTarget.style.background = "#2a2a2a")}
+            onMouseOut={e => (e.currentTarget.style.background = "#0d0d0d")}
           >
             Add to Cart
           </button>
@@ -503,16 +587,28 @@ function ThriftCard({
       </div>
 
       {/* Info */}
-      <div style={{ padding: "12px 4px 16px" }}>
-        <p style={{ margin: "0 0 2px", fontSize: 11, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#757575" }}>{product.category}</p>
-        <p style={{ margin: "0 0 6px", fontWeight: 700, fontSize: 14, color: "#111", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "-0.01em" }}>{product.name}</p>
+      <div style={{ padding: "12px 12px 16px" }}>
+        <p className="eyebrow" style={{ marginBottom: 3 }}>{product.category}</p>
+        <p style={{
+          fontFamily: "'DM Sans',sans-serif",
+          margin: "0 0 8px", fontWeight: 600, fontSize: 14, color: "#0d0d0d",
+          overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", letterSpacing: "-0.01em",
+        }}>
+          {product.name}
+        </p>
         <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
-          <span style={{ fontWeight: 800, fontSize: 14, color: "#111" }}>${product.price.toFixed(2)}</span>
+          <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 14, color: "#0d0d0d" }}>
+            ${product.price.toFixed(2)}
+          </span>
           {product.originalPrice && (
-            <span style={{ fontSize: 12, color: "#999", textDecoration: "line-through" }}>${product.originalPrice.toFixed(2)}</span>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: "#b0a99e", textDecoration: "line-through" }}>
+              ${product.originalPrice.toFixed(2)}
+            </span>
           )}
           {discount && (
-            <span style={{ marginLeft: "auto", fontSize: 11, fontWeight: 700, color: "#388e3c" }}>{discount}% off</span>
+            <span style={{ fontFamily: "'DM Sans',sans-serif", marginLeft: "auto", fontSize: 11, fontWeight: 600, color: "#5a7a5a" }}>
+              {discount}% off
+            </span>
           )}
         </div>
       </div>
