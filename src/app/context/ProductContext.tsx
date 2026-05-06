@@ -1,11 +1,17 @@
-import { createContext, useContext, useState, ReactNode } from "react";
-import { Product, products as initialProducts } from "../data/products";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
+import { Product } from "../data/products";
 
 interface ProductContextType {
   products: Product[];
-  addProduct: (product: Product) => void;
+  addProduct: (p: Product) => void;
   removeProduct: (id: string) => void;
-  updateProduct: (product: Product) => void;
+  updateProduct: (p: Product) => void;
 }
 
 const ProductContext = createContext<ProductContextType>({
@@ -16,10 +22,19 @@ const ProductContext = createContext<ProductContextType>({
 });
 
 export function ProductProvider({ children }: { children: ReactNode }) {
-  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [products, setProducts] = useState<Product[]>([]);
 
-  const addProduct = (product: Product) => {
+  // 🔥 LOAD FROM BACKEND
+  useEffect(() => {
+    fetch("http://localhost:8080/products")
+      .then((res) => res.json())
+      .then((data) => setProducts(data))
+      .catch((err) => console.error("Product fetch error:", err));
+  }, []);
+
+  const addProduct = async (product: Product) => {
     setProducts((prev) => [product, ...prev]);
+    // optional: POST to backend later
   };
 
   const removeProduct = (id: string) => {
@@ -27,11 +42,15 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProduct = (product: Product) => {
-    setProducts((prev) => prev.map((p) => (p.id === product.id ? product : p)));
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? product : p))
+    );
   };
 
   return (
-    <ProductContext.Provider value={{ products, addProduct, removeProduct, updateProduct }}>
+    <ProductContext.Provider
+      value={{ products, addProduct, removeProduct, updateProduct }}
+    >
       {children}
     </ProductContext.Provider>
   );

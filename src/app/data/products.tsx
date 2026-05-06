@@ -1,3 +1,6 @@
+import { useEffect, useState } from "react";
+
+// ✅ Type
 export interface Product {
   id: string;
   name: string;
@@ -11,200 +14,38 @@ export interface Product {
   featured?: boolean;
 }
 
+// ✅ Categories (keep your existing)
 export const categories = [
-  { id: "all",         name: "All Items",        color: "#FF6B6B" },
-  { id: "women",       name: "Women",            color: "#F4A3A8" },
-  { id: "men",         name: "Men",              color: "#4ECDC4" },
-  { id: "clothing",    name: "Vintage Clothing", color: "#A8DADC" },
+  { id: "all", name: "All Items", color: "#FF6B6B" },
+  { id: "women", name: "Women", color: "#F4A3A8" },
+  { id: "men", name: "Men", color: "#4ECDC4" },
+  { id: "clothing", name: "Vintage Clothing", color: "#A8DADC" },
 ];
 
-export const products: Product[] = [
-  // ── Women ──────────────────────────────────────────────────
-  {
-    id: "w1",
-    name: "Vintage Silk Blouse",
-    price: 32,
-    originalPrice: 75,
-    category: "women",
-    description: "Elegant vintage silk blouse with delicate button detailing. Flows beautifully and pairs with anything.",
-    condition: "Excellent",
-    size: "S",
-    imageUrl: "https://images.unsplash.com/photo-1635196060071-d36dc5e987aa?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMHZpbnRhZ2UlMjBibG91c2UlMjBhZXN0aGV0aWMlMjBmYXNoaW9ufGVufDF8fHx8MTc3MjUwMjI2OHww&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "w2",
-    name: "Floral Midi Skirt",
-    price: 28,
-    originalPrice: 60,
-    category: "women",
-    description: "Dreamy floral midi skirt with a flattering A-line cut. Perfect for all seasons styled up or down.",
-    condition: "Very Good",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1693988504962-80c3f62dbc50?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMGZsb3JhbCUyMHNraXJ0JTIwdmludGFnZSUyMHRocmlmdCUyMHN0eWxlfGVufDF8fHx8MTc3MjUwMjI3MXww&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: "w3",
-    name: "Classic Trench Coat",
-    price: 72,
-    originalPrice: 160,
-    category: "women",
-    description: "Iconic double-breasted trench coat in warm beige. A wardrobe essential that never goes out of style.",
-    condition: "Excellent",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1763457990282-12c03d39bfb7?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMHZpbnRhZ2UlMjBjb2F0JTIwdHJlbmNoJTIwZWRpdG9yaWFsfGVufDF8fHx8MTc3MjUwMjI3NHww&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "w4",
-    name: "Cosy Knit Sweater",
-    price: 38,
-    originalPrice: 80,
-    category: "women",
-    description: "Chunky-knit oversized sweater in a warm neutral tone. Incredibly soft and perfect for layering.",
-    condition: "Very Good",
-    size: "L",
-    imageUrl: "https://images.unsplash.com/photo-1649490274677-88566311c293?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMGtuaXQlMjBzd2VhdGVyJTIwY296eSUyMHZpbnRhZ2UlMjBhZXN0aGV0aWN8ZW58MXx8fHwxNzcyNTAyMjc3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: "w5",
-    name: "Boho Maxi Dress",
-    price: 45,
-    originalPrice: 95,
-    category: "women",
-    description: "Flowing boho maxi dress with intricate print. Effortlessly chic for festivals, beach or dinner.",
-    condition: "Excellent",
-    size: "S",
-    imageUrl: "https://images.unsplash.com/photo-1722347514926-6cbe5a18357e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMHZpbnRhZ2UlMjBtYXhpJTIwZHJlc3MlMjBib2hvJTIwZmFzaGlvbnxlbnwxfHx8fDE3NzI1MDIyODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "w6",
-    name: "High-Waist Mom Jeans",
-    price: 34,
-    category: "women",
-    description: "Classic high-rise mom jeans with a relaxed fit. Lightly worn for that perfect broken-in feel.",
-    condition: "Good",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1634564235572-cd6f37694266?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwZGVuaW0lMjBqZWFucyUyMHRocmlmdCUyMGZhc2hpb258ZW58MXx8fHwxNzcyNTAyMjc0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
+// ✅ Hook to fetch products from backend
+export const useProducts = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // ── Men ────────────────────────────────────────────────────
-  {
-    id: "m1",
-    name: "Vintage Polo Shirt",
-    price: 24,
-    originalPrice: 55,
-    category: "men",
-    description: "Classic collared polo in a rich earthy tone. Pre-loved softness makes this an instant favourite.",
-    condition: "Very Good",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1732587503311-78b937de392b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjByZXRybyUyMHBvbG8lMjBzaGlydCUyMHNlY29uZGhhbmQlMjBmYXNoaW9ufGVufDF8fHx8MTc3MjUwMjI3Mnww&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "m2",
-    name: "Relaxed Denim Jeans",
-    price: 38,
-    originalPrice: 85,
-    category: "men",
-    description: "Straight-cut vintage denim with authentic fading. A true workhorse of any capsule wardrobe.",
-    condition: "Good",
-    size: "L",
-    imageUrl: "https://images.unsplash.com/photo-1634564235572-cd6f37694266?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwZGVuaW0lMjBqZWFucyUyMHRocmlmdCUyMGZhc2hpb258ZW58MXx8fHwxNzcyNTAyMjc0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: "m3",
-    name: "Oversized Hoodie",
-    price: 42,
-    originalPrice: 90,
-    category: "men",
-    description: "Ultra-comfortable heavyweight hoodie in muted tones. Worn-in softness money can't buy new.",
-    condition: "Very Good",
-    size: "XL",
-    imageUrl: "https://images.unsplash.com/photo-1531035787806-3b47c2fad356?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjBvdmVyc2l6ZWQlMjBob29kaWUlMjBzdHJlZXR3ZWFyJTIwdmludGFnZXxlbnwxfHx8fDE3NzI1MDIyNzd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "m4",
-    name: "Retro Leather Jacket",
-    price: 95,
-    originalPrice: 220,
-    category: "men",
-    description: "Genuine leather jacket with rock-and-roll attitude. Supple, broken-in leather that only gets better.",
-    condition: "Excellent",
-    size: "L",
-    imageUrl: "https://images.unsplash.com/photo-1748853241661-8924b92bd687?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwbGVhdGhlciUyMGphY2tldCUyMHJvY2slMjBzdHlsZXxlbnwxfHx8fDE3NzI1MDIyODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    featured: true,
-  },
-  {
-    id: "m5",
-    name: "Casual Street Tee",
-    price: 18,
-    category: "men",
-    description: "Premium cotton vintage tee with faded graphics. Perfectly broken-in for that effortless street look.",
-    condition: "Good",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1761126086701-762eefc16036?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwY2FzdWFsJTIwb3V0Zml0JTIwc3RyZWV0JTIwc3R5bGV8ZW58MXx8fHwxNzcyNTAyMjY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
-  {
-    id: "m6",
-    name: "Corduroy Shirt Jacket",
-    price: 52,
-    originalPrice: 110,
-    category: "men",
-    description: "Thick corduroy shacket with chest pockets. Bridges the gap between shirt and jacket perfectly.",
-    condition: "Excellent",
-    size: "XL",
-    imageUrl: "https://images.unsplash.com/photo-1761126086701-762eefc16036?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjB2aW50YWdlJTIwY2FzdWFsJTIwb3V0Zml0JTIwc3RyZWV0JTIwc3R5bGV8ZW58MXx8fHwxNzcyNTAyMjY5fDA&ixlib=rb-4.1.0&q=80&w=1080",
-  },
+  useEffect(() => {
+    fetch("http://localhost:8080/products")
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setProducts(data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []);
 
-  // ── Vintage Clothing (unisex) ───────────────────────────────
-  {
-    id: "1",
-    name: "Vintage Denim Jacket",
-    price: 45,
-    originalPrice: 89,
-    category: "clothing",
-    description: "Classic 90s denim jacket in excellent condition. Features classic button closure, chest pockets, and that perfect worn-in look.",
-    condition: "Excellent",
-    size: "M",
-    imageUrl: "https://images.unsplash.com/photo-1556041068-5874261f23e5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwZGVuaW0lMjBqYWNrZXR8ZW58MXx8fHwxNzcyMjE0NTkxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    featured: true,
-  },
-  {
-    id: "2",
-    name: "Retro Floral Dress",
-    price: 35,
-    originalPrice: 75,
-    category: "clothing",
-    description: "Beautiful vintage floral dress from the 80s. Perfect for summer days with its flowing silhouette and vibrant pattern.",
-    condition: "Very Good",
-    size: "S",
-    imageUrl: "https://images.unsplash.com/photo-1759398756369-729ef24332e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwZmxvcmFsJTIwZHJlc3N8ZW58MXx8fHwxNzcyMjU1ODI1fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    featured: true,
-  },
-  {
-    id: "3",
-    name: "Vintage Band T-Shirt",
-    price: 28,
-    category: "clothing",
-    description: "Authentic vintage band tee with soft, worn-in cotton. A true collector's piece for music lovers.",
-    condition: "Good",
-    size: "L",
-    imageUrl: "https://images.unsplash.com/photo-1762407356037-8e28c6acdd5b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx2aW50YWdlJTIwYmFuZCUyMHQtc2hpcnR8ZW58MXx8fHwxNzcyMjU1ODI2fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-  },
-  {
-    id: "4",
-    name: "Leather Bomber Jacket",
-    price: 85,
-    originalPrice: 200,
-    category: "clothing",
-    description: "Genuine leather bomber jacket with classic styling. Timeless piece that never goes out of style.",
-    condition: "Excellent",
-    size: "L",
-    imageUrl: "https://images.unsplash.com/photo-1761882591705-a0901ae75ce8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsZWF0aGVyJTIwYm9tYmVyJTIwamFja2V0fGVufDF8fHx8MTc3MjI1NTgyNnww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    featured: true,
-  },
-  
-];
+  return { products, loading, error };
+};
