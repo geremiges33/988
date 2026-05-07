@@ -15,8 +15,6 @@ const WOMEN_IMAGE =
   "https://images.unsplash.com/photo-1629922949137-e236a5ab497d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMGZhc2hpb24lMjBlZGl0b3JpYWwlMjBtaW5pbWFsaXN0fGVufDF8fHx8MTc3MjQ5ODc3N3ww&ixlib=rb-4.1.0&q=80&w=1080";
 const MEN_IMAGE =
   "https://images.unsplash.com/photo-1630173250799-2813d34ed14b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjBmYXNoaW9uJTIwbWluaW1hbCUyMHN0eWxlJTIwb3V0Zml0fGVufDF8fHx8MTc3MjQ5ODc3OHww&ixlib=rb-4.1.0&q=80&w=1080";
-const KIDS_IMAGE =
-  "https://images.unsplash.com/photo-1656424692994-736ccef90d8e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxraWRzJTIwZmFzaGlvbiUyMGNvbG9yZnVsJTIwY2xvdGhpbmd8ZW58MXx8fHwxNzcyNDcwMzUzfDA&ixlib=rb-4.1.0&q=80&w=1080";
 const SALE_IMAGE =
   "https://images.unsplash.com/photo-1766524871302-88590e1fa1bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxlJTIwZGlzY291bnQlMjBmYXNoaW9uJTIwY2xvdGhpbmclMjByYWNrfGVufDF8fHx8MTc3MjQ5ODc3OXww&ixlib=rb-4.1.0&q=80&w=1080";
 
@@ -59,16 +57,6 @@ const megaMenus: Record<string, MegaMenuData> = {
         ],
       },
       {
-        heading: "Accessories",
-        links: [
-          { label: "All Accessories", to: "/shop/accessories" },
-          { label: "Bags & Purses",   to: "/shop/accessories?q=bag" },
-          { label: "Scarves",         to: "/shop/accessories?q=scarf" },
-          { label: "Sunglasses",      to: "/shop/accessories?q=sunglasses" },
-          { label: "Watches",         to: "/shop/accessories?q=watch" },
-        ],
-      },
-      {
         heading: "Featured",
         links: [
           { label: "New Arrivals", to: "/shop/women?sort=newest" },
@@ -106,16 +94,7 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "Jeans & Denim",   to: "/shop/men?q=denim" },
         ],
       },
-      {
-        heading: "Accessories",
-        links: [
-          { label: "All Accessories", to: "/shop/accessories" },
-          { label: "Watches",         to: "/shop/accessories?q=watch" },
-          { label: "Sunglasses",      to: "/shop/accessories?q=sunglasses" },
-          { label: "Leather Goods",   to: "/shop/accessories?q=leather" },
-          { label: "Scarves",         to: "/shop/accessories?q=scarf" },
-        ],
-      },
+      
       {
         heading: "Featured",
         links: [
@@ -124,47 +103,6 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "On Sale",      to: "/shop/men?sale=true" },
           { label: "Under $40",    to: "/shop/men?maxPrice=40" },
           { label: "Under $100",   to: "/shop/men?maxPrice=100" },
-        ],
-      },
-    ],
-  },
-  Kids: {
-    image: KIDS_IMAGE,
-    imageLabel: "Kids' Collection",
-    columns: [
-      {
-        heading: "Shop by Size",
-        links: [
-          { label: "XS", to: "/shop/clothing?size=XS" },
-          { label: "S",  to: "/shop/clothing?size=S" },
-          { label: "M",  to: "/shop/clothing?size=M" },
-          { label: "L",  to: "/shop/clothing?size=L" },
-        ],
-      },
-      {
-        heading: "Clothing",
-        links: [
-          { label: "All Clothing",    to: "/shop/clothing" },
-          { label: "Tops & T-Shirts", to: "/shop/clothing?q=shirt" },
-          { label: "Jackets",         to: "/shop/clothing?q=jacket" },
-          { label: "Denim",           to: "/shop/clothing?q=denim" },
-        ],
-      },
-      {
-        heading: "Accessories",
-        links: [
-          { label: "All Accessories",  to: "/shop/accessories" },
-          { label: "Bags",             to: "/shop/accessories?q=bag" },
-          { label: "Scarves",          to: "/shop/accessories?q=scarf" },
-        ],
-      },
-      {
-        heading: "Featured",
-        links: [
-          { label: "New Arrivals", to: "/shop?sort=newest" },
-          { label: "Under $20",    to: "/shop?maxPrice=20" },
-          { label: "Under $30",    to: "/shop?maxPrice=30" },
-          { label: "On Sale",      to: "/shop?sale=true" },
         ],
       },
     ],
@@ -178,7 +116,7 @@ const megaMenus: Record<string, MegaMenuData> = {
         links: [
           { label: "All Sale Items",   to: "/shop?sale=true" },
           { label: "Clothing Sale",    to: "/shop/clothing?sale=true" },
-          { label: "Accessories Sale", to: "/shop/accessories?sale=true" },
+          
         ],
       },
       {
@@ -212,7 +150,7 @@ const megaMenus: Record<string, MegaMenuData> = {
   },
 };
 
-const NAV_ITEMS = ["Women", "Men", "Kids", "Sale"] as const;
+const NAV_ITEMS = ["Women", "Men", "Sale"] as const;
 type NavItem = (typeof NAV_ITEMS)[number];
 
 /* ─────────────────────────── component ─────────────────────────── */
@@ -284,7 +222,6 @@ export function Navbar() {
   const navLabels: Record<NavItem, string> = {
     Women: t.nav.women,
     Men: t.nav.men,
-    Kids: t.nav.kids,
     Sale: t.nav.sale,
   };
 
@@ -549,7 +486,7 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
   const colHeadingMap: Record<string, string> = {
     "Shop by Size": t.mega.shopBySize,
     "Clothing": t.mega.clothing,
-    "Accessories": t.mega.accessories,
+
     "Featured": t.mega.featured,
     "Sale by Category": t.mega.saleByCategory,
     "By Price": t.mega.byPrice,
@@ -565,10 +502,9 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
     "All Women's": t.mega.allWomens,
     "All Men's": t.mega.allMens,
     "All Clothing": t.mega.allClothing,
-    "All Accessories": t.mega.allAccessories,
+
     "All Sale Items": t.mega.allSaleItems,
     "Clothing Sale": t.mega.clothingSale,
-    "Accessories Sale": t.mega.accessoriesSale,
     "Biggest Discounts": t.mega.biggestDiscounts,
     "Clearance": t.mega.clearance,
     "Featured Deals": t.mega.featuredDeals,
@@ -599,14 +535,14 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
   const imageLabelMap: Record<string, string> = {
     "New Collection": t.mega.newCollection,
     "Men's Essentials": t.mega.mensEssentials,
-    "Kids' Collection": t.mega.kidsCollection,
+
     "Up to 70% Off": t.mega.upTo70,
   };
 
   const navLabelMap: Record<NavItem, string> = {
     Women: t.nav.women,
     Men: t.nav.men,
-    Kids: t.nav.kids,
+
     Sale: t.nav.sale,
   };
 

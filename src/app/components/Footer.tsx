@@ -141,23 +141,7 @@ export function Footer() {
           <div className="flex items-center gap-5">
             <p className="text-xs" style={{ color: "rgba(255,255,255,0.2)" }}>{f.copyright}</p>
 
-            {/* Admin button */}
-            <Link
-              to="/admin"
-              className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-md transition-colors"
-              style={{ color: "rgba(255,255,255,0.3)", border: "1px solid rgba(255,255,255,0.1)" }}
-              onMouseEnter={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "#5aaa6e";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "#2d6a3f";
-              }}
-              onMouseLeave={(e) => {
-                (e.currentTarget as HTMLAnchorElement).style.color = "rgba(255,255,255,0.3)";
-                (e.currentTarget as HTMLAnchorElement).style.borderColor = "rgba(255,255,255,0.1)";
-              }}
-            >
-              <Settings className="w-3 h-3" />
-              Admin
-            </Link>
+            
           </div>
         </div>
       </div>

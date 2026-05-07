@@ -569,11 +569,12 @@ export function Shop() {
 }
 
 /* ─── Grid Card ─────────────────────────────────────────────── */
+/* ─── Grid Card ─────────────────────────────────────────────── */
 function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () => void }) {
-  const navigate          = useNavigate();
-  const [liked, setLiked] = useState(false);
+  const navigate        = useNavigate();
   const [added, setAdded] = useState(false);
   const [over, setOver]   = useState(false);
+
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
     : null;
@@ -582,135 +583,269 @@ function GridCard({ product, onAddToCart }: { product: Product; onAddToCart: () 
     <div
       style={{
         background: G.white,
-        borderRight: `1px solid ${G.line}`, borderBottom: `1px solid ${G.line}`,
-        display: "flex", flexDirection: "column",
+        borderRight: `1px solid ${G.line}`,
+        borderBottom: `1px solid ${G.line}`,
+        display: "flex",
+        flexDirection: "column",
         transition: "background 0.2s",
       }}
       onMouseEnter={() => setOver(true)}
       onMouseLeave={() => setOver(false)}
     >
       {/* Image */}
-      <Link to={`/product/${product.id}`} style={{ display: "block", position: "relative", overflow: "hidden", aspectRatio: "3/4" }}>
+      <Link
+        to={`/product/${product.id}`}
+        style={{
+          display: "block",
+          position: "relative",
+          overflow: "hidden",
+          aspectRatio: "3/4",
+        }}
+      >
         <img
-          src={product.imageUrl} alt={product.name}
+          src={product.imageUrl}
+          alt={product.name}
           style={{
-            width: "100%", height: "100%", objectFit: "cover", display: "block",
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: "block",
             transition: "transform 0.65s cubic-bezier(0.25,0.46,0.45,0.94)",
             transform: over ? "scale(1.05)" : "scale(1)",
           }}
         />
+
         {/* Hover overlay */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: "rgba(13,31,15,0.52)",
-          opacity: over ? 1 : 0, transition: "opacity 0.3s",
-          display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-        }}>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "rgba(13,31,15,0.52)",
+            opacity: over ? 1 : 0,
+            transition: "opacity 0.3s",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
           <button
-            onClick={e => { e.preventDefault(); navigate(`/product/${product.id}`); }}
+            onClick={(e) => {
+              e.preventDefault();
+              navigate(`/product/${product.id}`);
+            }}
             style={{
-              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px",
-              background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.25)",
-              color: G.white, fontSize: 10, letterSpacing: "0.2em", cursor: "pointer",
-              fontFamily: "sans-serif", fontWeight: 800, backdropFilter: "blur(6px)",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "9px 18px",
+              background: "rgba(255,255,255,0.1)",
+              border: "1px solid rgba(255,255,255,0.25)",
+              color: G.white,
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              cursor: "pointer",
+              fontFamily: "sans-serif",
+              fontWeight: 800,
+              backdropFilter: "blur(6px)",
             }}
           >
             <Eye size={11} /> VIEW
           </button>
+
           <button
-            onClick={e => { e.preventDefault(); onAddToCart(); setAdded(true); setTimeout(() => setAdded(false), 1500); }}
+            onClick={(e) => {
+              e.preventDefault();
+              onAddToCart();
+              setAdded(true);
+              setTimeout(() => setAdded(false), 1500);
+            }}
             style={{
-              display: "flex", alignItems: "center", gap: 6, padding: "9px 18px",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "9px 18px",
               background: added ? "#22C55E" : G.sage,
-              border: "none", color: G.white,
-              fontSize: 10, letterSpacing: "0.2em", cursor: "pointer", fontFamily: "sans-serif", fontWeight: 800,
+              border: "none",
+              color: G.white,
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              cursor: "pointer",
+              fontFamily: "sans-serif",
+              fontWeight: 800,
               transition: "background 0.2s",
             }}
           >
-            {added ? <><Check size={11} /> ADDED</> : <><ShoppingBag size={11} /> ADD</>}
+            {added ? (
+              <>
+                <Check size={11} /> ADDED
+              </>
+            ) : (
+              <>
+                <ShoppingBag size={11} /> ADD
+              </>
+            )}
           </button>
         </div>
 
         {/* Discount flag */}
         {discount && (
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            background: G.deep, color: G.white,
-            fontSize: 10, letterSpacing: "0.14em", padding: "6px 11px", fontFamily: "sans-serif", fontWeight: 800,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              background: G.deep,
+              color: G.white,
+              fontSize: 10,
+              letterSpacing: "0.14em",
+              padding: "6px 11px",
+              fontFamily: "sans-serif",
+              fontWeight: 800,
+            }}
+          >
             −{discount}%
           </div>
         )}
+
         {product.featured && !discount && (
-          <div style={{
-            position: "absolute", top: 0, left: 0,
-            background: G.ink, color: "rgba(255,255,255,0.55)",
-            fontSize: 10, letterSpacing: "0.14em", padding: "6px 11px", fontFamily: "sans-serif", fontWeight: 800,
-          }}>
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              background: G.ink,
+              color: "rgba(255,255,255,0.55)",
+              fontSize: 10,
+              letterSpacing: "0.14em",
+              padding: "6px 11px",
+              fontFamily: "sans-serif",
+              fontWeight: 800,
+            }}
+          >
             FEATURED
           </div>
         )}
-
-        {/* Wishlist */}
-        <button
-          onClick={e => { e.preventDefault(); setLiked(v => !v); }}
-          style={{
-            position: "absolute", top: 10, right: 10,
-            width: 30, height: 30, background: "rgba(255,255,255,0.88)",
-            border: "none", cursor: "pointer",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}
-        >
-          <Heart size={13} style={{ fill: liked ? G.deep : "none", color: liked ? G.deep : "#9CA3AF" }} />
-        </button>
       </Link>
 
       {/* Info */}
       <div style={{ padding: "16px 18px 18px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
-          <span style={{ fontSize: 10, letterSpacing: "0.2em", color: G.dim, fontFamily: "sans-serif", fontWeight: 800 }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            marginBottom: 6,
+          }}
+        >
+          <span
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.2em",
+              color: G.dim,
+              fontFamily: "sans-serif",
+              fontWeight: 800,
+            }}
+          >
             {product.category.toUpperCase()}
           </span>
-          <span style={{ fontSize: 10, letterSpacing: "0.1em", color: G.sage, fontFamily: "sans-serif", fontWeight: 800 }}>
+
+          <span
+            style={{
+              fontSize: 10,
+              letterSpacing: "0.1em",
+              color: G.sage,
+              fontFamily: "sans-serif",
+              fontWeight: 800,
+            }}
+          >
             {product.condition.toUpperCase()}
           </span>
         </div>
 
         <Link to={`/product/${product.id}`} style={{ textDecoration: "none" }}>
-          <h3 style={{
-            fontSize: 16, color: G.ink, fontWeight: 700, margin: "0 0 11px",
-            lineHeight: 1.35, letterSpacing: "-0.01em",
-            fontFamily: "'Georgia', serif", fontStyle: "italic",
-          }}>
+          <h3
+            style={{
+              fontSize: 16,
+              color: G.ink,
+              fontWeight: 700,
+              margin: "0 0 11px",
+              lineHeight: 1.35,
+              letterSpacing: "-0.01em",
+              fontFamily: "'Georgia', serif",
+              fontStyle: "italic",
+            }}
+          >
             {product.name}
           </h3>
         </Link>
 
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
           <div style={{ display: "flex", alignItems: "baseline", gap: 7 }}>
-            <span style={{ fontSize: 17, color: G.ink, fontWeight: 800, fontFamily: "sans-serif" }}>${product.price}</span>
+            <span
+              style={{
+                fontSize: 17,
+                color: G.ink,
+                fontWeight: 800,
+                fontFamily: "sans-serif",
+              }}
+            >
+              ${product.price}
+            </span>
+
             {product.originalPrice && (
-              <span style={{ fontSize: 12, color: G.dim, textDecoration: "line-through", fontFamily: "sans-serif", fontWeight: 600 }}>${product.originalPrice}</span>
+              <span
+                style={{
+                  fontSize: 12,
+                  color: G.dim,
+                  textDecoration: "line-through",
+                  fontFamily: "sans-serif",
+                  fontWeight: 600,
+                }}
+              >
+                ${product.originalPrice}
+              </span>
             )}
           </div>
+
           {product.size && (
-            <span style={{ fontSize: 10, letterSpacing: "0.14em", color: G.dim, fontFamily: "sans-serif", fontWeight: 700, border: `1px solid ${G.line}`, padding: "2px 8px" }}>
+            <span
+              style={{
+                fontSize: 10,
+                letterSpacing: "0.14em",
+                color: G.dim,
+                fontFamily: "sans-serif",
+                fontWeight: 700,
+                border: `1px solid ${G.line}`,
+                padding: "2px 8px",
+              }}
+            >
               {product.size}
             </span>
           )}
         </div>
 
         {/* Hover underline */}
-        <div style={{
-          marginTop: 12, height: 1, background: G.deep,
-          transform: over ? "scaleX(1)" : "scaleX(0)", transformOrigin: "left",
-          transition: "transform 0.3s ease",
-        }} />
+        <div
+          style={{
+            marginTop: 12,
+            height: 1,
+            background: G.deep,
+            transform: over ? "scaleX(1)" : "scaleX(0)",
+            transformOrigin: "left",
+            transition: "transform 0.3s ease",
+          }}
+        />
       </div>
     </div>
   );
 }
-
 /* ─── List Row ──────────────────────────────────────────────── */
 function ListRow({ product, onAddToCart, isLast }: {
   product: Product; onAddToCart: () => void; isLast: boolean;
