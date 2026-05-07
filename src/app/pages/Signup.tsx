@@ -2,6 +2,9 @@ import React from "react";
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
+// ── AuthContext import нэмсэн ──────────────────────────────────────────────
+import { useAuth } from "../context/AuthContext";
+
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
 
@@ -54,7 +57,6 @@ const css = `
     mix-blend-mode: overlay;
   }
 
-  /* ── Left branding panel ── */
   .su-left {
     width: 52%;
     flex-shrink: 0;
@@ -214,7 +216,6 @@ const css = `
     color: var(--cream-mute);
   }
 
-  /* ── Right auth panel ── */
   .su-right {
     flex: 1;
     display: flex;
@@ -487,20 +488,24 @@ const css = `
   }
 `;
 
-interface SignupPayload {
-  first_name: string;
-  last_name: string;
-  email: string;
-  password: string;
-}
-
-interface ApiResponse {
-  message?: string;
-  data?: string;
+// ── Response төрөл (backend-ээс ирэх) ─────────────────────────────────────
+interface SignupResponse {
+  message: string;
+  data: string; // JWT token
+  user: {
+    id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    role: "customer" | "admin";
+  };
 }
 
 export function Signup() {
   const navigate = useNavigate();
+
+  // ── AuthContext-с login функц авна ──────────────────────────────────────
+  const { login } = useAuth();
 
   const [firstName,    setFirstName]    = useState<string>("");
   const [lastName,     setLastName]     = useState<string>("");
@@ -534,26 +539,39 @@ export function Signup() {
     setLoading(true);
 
     try {
-      const payload: SignupPayload = { first_name: firstName, last_name: lastName, email, password };
-
       const res = await fetch("http://localhost:8080/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
+          email,
+          password,
+        }),
       });
 
-      const data: ApiResponse = await res.json();
+      const data: SignupResponse = await res.json();
 
       if (!res.ok) {
-        setError(data.message ?? "Бүртгэл амжилтгүй");
+        setError((data as any).message ?? "Бүртгэл амжилтгүй");
         setLoading(false);
         return;
       }
 
-      if (data.data) localStorage.setItem("data", data.data);
+      // ── Role system: AuthContext-р нэвтрэх ────────────────────────────
+      // login() нь token болон user-г localStorage + context-д хадгална
+      login(data.data, data.user);
 
       setSuccess(true);
-      setTimeout(() => { window.location.href = "/"; }, 1200);
+
+      // Role-оос хамааран өөр route руу redirect
+      setTimeout(() => {
+        if (data.user.role === "admin") {
+          navigate("/admin");
+        } else {
+          navigate("/");
+        }
+      }, 1200);
 
     } catch {
       setError("Сервертэй холбогдох боломжгүй");

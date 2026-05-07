@@ -26,6 +26,12 @@ const userSchema = new mongoose.Schema({
   last_name: String,
   email: { type: String, unique: true },
   password: String,
+
+  role: {
+    type: String,
+    enum: ["customer", "admin"],
+    default: "customer",
+  },
 });
 
 const User = mongoose.model("User", userSchema);
@@ -102,12 +108,24 @@ app.post("/signup", async (req, res) => {
       first_name,
       last_name,
       email,
-      password: hashedPassword,
+      password: hashedPassword
     });
 
     await newUser.save();
 
-    res.json({ message: "✅ Амжилттай бүртгэгдлээ" });
+    res.json({
+      message: "✅ Амжилттай бүртгэгдлээ",
+    
+      data: "fake-token",
+    
+      user: {
+        id: newUser._id,
+        first_name: newUser.first_name,
+        last_name: newUser.last_name,
+        email: newUser.email,
+        role: newUser.role,
+      },
+    });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
@@ -125,6 +143,19 @@ app.post("/login", async (req, res) => {
     }
 
     const user = await User.findOne({ email });
+    
+    if (!user) {
+      return res.status(400).json({
+        message: "Email олдсонгүй",
+      });
+    }
+    
+    if (user.role === "admin") {
+      return res.status(400).json({
+        message: "Та admin хэрэглэгч байна",
+        success: false,
+      });
+    }
     if (!user) {
       return res.status(400).json({ message: "Email олдсонгүй" });
     }
@@ -142,6 +173,55 @@ app.post("/login", async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+});
+
+app.post("/admin/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        message: "Мэдээлэл бүрэн оруулна уу",
+      });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({
+        message: "Email олдсонгүй",
+      });
+    }
+
+    // зөвхөн admin хэрэглэгч нэвтэрнэ
+    if (user.role !== "admin") {
+      return res.status(400).json({
+        message: "Admin хэрэглэгч биш байна",
+        success: false,
+      });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return res.status(400).json({
+        message: "Нууц үг буруу",
+      });
+    }
+
+    await new Login({ email: user.email }).save();
+
+    res.json({
+      message: "✅ Амжилттай нэвтэрлээ",
+      success: true,
+      data: user,
+    });
+
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
   }
 });
 
