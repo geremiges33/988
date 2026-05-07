@@ -271,6 +271,27 @@ app.delete("/products/:id", async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 });
+
+/* ───────────────────────────────
+   UPDATE PRODUCT
+─────────────────────────────── */
+
+app.put("/products/:id", async (req, res) => {
+  try {
+    const updatedProduct =
+      await Product.findOneAndUpdate(
+        { id: req.params.id },
+        req.body,
+        { new: true }
+      );
+
+    res.json(updatedProduct);
+  } catch (err) {
+    res.status(500).json({
+      message: err.message,
+    });
+  }
+});
   
 /* ───────────────────────────────
    START SERVER
