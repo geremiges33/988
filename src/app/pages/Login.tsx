@@ -615,6 +615,7 @@ const { updateUser } = useAuth();
           password: loginPass,
         }),
       });
+      
   
       const data = await res.json();
   
@@ -680,6 +681,60 @@ const { updateUser } = useAuth();
   
     setLoading(false);
   };
+  const handleAdminLogin = async (e: FormEvent) => {
+  e.preventDefault();
+
+  setAdminError("");
+  setAdminLoading(true);
+
+  if (!adminEmail || !adminPass) {
+    setAdminError("Бүх талбарыг бөглөнө үү");
+    setAdminLoading(false);
+    return;
+  }
+
+  try {
+    const res = await fetch("http://localhost:8080/admin/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: adminEmail,
+        password: adminPass,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setAdminError(data.message || "Admin нэвтрэлт амжилтгүй");
+      setAdminLoading(false);
+      return;
+    }
+
+    const adminUser = {
+      id: data.user._id,
+      email: data.user.email,
+      isAdmin: true,
+    };
+
+    localStorage.setItem("thrift_user", JSON.stringify(adminUser));
+    updateUser(adminUser);
+
+    setAdminSuccess(true);
+
+    setTimeout(() => {
+      window.location.href = "/admin";
+    }, 1000);
+
+  } catch (err) {
+    console.log(err);
+    setAdminError("Сервер алдаа");
+  }
+
+  setAdminLoading(false);
+};
 
   const EyeOpen = () => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -695,10 +750,11 @@ const { updateUser } = useAuth();
       <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
     </svg>
   );
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem("user");
-  };
+
+const logout = () => {
+  updateUser({});
+  localStorage.removeItem("thrift_user");
+};
 
   
 
@@ -813,7 +869,7 @@ const { updateUser } = useAuth();
                   <div className="auth-mode-sep-line" />
                 </div>
 
-                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleLogin}>
+                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleAdminLogin}>
                   <div className="admin-badge">
                     <span className="admin-badge-dot" />
                     Owner credentials
@@ -868,6 +924,4 @@ const { updateUser } = useAuth();
 
 export { AuthPage as Login };
 
-function setUser(arg0: null) {
-  throw new Error("Function not implemented.");
-}
+

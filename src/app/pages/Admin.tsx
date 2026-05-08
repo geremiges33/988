@@ -23,7 +23,6 @@ const BLANK: Omit<Product, "id"> = {
   condition: "Good",
   size: "",
   imageUrl: "",
-  featured: false,
 };
 
 const CONDITIONS = ["New", "Excellent", "Very Good", "Good", "Fair"];
@@ -116,7 +115,7 @@ export function Admin() {
       condition: product.condition,
       size: product.size,
       imageUrl: product.imageUrl,
-      featured: product.featured,
+
     });
     setEditingId(product.id);
     setErrors({});
@@ -142,7 +141,7 @@ export function Admin() {
   });
 
   const totalValue = products.reduce((s, p) => s + p.price, 0);
-  const featuredCount = products.filter((p) => p.featured).length;
+
   const categoryCount = new Set(products.map((p) => p.category)).size;
 
   return (
@@ -273,7 +272,7 @@ export function Admin() {
                 {[
                   { label: t.adminPage.totalProducts, value: products.length, icon: Package, bg: G[50], iconColor: G[600] },
                   { label: t.adminPage.totalValue, value: `₮${totalValue.toLocaleString()}`, icon: TrendingUp, bg: "#f0fdf4", iconColor: "#15803d" },
-                  { label: t.adminPage.featuredItems, value: featuredCount, icon: Tag, bg: "#fffbeb", iconColor: "#b45309" },
+                 
                   { label: t.adminPage.categories, value: categoryCount, icon: BarChart2, bg: "#f5f3ff", iconColor: "#7c3aed" },
                 ].map(({ label, value, icon: Icon, bg, iconColor }) => (
                   <div
@@ -405,7 +404,7 @@ export function Admin() {
                       <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.category}</th>
                       <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.condition}</th>
                       <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.price}</th>
-                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.featured}</th>
+                     
                       <th className="text-right px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.actions}</th>
                     </tr>
                   </thead>
@@ -438,18 +437,7 @@ export function Admin() {
                               <span className="text-xs line-through ml-1" style={{ color: "#9ca3af" }}>₮{p.originalPrice}</span>
                             )}
                           </td>
-                          <td className="px-5 py-4">
-                            {p.featured ? (
-                              <span
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs"
-                                style={{ background: G[50], color: G[700] }}
-                              >
-                                <Check className="w-3 h-3" /> {t.adminPage.yes}
-                              </span>
-                            ) : (
-                              <span className="text-xs" style={{ color: "#d1d5db" }}>—</span>
-                            )}
-                          </td>
+                          
                           <td className="px-5 py-4">
                             <div className="flex items-center justify-end gap-1">
                               <Link
@@ -670,26 +658,7 @@ export function Admin() {
                     )}
                   </div>
 
-                  {/* Featured toggle */}
-                  <div className="bg-white rounded-xl p-5" style={{ border: "1px solid #e9f0ea" }}>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-gray-900">{t.adminPage.featuredProduct}</p>
-                        <p className="text-xs mt-0.5" style={{ color: "#9ca3af" }}>{t.adminPage.featuredProductDesc}</p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => setForm({ ...form, featured: !form.featured })}
-                        className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors duration-200"
-                        style={{ background: form.featured ? G[500] : "#e5e7eb" }}
-                      >
-                        <span
-                          className="inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform duration-200"
-                          style={{ transform: form.featured ? "translateX(22px)" : "translateX(2px)" }}
-                        />
-                      </button>
-                    </div>
-                  </div>
+                
 
                   {/* Submit */}
                   <button

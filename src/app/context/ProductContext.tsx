@@ -41,7 +41,7 @@ export function ProductProvider({
   fetch("http://localhost:8080/products")
     .then((res) => res.json())
     .then((data) => {
-      console.log("FETCHED:", data);
+      
       setProducts(data);
     })
     .catch((err) =>

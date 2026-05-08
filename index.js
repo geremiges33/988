@@ -8,7 +8,6 @@ const app = express();
 /* ───────────────────────────────
    MIDDLEWARE
 ─────────────────────────────── */
-
 app.use(cors());
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
@@ -16,7 +15,6 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 /* ───────────────────────────────
    DB CONNECTION
 ─────────────────────────────── */
-
 mongoose
   .connect(
     "mongodb+srv://thriftshop:xOHI8TzyHgr6gAu3@thriftshop.zqhyw5s.mongodb.net/thriftshop?retryWrites=true&w=majority"
@@ -27,29 +25,27 @@ mongoose
 /* ───────────────────────────────
    USER MODEL
 ─────────────────────────────── */
-
 const userSchema = new mongoose.Schema(
   {
     first_name: String,
     last_name: String,
     email: { type: String, unique: true },
     password: String,
+
     role: {
       type: String,
-      default: "user",
+      enum: ["admin", "customer"],
+      default: "customer",
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const User = mongoose.model("User", userSchema);
 
 /* ───────────────────────────────
-   LOGIN MODEL
+   LOGIN LOG
 ─────────────────────────────── */
-
 const loginSchema = new mongoose.Schema(
   {
     email: String,
@@ -58,17 +54,14 @@ const loginSchema = new mongoose.Schema(
       default: Date.now,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Login = mongoose.model("Login", loginSchema);
 
 /* ───────────────────────────────
-   PRODUCT MODEL (FIXED)
+   PRODUCT MODEL
 ─────────────────────────────── */
-
 const productSchema = new mongoose.Schema(
   {
     id: String,
@@ -82,17 +75,14 @@ const productSchema = new mongoose.Schema(
     imageUrl: String,
     featured: Boolean,
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 const Product = mongoose.model("Product", productSchema);
 
 /* ───────────────────────────────
-   TEST
+   TEST ROUTE
 ─────────────────────────────── */
-
 app.get("/", (req, res) => {
   res.send("🚀 Server OK");
 });
@@ -100,7 +90,6 @@ app.get("/", (req, res) => {
 /* ───────────────────────────────
    USERS
 ─────────────────────────────── */
-
 app.get("/users", async (req, res) => {
   const users = await User.find().select("-password");
   res.json(users);
@@ -109,7 +98,6 @@ app.get("/users", async (req, res) => {
 /* ───────────────────────────────
    SIGNUP
 ─────────────────────────────── */
-
 app.post("/signup", async (req, res) => {
   try {
     const { first_name, last_name, email, password } = req.body;
@@ -130,7 +118,7 @@ app.post("/signup", async (req, res) => {
       last_name,
       email,
       password: hashedPassword,
-      role: "user",
+      role: "customer",
     });
 
     await user.save();
@@ -151,9 +139,8 @@ app.post("/signup", async (req, res) => {
 });
 
 /* ───────────────────────────────
-   LOGIN (USER)
+   LOGIN (CUSTOMER)
 ─────────────────────────────── */
-
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -168,6 +155,13 @@ app.post("/login", async (req, res) => {
 
     if (!ok) {
       return res.status(400).json({ message: "Нууц үг буруу" });
+    }
+
+    // 🚫 зөвхөн customer login
+    if (user.role !== "customer") {
+      return res.status(403).json({
+        message: "Энэ аккаунт нь customer аккаунт биш байна",
+      });
     }
 
     await new Login({ email }).save();
@@ -190,34 +184,49 @@ app.post("/login", async (req, res) => {
 /* ───────────────────────────────
    ADMIN LOGIN
 ─────────────────────────────── */
-
 app.post("/admin/login", async (req, res) => {
-  const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-  const user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
-  if (!user || user.role !== "admin") {
-    return res.status(400).json({ message: "Admin биш" });
+    if (!user) {
+      return res.status(400).json({ message: "User олдсонгүй" });
+    }
+
+    const ok = await bcrypt.compare(password, user.password);
+
+    if (!ok) {
+      return res.status(400).json({ message: "Нууц үг буруу" });
+    }
+
+    // 🚫 зөвхөн admin
+    if (user.role !== "admin") {
+      return res.status(403).json({
+        message: "Энэ аккаунт нь admin аккаунт биш байна",
+      });
+    }
+
+    await new Login({ email }).save();
+
+    res.json({
+      message: "✅ Admin OK",
+      user: {
+        id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+      },
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
   }
-
-  const ok = await bcrypt.compare(password, user.password);
-
-  if (!ok) {
-    return res.status(400).json({ message: "Буруу password" });
-  }
-
-  await new Login({ email }).save();
-
-  res.json({
-    message: "✅ Admin OK",
-    user,
-  });
 });
 
 /* ───────────────────────────────
    PRODUCTS
 ─────────────────────────────── */
-
 app.get("/products", async (req, res) => {
   const products = await Product.find();
   res.json(products);
@@ -252,7 +261,6 @@ app.delete("/products/:id", async (req, res) => {
 /* ───────────────────────────────
    START SERVER
 ─────────────────────────────── */
-
 app.listen(8080, () => {
   console.log("🔥 http://localhost:8080");
 });
