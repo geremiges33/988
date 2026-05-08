@@ -9,7 +9,6 @@ import { Product, categories } from "../data/products";
 import { useLanguage } from "../context/LanguageContext";
 import React, {
   useState,
-  useEffect,
   ChangeEvent,
 } from "react";
 
@@ -130,7 +129,7 @@ export function Admin() {
     showToast(t.adminPage.productRemoved, "error");
   };
 
-  const filtered = products.filter((p) => {
+  const filteredProducts = products.filter((p) => {
     const matchCat =
       filterCat === "all" || p.category === filterCat;
   
@@ -273,7 +272,7 @@ export function Admin() {
               <div className="grid grid-cols-4 gap-4 mb-8">
                 {[
                   { label: t.adminPage.totalProducts, value: products.length, icon: Package, bg: G[50], iconColor: G[600] },
-                  { label: t.adminPage.totalValue, value: `$${totalValue.toLocaleString()}`, icon: TrendingUp, bg: "#f0fdf4", iconColor: "#15803d" },
+                  { label: t.adminPage.totalValue, value: `₮${totalValue.toLocaleString()}`, icon: TrendingUp, bg: "#f0fdf4", iconColor: "#15803d" },
                   { label: t.adminPage.featuredItems, value: featuredCount, icon: Tag, bg: "#fffbeb", iconColor: "#b45309" },
                   { label: t.adminPage.categories, value: categoryCount, icon: BarChart2, bg: "#f5f3ff", iconColor: "#7c3aed" },
                 ].map(({ label, value, icon: Icon, bg, iconColor }) => (
@@ -336,7 +335,7 @@ export function Admin() {
                           <p className="text-sm font-medium text-gray-800 truncate">{p.name}</p>
                           <p className="text-xs" style={{ color: "#9ca3af" }}>{p.category}</p>
                         </div>
-                        <span className="text-sm font-semibold text-gray-900">${p.price}</span>
+                        <span className="text-sm font-semibold text-gray-900">₮{p.price}</span>
                       </div>
                     ))}
                   </div>
@@ -359,7 +358,7 @@ export function Admin() {
                 <div>
                   <h1 className="text-xl font-semibold text-gray-900 tracking-tight">{t.adminPage.allProducts}</h1>
                   <p className="text-sm mt-0.5" style={{ color: "#9ca3af" }}>
-                    {filtered.length} {t.adminPage.ofProducts} {products.length} {t.adminPage.products}
+                    {filteredProducts.length} {t.adminPage.ofProducts} {products.length} {t.adminPage.products}
                   </p>
                 </div>
                 <button
@@ -400,18 +399,18 @@ export function Admin() {
               <div className="bg-white rounded-xl overflow-hidden" style={{ border: "1px solid #e9f0ea" }}>
                 <table className="w-full">
                   <thead>
+                    {/* ✅ Static <tr> — no .map() here, so no key warning */}
                     <tr style={{ borderBottom: "1px solid #f0f4f0", background: "#f9fbf9" }}>
-                      {[t.adminPage.product, t.adminPage.category, t.adminPage.condition, t.adminPage.price, t.adminPage.featured, t.adminPage.actions].map((h, i) => (
-                        <th
-                          key={h}
-                          className={`${i === 5 ? "text-right" : "text-left"} px-5 py-3.5 text-xs font-semibold uppercase tracking-widest`}
-                          style={{ color: "#9ca3af" }}
-                        >{h}</th>
-                      ))}
+                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.product}</th>
+                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.category}</th>
+                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.condition}</th>
+                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.price}</th>
+                      <th className="text-left px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.featured}</th>
+                      <th className="text-right px-5 py-3.5 text-xs font-semibold uppercase tracking-widest" style={{ color: "#9ca3af" }}>{t.adminPage.actions}</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((p) => {
+                    {filteredProducts.map((p) => {
                       const cat = categories.find((c) => c.id === p.category);
                       return (
                         <tr key={p.id} className="transition-colors hover:bg-[#f9fbf9]" style={{ borderBottom: "1px solid #f3f4f6" }}>
@@ -434,9 +433,9 @@ export function Admin() {
                           </td>
                           <td className="px-5 py-4 text-sm" style={{ color: "#6b7280" }}>{p.condition}</td>
                           <td className="px-5 py-4">
-                            <span className="text-sm font-semibold text-gray-900">${p.price}</span>
+                            <span className="text-sm font-semibold text-gray-900">₮{p.price}</span>
                             {p.originalPrice && (
-                              <span className="text-xs line-through ml-1" style={{ color: "#9ca3af" }}>${p.originalPrice}</span>
+                              <span className="text-xs line-through ml-1" style={{ color: "#9ca3af" }}>₮{p.originalPrice}</span>
                             )}
                           </td>
                           <td className="px-5 py-4">
@@ -481,7 +480,7 @@ export function Admin() {
                         </tr>
                       );
                     })}
-                    {filtered.length === 0 && (
+                    {filteredProducts.length === 0 && (
                       <tr>
                         <td colSpan={6} className="px-5 py-16 text-center text-sm" style={{ color: "#9ca3af" }}>
                           {t.adminPage.noProductsFound}
@@ -616,12 +615,12 @@ export function Admin() {
                   </FormField>
 
                   <FormField label={t.adminPage.imageUrl} error={errors.imageUrl} required>
-                  <input
-  type="file"
-  accept="image/*"
-  onChange={handleImageUpload}
-  className="w-full px-4 py-3 rounded-lg text-sm border border-gray-200 bg-white"
-/>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      className="w-full px-4 py-3 rounded-lg text-sm border border-gray-200 bg-white"
+                    />
                     <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#9ca3af" }}>
                       <Upload className="w-3 h-3" />
                       {t.adminPage.pasteImageUrl}
@@ -726,9 +725,6 @@ export function Admin() {
 
 /* ─── helpers ─── */
 
-const G_600 = "#245230";
-const G_50 = "#edf7f1";
-
 function FormField({
   label, children, error, hint, required,
 }: {
@@ -760,4 +756,3 @@ function inputCls(hasError: boolean) {
     hasError ? "border-red-300" : "border-gray-200 focus:border-[#245230]"
   }`;
 }
-

@@ -462,11 +462,11 @@ function ThriftCard({
         </p>
         <div style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
           <span style={{ fontFamily: "'DM Sans',sans-serif", fontWeight: 700, fontSize: 14, color: "#0d0d0d" }}>
-            ${product.price.toFixed(2)}
+            ₮{product.price.toFixed(2)}
           </span>
           {product.originalPrice && (
             <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 12, color: "#b0a99e", textDecoration: "line-through" }}>
-              ${product.originalPrice.toFixed(2)}
+              ₮{product.originalPrice.toFixed(2)}
             </span>
           )}
           {discount && (

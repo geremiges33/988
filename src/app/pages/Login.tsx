@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 // ADD THIS IMPORT
 import { useAuth } from "../context/AuthContext";
 
@@ -123,15 +124,10 @@ const css = `
   .auth-wordmark:hover { opacity: 0.8; }
 
   .auth-wordmark-icon {
-    width: 36px; height: 36px;
-    border: 1.5px solid var(--g3);
-    border-radius: 6px;
-    display: flex; align-items: center; justify-content: center;
-    font-family: 'Playfair Display', serif;
-    font-size: 16px; font-weight: 700;
-    color: var(--g4);
-    background: rgba(42,92,44,0.2);
-  }
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
 
   .auth-wordmark-name {
     font-family: 'DM Sans', sans-serif;
@@ -714,10 +710,17 @@ const { updateUser } = useAuth();
         <div className="auth-deco-ring" />
         <div className="auth-deco-ring2" />
 
-        <Link to="/" className="auth-wordmark">
-          <div className="auth-wordmark-icon">9</div>
-          <div className="auth-wordmark-name">988 Thrift</div>
-        </Link>
+       <Link to="/" className="auth-wordmark">
+  <img
+    src={logo}
+    alt="988 Thrift"
+    className="auth-wordmark-icon"
+  />
+
+  <span className="auth-wordmark-name">
+    988 THRIFT
+  </span>
+</Link>
 
         <div className="auth-hero">
           <div className="auth-eyebrow">Pre-loved fashion</div>
@@ -729,20 +732,7 @@ const { updateUser } = useAuth();
           </p>
         </div>
 
-        <div className="auth-stats">
-          <div>
-            <div className="auth-stat-val">4k+</div>
-            <div className="auth-stat-label">Items listed</div>
-          </div>
-          <div>
-            <div className="auth-stat-val">12k</div>
-            <div className="auth-stat-label">Members</div>
-          </div>
-          <div>
-            <div className="auth-stat-val">98%</div>
-            <div className="auth-stat-label">Satisfaction</div>
-          </div>
-        </div>
+        
       </div>
 
       {/* ── Right auth ── */}
@@ -780,7 +770,7 @@ const { updateUser } = useAuth();
                   <input
                     type="email"
                     className="auth-input"
-                    placeholder="you@email.com"
+                    placeholder="Enter your email"
                     value={loginEmail}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginEmail(e.target.value)}
                   />

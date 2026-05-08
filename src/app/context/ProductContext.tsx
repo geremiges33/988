@@ -37,14 +37,17 @@ export function ProductProvider({
   /* ─────────────────────────────
      LOAD PRODUCTS FROM BACKEND
   ───────────────────────────── */
-  useEffect(() => {
-    fetch("http://localhost:8080/products")
-      .then((res) => res.json())
-      .then((data) => setProducts(data))
-      .catch((err) =>
-        console.error("Product fetch error:", err)
-      );
-  }, []);
+ useEffect(() => {
+  fetch("http://localhost:8080/products")
+    .then((res) => res.json())
+    .then((data) => {
+      console.log("FETCHED:", data);
+      setProducts(data);
+    })
+    .catch((err) =>
+      console.error("Product fetch error:", err)
+    );
+}, []);
 
   /* ─────────────────────────────
      ADD PRODUCT

@@ -137,14 +137,14 @@ export function Favorites() {
                     className="text-lg"
                     style={{ color: "#1a3a2a", fontWeight: 700 }}
                   >
-                    ${product.price}
+                    ₮{product.price}
                   </span>
                   {product.originalPrice && (
                     <span
                       className="text-sm line-through"
                       style={{ color: "#b0ccc4" }}
                     >
-                      ${product.originalPrice}
+                      ₮{product.originalPrice}
                     </span>
                   )}
                 </div>

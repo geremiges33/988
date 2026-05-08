@@ -38,7 +38,7 @@ export function Payment() {
   const formatCardNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "").slice(0, 16);
 
-    return cleaned.replace(/(.{4})/g, "$1 ").trim();
+    return cleaned.replace(/(.{4})/g, "₮1 ").trim();
   };
 
   const formatExpiryDate = (value: string) => {
@@ -533,7 +533,7 @@ export function Payment() {
             >
               {processing
                 ? t.payment.processing
-                : `${t.payment.payNow} $${total.toFixed(2)}`}
+                : `${t.payment.payNow} ₮${total.toFixed(2)}`}
             </button>
           </form>
 
@@ -565,7 +565,7 @@ export function Payment() {
 
                     <div className="text-right">
                       <p className="font-semibold text-gray-900">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₮{(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -579,7 +579,7 @@ export function Payment() {
                   </span>
 
                   <span className="font-medium text-gray-900">
-                    ${subtotal.toFixed(2)}
+                    ₮{subtotal.toFixed(2)}
                   </span>
                 </div>
 
@@ -591,7 +591,7 @@ export function Payment() {
                   <span className="font-medium text-gray-900">
                     {shipping === 0
                       ? t.payment.free
-                      : `$${shipping.toFixed(2)}`}
+                      : `₮${shipping.toFixed(2)}`}
                   </span>
                 </div>
 
@@ -601,7 +601,7 @@ export function Payment() {
                   </span>
 
                   <span className="font-medium text-gray-900">
-                    ${tax.toFixed(2)}
+                    ₮{tax.toFixed(2)}
                   </span>
                 </div>
 
@@ -611,7 +611,7 @@ export function Payment() {
                   </span>
 
                   <span className="font-bold text-xl text-gray-900">
-                    ${total.toFixed(2)}
+                    ₮{total.toFixed(2)}
                   </span>
                 </div>
               </div>

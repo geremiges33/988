@@ -202,13 +202,13 @@ export function Cart() {
                         className="text-xl"
                         style={{ color: "#1a3a2a", fontWeight: 700 }}
                       >
-                        ${(item.price * item.quantity).toFixed(2)}
+                        ₮{(item.price * item.quantity).toFixed(2)}
                       </div>
                       <div
                         className="text-xs mt-0.5"
                         style={{ color: "#b0ccc4" }}
                       >
-                        ${item.price} each
+                        ₮{item.price} each
                       </div>
                     </div>
                   </div>

@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, ReactNode, useCallback } from "react";
-import { translations, Lang, Translations } from "../i18n/translations";
+import { translations, Lang } from "../i18n/translations";
 
 interface LanguageContextType {
   lang: Lang;
   setLang: (l: Lang) => void;
-  t: Translations;
+  t: (typeof translations)[Lang];
 }
 
 // Provide real defaults so the context is never `undefined` —

@@ -142,10 +142,10 @@ export function ProductCard({ product, accent, index = 0 }: ProductCardProps) {
         <div className="flex items-center justify-between mt-auto">
           <div className="flex items-baseline gap-2">
             <span className="text-gray-900" style={{ fontWeight: 700, fontSize: "1.05rem" }}>
-              ${product.price}
+              ₮{product.price}
             </span>
             {product.originalPrice && (
-              <span className="text-gray-400 text-xs line-through">${product.originalPrice}</span>
+              <span className="text-gray-400 text-xs line-through">₮{product.originalPrice}</span>
             )}
           </div>
           {product.size && (

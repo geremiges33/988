@@ -1,6 +1,7 @@
 import React from "react";
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 // ── AuthContext import нэмсэн ──────────────────────────────────────────────
 import { useAuth } from "../context/AuthContext";
@@ -559,9 +560,8 @@ export function Signup() {
       }
 
       // ── Role system: AuthContext-р нэвтрэх ────────────────────────────
-      // login() нь token болон user-г localStorage + context-д хадгална
+      // login() нь token-ийг localStorage + context-д хадгална
       login(data.data, data.user);
-
       setSuccess(true);
 
       // Role-оос хамааран өөр route руу redirect
@@ -589,9 +589,31 @@ export function Signup() {
         <div className="su-deco-ring2" />
 
         <Link to="/" className="su-wordmark">
-          <div className="su-wordmark-icon">9</div>
-          <div className="su-wordmark-name">988 Thrift</div>
-        </Link>
+  <img
+    src={logo}
+    alt="988 Thrift"
+    style={{
+      width: "42px",
+      height: "42px",
+      objectFit: "contain",
+    }}
+  />
+
+  <span
+    className="hidden sm:block uppercase select-none"
+    style={{
+      color: "var(--g5)",
+      fontSize: "15px",
+      fontWeight: 700,
+      letterSpacing: "0.18em",
+      fontFamily:
+        "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif",
+      lineHeight: 1,
+    }}
+  >
+    988 THRIFT
+  </span>
+</Link>
 
         <div className="su-hero">
           <div className="su-eyebrow">New arrivals daily</div>
@@ -603,20 +625,7 @@ export function Signup() {
           </p>
         </div>
 
-        <div className="su-stats">
-          <div>
-            <div className="su-stat-val">4k+</div>
-            <div className="su-stat-label">Items listed</div>
-          </div>
-          <div>
-            <div className="su-stat-val">12k</div>
-            <div className="su-stat-label">Members</div>
-          </div>
-          <div>
-            <div className="su-stat-val">Free</div>
-            <div className="su-stat-label">To join</div>
-          </div>
-        </div>
+        
       </div>
 
       {/* ── Right auth ── */}
@@ -634,7 +643,7 @@ export function Signup() {
                   <input
                     type="text"
                     className="su-input"
-                    placeholder="Alex"
+                    placeholder="Enter your first name"
                     value={firstName}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
                   />
@@ -644,7 +653,7 @@ export function Signup() {
                   <input
                     type="text"
                     className="su-input"
-                    placeholder="Kim"
+                    placeholder="Enter your last name"
                     value={lastName}
                     onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
                   />
@@ -656,7 +665,7 @@ export function Signup() {
                 <input
                   type="email"
                   className="su-input"
-                  placeholder="you@email.com"
+                  placeholder="Enter your email address"
                   value={email}
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
                 />

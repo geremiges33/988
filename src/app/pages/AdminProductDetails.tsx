@@ -18,7 +18,7 @@ export function AdminProductDetail() {
 
   const handleDelete = () => {
     removeProduct(product.id);
-    alert("Product removed"); // or use your toast system
+    alert("Product removed");
   };
 
   return (
@@ -59,10 +59,14 @@ export function AdminProductDetail() {
           />
           <div className="col-span-2 space-y-2">
             <p><span className="font-semibold">Category:</span> {product.category}</p>
-            <p><span className="font-semibold">Price:</span> ${product.price}</p>
-            {product.originalPrice && <p><span className="font-semibold">Original Price:</span> ${product.originalPrice}</p>}
+            <p><span className="font-semibold">Price:</span> ₮{product.price}</p>
+            {product.originalPrice && (
+              <p><span className="font-semibold">Original Price:</span> ₮{product.originalPrice}</p>
+            )}
             <p><span className="font-semibold">Condition:</span> {product.condition}</p>
-            {product.size && <p><span className="font-semibold">Size:</span> {product.size}</p>}
+            {product.size && (
+              <p><span className="font-semibold">Size:</span> {product.size}</p>
+            )}
             <p><span className="font-semibold">Featured:</span> {product.featured ? "Yes" : "No"}</p>
             <p className="mt-2"><span className="font-semibold">Description:</span> {product.description}</p>
           </div>

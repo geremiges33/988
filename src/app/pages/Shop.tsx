@@ -26,7 +26,7 @@ const G = {
 
 const CONDITIONS = ["Excellent", "Very Good", "Good", "Fair"];
 const SIZES      = ["XS", "S", "M", "L", "XL", "XXL"];
-const MAX_PRICE  = 400;
+const MAX_PRICE  = 10000000;
 
 type GridCols = 2 | 3 | 4;
 
@@ -147,7 +147,7 @@ export function Shop() {
     ...selectedConditions.map(c  => ({ label: c,              onRemove: () => toggleCond(c)  })),
     ...selectedSizes.map(sz      => ({ label: sz,             onRemove: () => toggleSize(sz) })),
     ...(priceRange[0] > 0 || priceRange[1] < MAX_PRICE
-      ? [{ label: `$${priceRange[0]}–$${priceRange[1]}`, onRemove: () => handlePrice([0, MAX_PRICE]) }]
+      ? [{ label: `₮${priceRange[0].toFixed(2)}–₮${priceRange[1].toFixed(2)}`, onRemove: () => handlePrice([0, MAX_PRICE]) }]
       : []),
     ...(searchQuery.trim() ? [{ label: `"${searchQuery}"`, onRemove: () => handleSearch("") }] : []),
     ...(saleOnly ? [{ label: "Sale", onRemove: toggleSale }] : []),
@@ -406,8 +406,8 @@ export function Shop() {
             <div>
               <p style={{ fontSize: 10, letterSpacing: "0.25em", color: G.dim, margin: "0 0 14px", fontFamily: "sans-serif", fontWeight: 800 }}>PRICE RANGE</p>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
-                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>${priceRange[0]}</span>
-                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>${priceRange[1]}{priceRange[1] === MAX_PRICE ? "+" : ""}</span>
+                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>₮{priceRange[0].toFixed(2)}</span>
+                <span style={{ fontSize: 13, color: G.ink, fontFamily: "sans-serif", fontWeight: 700 }}>₮{priceRange[1].toFixed(2)}{priceRange[1] === MAX_PRICE ? "+" : ""}</span>
               </div>
               <div style={{ position: "relative", height: 1, background: G.line, marginBottom: 20 }}>
                 <div style={{
@@ -444,7 +444,7 @@ export function Shop() {
                     border: `1px solid ${priceRange[0] === mn && priceRange[1] === mx ? G.ink : G.line}`,
                     transition: "all 0.15s",
                   }}>
-                    UNDER ${mx}
+                    UNDER ₮${mx.toLocaleString()}
                   </button>
                 ))}
               </div>

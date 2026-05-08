@@ -595,14 +595,14 @@ export function ProductDetail() {
 
               {/* Price */}
               <div className="pd-price-row">
-                <span className="pd-price">${product.price}</span>
+                <span className="pd-price">₮{product.price.toFixed(2)}</span>
                 {product.originalPrice && (
                   <>
                     <span className="pd-original-price">
-                      ${product.originalPrice}
+                      ₮{product.originalPrice.toFixed(2)}
                     </span>
                     <span className="pd-save-badge">
-                      −${product.originalPrice - product.price}
+                      −₮{ (product.originalPrice - product.price).toFixed(2) }
                     </span>
                   </>
                 )}
@@ -731,11 +731,11 @@ export function ProductDetail() {
                             }}
                           >
                             <span className="pd-rcard-price">
-                              ${prod.price}
+                              ₮{prod.price}
                             </span>
                             {prod.originalPrice && (
                               <span className="pd-rcard-orig">
-                                ${prod.originalPrice}
+                                ₮{prod.originalPrice}
                               </span>
                             )}
                           </div>
@@ -748,7 +748,7 @@ export function ProductDetail() {
                           >
                             {prod.originalPrice && (
                               <span className="pd-rcard-badge">
-                                −${prod.originalPrice - prod.price}
+                                −₮{prod.originalPrice - prod.price}
                               </span>
                             )}
                             <button
