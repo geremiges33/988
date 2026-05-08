@@ -550,371 +550,665 @@ const css = `
 `;
 
 export function AuthPage() {
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  
+  const [isAdminMode, setIsAdminMode] =
+    useState(false);
 
-  // User login state
-  const [loginEmail, setLoginEmail] = useState("");
-  const [loginPass, setLoginPass] = useState("");
-  const [showLoginPass, setShowLoginPass] = useState(false);
+  /* =========================
+     USER LOGIN
+  ========================= */
 
-  // Admin login state
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPass, setAdminPass] = useState("");
-  const [showAdminPass, setShowAdminPass] = useState(false);
+  const [loginEmail, setLoginEmail] =
+    useState("");
 
-  const [error, setError] = useState("");
-  const [adminError, setAdminError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [adminLoading, setAdminLoading] = useState(false);
-  const [success, setSuccess] = useState(false);
-  const [adminSuccess, setAdminSuccess] = useState(false);
-  // INSIDE AuthPage()
+  const [loginPass, setLoginPass] =
+    useState("");
 
-const { updateUser } = useAuth();
+  const [showLoginPass, setShowLoginPass] =
+    useState(false);
+
+  /* =========================
+     ADMIN LOGIN
+  ========================= */
+
+  const [adminEmail, setAdminEmail] =
+    useState("");
+
+  const [adminPass, setAdminPass] =
+    useState("");
+
+  const [showAdminPass, setShowAdminPass] =
+    useState(false);
+
+  /* =========================
+     UI STATES
+  ========================= */
+
+  const [error, setError] =
+    useState("");
+
+  const [adminError, setAdminError] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
+
+  const [adminLoading, setAdminLoading] =
+    useState(false);
+
+  const [success, setSuccess] =
+    useState(false);
+
+  const [adminSuccess, setAdminSuccess] =
+    useState(false);
+
+  /* =========================
+     AUTH
+  ========================= */
+
+  const { updateUser } =
+    useAuth();
+
+  /* =========================
+     CSS
+  ========================= */
 
   useEffect(() => {
     const id = "auth-css-v3";
+
     if (!document.getElementById(id)) {
-      const el = document.createElement("style");
+      const el =
+        document.createElement("style");
+
       el.id = id;
+
       el.textContent = css;
+
       document.head.appendChild(el);
     }
-    return () => { document.getElementById(id)?.remove(); };
+
+    return () => {
+      document
+        .getElementById(id)
+        ?.remove();
+    };
   }, []);
 
+  /* =========================
+     TOGGLE ADMIN MODE
+  ========================= */
+
   const toggleAdminMode = () => {
-    setIsAdminMode(p => !p);
+    setIsAdminMode((p) => !p);
+
     setAdminError("");
+
     setAdminSuccess(false);
   };
 
- 
+  /* =========================
+     USER LOGIN
+  ========================= */
 
-  const handleLogin = async (e: FormEvent) => {
+  const handleLogin = async (
+    e: FormEvent
+  ) => {
     e.preventDefault();
-  
+
     setError("");
-  
-    if (!loginEmail || !loginPass) {
-      setError("Бүх талбарыг бөглөнө үү");
+
+    if (
+      !loginEmail.trim() ||
+      !loginPass.trim()
+    ) {
+      setError(
+        "Бүх талбарыг бөглөнө үү"
+      );
+
       return;
     }
-  
-    setLoading(true);
-  
+
     try {
-      const res = await fetch("http://localhost:8080/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: loginEmail,
-          password: loginPass,
-        }),
-      });
-      
-  
+      setLoading(true);
+
+      const res = await fetch(
+        "http://localhost:8080/login",
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            email: loginEmail,
+            password: loginPass,
+          }),
+        }
+      );
+
       const data = await res.json();
-  
+
       if (!res.ok) {
-        setError(data.message ?? "Нэвтрэх амжилтгүй");
-        setLoading(false);
+        setError(
+          data.message ||
+            "Нэвтрэх амжилтгүй"
+        );
+
         return;
       }
-  
-      /*
-        BACKEND-ees irj baigaa user object:
-        {
-          user: {
-            _id,
-            firstName,
-            lastName,
-            username,
-            email
-          }
-        }
-      */
-  
+
+      /* USER */
+
+      const firstName =
+        data.user?.firstName ||
+        data.user?.first_name ||
+        "";
+
+      const lastName =
+        data.user?.lastName ||
+        data.user?.last_name ||
+        "";
+
       const loggedUser = {
-        id: data.user?._id || data.user?.id,
-  
-        firstName: data.user?.firstName || "",
-  
-        lastName: data.user?.lastName || "",
-  
+        id:
+          data.user?._id ||
+          data.user?.id ||
+          "",
+
+        firstName,
+
+        lastName,
+
         username:
           data.user?.username ||
-          `${data.user?.firstName?.toLowerCase()}_${data.user?.lastName?.toLowerCase()}`,
-  
-        email: data.user?.email || "",
-  
+          `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
+
+        email:
+          data.user?.email || "",
+
+        avatar:
+          data.user?.avatar || "",
+
         joinedAt:
           data.user?.joinedAt ||
           new Date().toISOString(),
-  
+
         isAdmin: false,
       };
-  
-      // SAVE TO LOCAL STORAGE
+
+      /* TOKEN */
+
+      if (data.token) {
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+      }
+
+      /* SAVE USER */
+
       localStorage.setItem(
         "thrift_user",
         JSON.stringify(loggedUser)
       );
-  
-      // UPDATE AUTH CONTEXT
+
+      /* UPDATE CONTEXT */
+
       updateUser(loggedUser);
-  
+
       setSuccess(true);
-  
+
       setTimeout(() => {
         window.location.href = "/";
-      }, 1200);
-  
+      }, 1000);
     } catch (err) {
       console.log(err);
-  
-      setError("Сервертэй холбогдох боломжгүй");
+
+      setError(
+        "Сервертэй холбогдох боломжгүй"
+      );
+    } finally {
+      setLoading(false);
     }
-  
-    setLoading(false);
   };
-  const handleAdminLogin = async (e: FormEvent) => {
-  e.preventDefault();
 
-  setAdminError("");
-  setAdminLoading(true);
+  /* =========================
+     ADMIN LOGIN
+  ========================= */
 
-  if (!adminEmail || !adminPass) {
-    setAdminError("Бүх талбарыг бөглөнө үү");
-    setAdminLoading(false);
-    return;
-  }
+  const handleAdminLogin = async (
+    e: FormEvent
+  ) => {
+    e.preventDefault();
 
-  try {
-    const res = await fetch("http://localhost:8080/admin/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        email: adminEmail,
-        password: adminPass,
-      }),
-    });
+    setAdminError("");
 
-    const data = await res.json();
+    if (
+      !adminEmail.trim() ||
+      !adminPass.trim()
+    ) {
+      setAdminError(
+        "Бүх талбарыг бөглөнө үү"
+      );
 
-    if (!res.ok) {
-      setAdminError(data.message || "Admin нэвтрэлт амжилтгүй");
-      setAdminLoading(false);
       return;
     }
 
-    const adminUser = {
-      id: data.user._id,
-      email: data.user.email,
-      isAdmin: true,
-    };
+    try {
+      setAdminLoading(true);
 
-    localStorage.setItem("thrift_user", JSON.stringify(adminUser));
-    updateUser(adminUser);
+      const res = await fetch(
+        "http://localhost:8080/admin/login",
+        {
+          method: "POST",
 
-    setAdminSuccess(true);
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
 
-    setTimeout(() => {
-      window.location.href = "/admin";
-    }, 1000);
+          body: JSON.stringify({
+            email: adminEmail,
+            password: adminPass,
+          }),
+        }
+      );
 
-  } catch (err) {
-    console.log(err);
-    setAdminError("Сервер алдаа");
-  }
+      const data = await res.json();
 
-  setAdminLoading(false);
-};
+      if (!res.ok) {
+        setAdminError(
+          data.message ||
+            "Admin нэвтрэлт амжилтгүй"
+        );
+
+        return;
+      }
+
+      const adminFirstName =
+        data.user?.firstName ||
+        data.user?.first_name ||
+        "Admin";
+
+      const adminLastName =
+        data.user?.lastName ||
+        data.user?.last_name ||
+        "User";
+
+      const adminUser = {
+        id:
+          data.user?._id ||
+          data.user?.id ||
+          "admin",
+
+        firstName:
+          adminFirstName,
+
+        lastName:
+          adminLastName,
+
+        username:
+          data.user?.username ||
+          "admin",
+
+        email:
+          data.user?.email || "",
+
+        avatar:
+          data.user?.avatar || "",
+
+        joinedAt:
+          data.user?.joinedAt ||
+          new Date().toISOString(),
+
+        isAdmin: true,
+      };
+
+      /* TOKEN */
+
+      if (data.token) {
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+      }
+
+      /* SAVE */
+
+      localStorage.setItem(
+        "thrift_user",
+        JSON.stringify(adminUser)
+      );
+
+      /* CONTEXT */
+
+      updateUser(adminUser);
+
+      setAdminSuccess(true);
+
+      setTimeout(() => {
+        window.location.href =
+          "/admin";
+      }, 1000);
+    } catch (err) {
+      console.log(err);
+
+      setAdminError("Сервер алдаа");
+    } finally {
+      setAdminLoading(false);
+    }
+  };
+
+  /* =========================
+     ICONS
+  ========================= */
 
   const EyeOpen = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
-      <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path
+        d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <circle
+        cx="12"
+        cy="12"
+        r="3"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 
   const EyeOff = () => (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
-      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
-      <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+    >
+      <path
+        d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <path
+        d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <line
+        x1="1"
+        y1="1"
+        x2="23"
+        y2="23"
+        strokeLinecap="round"
+      />
     </svg>
   );
 
-const logout = () => {
-  updateUser({});
-  localStorage.removeItem("thrift_user");
-};
-
-  
-
   return (
     <div className="auth-root">
-      {/* ── Left branding ── */}
+      {/* LEFT */}
+
       <div className="auth-left">
         <div className="auth-glow" />
+
         <div className="auth-deco-ring" />
+
         <div className="auth-deco-ring2" />
 
-       <Link to="/" className="auth-wordmark">
-  <img
-    src={logo}
-    alt="988 Thrift"
-    className="auth-wordmark-icon"
-  />
+        <Link
+          to="/"
+          className="auth-wordmark"
+        >
+          <img
+            src={logo}
+            alt="988 Thrift"
+            className="auth-wordmark-icon"
+          />
 
-  <span className="auth-wordmark-name">
-    988 THRIFT
-  </span>
-</Link>
+          <span className="auth-wordmark-name">
+            988 THRIFT
+          </span>
+        </Link>
 
         <div className="auth-hero">
-          <div className="auth-eyebrow">Pre-loved fashion</div>
+          <div className="auth-eyebrow">
+            Pre-loved fashion
+          </div>
+
           <h1 className="auth-headline">
-            Find<br />your<br /><em>fit.</em>
+            Find
+            <br />
+            your
+            <br />
+            <em>fit.</em>
           </h1>
+
           <p className="auth-subtext">
-            Curated second-hand pieces for every style. Every item has a story — yours starts here.
+            Curated second-hand pieces
+            for every style.
           </p>
         </div>
-
-        
       </div>
 
-      {/* ── Right auth ── */}
+      {/* RIGHT */}
+
       <div className="auth-right">
         <div className="auth-card">
-          <div className={`auth-glass ${isAdminMode ? "admin-mode" : ""}`}>
+          <div
+            className={`auth-glass ${
+              isAdminMode
+                ? "admin-mode"
+                : ""
+            }`}
+          >
+            {/* HEADER */}
 
-            {/* Card header with title + Admin toggle */}
             <div className="auth-card-header">
-              <div className="auth-card-title">Welcome back</div>
+              <div className="auth-card-title">
+                Welcome back
+              </div>
+
               <button
-                className={`admin-toggle-btn ${isAdminMode ? "active" : ""}`}
-                onClick={toggleAdminMode}
+                className={`admin-toggle-btn ${
+                  isAdminMode
+                    ? "active"
+                    : ""
+                }`}
+                onClick={
+                  toggleAdminMode
+                }
                 type="button"
               >
-                <svg viewBox="0 0 24 24">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-                </svg>
                 Admin
               </button>
             </div>
 
-            <div className="auth-card-sub" style={{ marginBottom: "24px" }}>
-              {isAdminMode
-                ? "Shop owner access — manage your store."
-                : "Good to see you — sign in to your wardrobe."}
-            </div>
+            {/* USER LOGIN */}
 
-            {/* ── User login form ── */}
-            <div className="auth-form-wrap" key="user-login">
-              <form className="auth-form" onSubmit={handleLogin}>
+            <form
+              className="auth-form"
+              onSubmit={handleLogin}
+            >
+              <div className="auth-field">
+                <label className="auth-label">
+                  Email
+                </label>
+
+                <input
+                  type="email"
+                  className="auth-input"
+                  placeholder="Enter email"
+                  value={loginEmail}
+                  onChange={(e) =>
+                    setLoginEmail(
+                      e.target.value
+                    )
+                  }
+                />
+              </div>
+
+              <div className="auth-field">
+                <label className="auth-label">
+                  Password
+                </label>
+
+                <div className="auth-input-wrap">
+                  <input
+                    type={
+                      showLoginPass
+                        ? "text"
+                        : "password"
+                    }
+                    className="auth-input with-icon"
+                    placeholder="••••••••"
+                    value={loginPass}
+                    onChange={(e) =>
+                      setLoginPass(
+                        e.target.value
+                      )
+                    }
+                  />
+
+                  <button
+                    type="button"
+                    className="auth-input-icon"
+                    onClick={() =>
+                      setShowLoginPass(
+                        (p) => !p
+                      )
+                    }
+                  >
+                    {showLoginPass ? (
+                      <EyeOff />
+                    ) : (
+                      <EyeOpen />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div className="auth-error">
+                  ⚠ {error}
+                </div>
+              )}
+
+              <button
+                className="auth-btn"
+                type="submit"
+                disabled={
+                  loading || success
+                }
+              >
+                {success ? (
+                  "✓ Welcome back!"
+                ) : loading ? (
+                  <span className="auth-spinner" />
+                ) : (
+                  "Sign in"
+                )}
+              </button>
+            </form>
+
+            {/* ADMIN LOGIN */}
+
+            {isAdminMode && (
+              <form
+                className="auth-form"
+                onSubmit={
+                  handleAdminLogin
+                }
+              >
                 <div className="auth-field">
-                  <label className="auth-label">Email address</label>
+                  <label className="auth-label">
+                    Admin Email
+                  </label>
+
                   <input
                     type="email"
                     className="auth-input"
-                    placeholder="Enter your email"
-                    value={loginEmail}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginEmail(e.target.value)}
+                    value={adminEmail}
+                    onChange={(e) =>
+                      setAdminEmail(
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
 
                 <div className="auth-field">
-                  <label className="auth-label">Password</label>
+                  <label className="auth-label">
+                    Admin Password
+                  </label>
+
                   <div className="auth-input-wrap">
                     <input
-                      type={showLoginPass ? "text" : "password"}
+                      type={
+                        showAdminPass
+                          ? "text"
+                          : "password"
+                      }
                       className="auth-input with-icon"
-                      placeholder="············"
-                      value={loginPass}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setLoginPass(e.target.value)}
+                      value={adminPass}
+                      onChange={(e) =>
+                        setAdminPass(
+                          e.target.value
+                        )
+                      }
                     />
-                    <button type="button" className="auth-input-icon" onClick={() => setShowLoginPass(p => !p)}>
-                      {showLoginPass ? <EyeOff /> : <EyeOpen />}
+
+                    <button
+                      type="button"
+                      className="auth-input-icon"
+                      onClick={() =>
+                        setShowAdminPass(
+                          (p) => !p
+                        )
+                      }
+                    >
+                      {showAdminPass ? (
+                        <EyeOff />
+                      ) : (
+                        <EyeOpen />
+                      )}
                     </button>
                   </div>
                 </div>
 
-                {error && <div className="auth-error">⚠ {error}</div>}
+                {adminError && (
+                  <div className="auth-error">
+                    ⚠ {adminError}
+                  </div>
+                )}
 
-                <button className="auth-btn" type="submit" disabled={loading || success}>
-                  {success
-                    ? <span className="auth-success-check">✓ Welcome back!</span>
-                    : loading
-                    ? <span className="auth-spinner" />
-                    : "Sign in"}
+                <button
+                  className="auth-btn admin-btn"
+                  type="submit"
+                  disabled={
+                    adminLoading ||
+                    adminSuccess
+                  }
+                >
+                  {adminSuccess ? (
+                    "✓ Dashboard"
+                  ) : adminLoading ? (
+                    <span className="auth-spinner" />
+                  ) : (
+                    "Access dashboard"
+                  )}
                 </button>
               </form>
-            </div>
-
-            {/* ── Admin login panel (revealed when Admin is toggled) ── */}
-            {isAdminMode && (
-              <div className="admin-panel">
-                <div className="auth-mode-sep">
-                  <div className="auth-mode-sep-line" />
-                  <span className="auth-mode-sep-txt">Admin access</span>
-                  <div className="auth-mode-sep-line" />
-                </div>
-
-                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleAdminLogin}>
-                  <div className="admin-badge">
-                    <span className="admin-badge-dot" />
-                    Owner credentials
-                  </div>
-
-                  <div className="auth-field">
-                    <label className="auth-label">Admin email</label>
-                    <input
-                      type="email"
-                      className="auth-input"
-                      placeholder="admin@988thrift.com"
-                      value={adminEmail}
-                      onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminEmail(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="auth-field">
-                    <label className="auth-label">Admin password</label>
-                    <div className="auth-input-wrap">
-                      <input
-                        type={showAdminPass ? "text" : "password"}
-                        className="auth-input with-icon"
-                        placeholder="············"
-                        value={adminPass}
-                        onChange={(e: ChangeEvent<HTMLInputElement>) => setAdminPass(e.target.value)}
-                      />
-                      <button type="button" className="auth-input-icon" onClick={() => setShowAdminPass(p => !p)}>
-                        {showAdminPass ? <EyeOff /> : <EyeOpen />}
-                      </button>
-                    </div>
-                  </div>
-
-                  {adminError && <div className="auth-error">⚠ {adminError}</div>}
-
-                  <button className="auth-btn admin-btn" type="submit" disabled={adminLoading || adminSuccess}>
-                    {adminSuccess
-                      ? <span className="auth-success-check">✓ Entering dashboard…</span>
-                      : adminLoading
-                      ? <span className="auth-spinner admin-spinner" />
-                      : "Access dashboard"}
-                  </button>
-                </form>
-              </div>
             )}
-
           </div>
         </div>
       </div>
@@ -923,5 +1217,3 @@ const logout = () => {
 }
 
 export { AuthPage as Login };
-
-

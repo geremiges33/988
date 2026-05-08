@@ -3,19 +3,22 @@ import {
   ShoppingCart,
   Search,
   Heart,
-  Menu,
-  X,
   ChevronDown,
-  User,
   LogOut,
-  Package,
-  Settings,
 } from "lucide-react";
+
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
 import { useFavorites } from "../context/FavoritesContext";
-import { useState, useRef, useEffect, useCallback } from "react";
+
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+} from "react";
+
 import { createPortal } from "react-dom";
 import logo from "../../assets/logo.png";
 import React from "react";
@@ -54,7 +57,7 @@ const megaMenus: Record<string, MegaMenuData> = {
   Women: {
     image: WOMEN_IMAGE,
     imageLabel: "New Collection",
-  
+
     columns: [
       {
         heading: "Shop by Size",
@@ -66,41 +69,13 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "XL", to: "/shop/women?size=XL" },
         ],
       },
-  
-      {
-        heading: "By Price",
-        links: [
-          { label: "Under ₮20K", to: "/shop/women?maxPrice=20" },
-          { label: "Under ₮50K", to: "/shop/women?maxPrice=50" },
-          { label: "Under ₮100K", to: "/shop/women?maxPrice=100" },
-          { label: "Luxury Pieces", to: "/shop/women?minPrice=100" },
-        ],
-      },
-  
-      {
-        heading: "By Condition",
-        links: [
-          {
-            label: "Excellent",
-            to: "/shop/women?condition=Excellent",
-          },
-          {
-            label: "Very Good",
-            to: "/shop/women?condition=Very+Good",
-          },
-          {
-            label: "Good",
-            to: "/shop/women?condition=Good",
-          },
-        ],
-      },
     ],
   },
-  
+
   Men: {
     image: MEN_IMAGE,
     imageLabel: "Men Essentials",
-  
+
     columns: [
       {
         heading: "Shop by Size",
@@ -111,41 +86,13 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "XL", to: "/shop/men?size=XL" },
         ],
       },
-  
-      {
-        heading: "By Price",
-        links: [
-          { label: "Under ₮20K", to: "/shop/men?maxPrice=20" },
-          { label: "Under ₮50K", to: "/shop/men?maxPrice=50" },
-          { label: "Under ₮100K", to: "/shop/men?maxPrice=100" },
-          { label: "Luxury Pieces", to: "/shop/men?minPrice=100" },
-        ],
-      },
-  
-      {
-        heading: "By Condition",
-        links: [
-          {
-            label: "Excellent",
-            to: "/shop/men?condition=Excellent",
-          },
-          {
-            label: "Very Good",
-            to: "/shop/men?condition=Very+Good",
-          },
-          {
-            label: "Good",
-            to: "/shop/men?condition=Good",
-          },
-        ],
-      },
     ],
   },
-  
+
   Sale: {
     image: SALE_IMAGE,
     imageLabel: "Up to 70% Off",
-  
+
     columns: [
       {
         heading: "Sale",
@@ -154,56 +101,39 @@ const megaMenus: Record<string, MegaMenuData> = {
           { label: "Best Deals", to: "/shop?sort=discount" },
         ],
       },
-  
-      {
-        heading: "By Price",
-        links: [
-          { label: "Under ₮20K", to: "/shop?sale=true&maxPrice=20" },
-          { label: "Under ₮50K", to: "/shop?sale=true&maxPrice=50" },
-          { label: "Under ₮100K", to: "/shop?sale=true&maxPrice=100" },
-          { label: "Luxury Deals", to: "/shop?sale=true&minPrice=100" },
-        ],
-      },
-  
-      {
-        heading: "By Condition",
-        links: [
-          {
-            label: "Excellent",
-            to: "/shop?sale=true&condition=Excellent",
-          },
-          {
-            label: "Very Good",
-            to: "/shop?sale=true&condition=Very+Good",
-          },
-          {
-            label: "Good",
-            to: "/shop?sale=true&condition=Good",
-          },
-        ],
-      },
     ],
   },
 };
 
 const NAV_ITEMS = ["Women", "Men", "Sale"] as const;
+
 type NavItem = (typeof NAV_ITEMS)[number];
 
 export function Navbar() {
   const { getCartCount } = useCart();
   const { getFavoritesCount } = useFavorites();
+
+  // AUTH
   const { user, logout } = useAuth();
+
   const { lang, setLang, t } = useLanguage();
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [activeMenu, setActiveMenu] = useState<NavItem | null>(null);
+const isAdmin = location.pathname.startsWith("/admin");
+
+  const [activeMenu, setActiveMenu] =
+    useState<NavItem | null>(null);
+
   const [searchOpen, setSearchOpen] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
 
   const navRef = useRef<HTMLElement>(null);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const closeTimer =
+    useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const [dropdownTop, setDropdownTop] = useState(0);
 
@@ -214,7 +144,9 @@ export function Navbar() {
   useEffect(() => {
     const update = () => {
       if (navRef.current) {
-        setDropdownTop(navRef.current.getBoundingClientRect().bottom);
+        setDropdownTop(
+          navRef.current.getBoundingClientRect().bottom
+        );
       }
     };
 
@@ -230,7 +162,10 @@ export function Navbar() {
   }, []);
 
   const openMenu = useCallback((item: NavItem) => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+    }
+
     setActiveMenu(item);
   }, []);
 
@@ -244,7 +179,10 @@ export function Navbar() {
     if (e) e.preventDefault();
 
     if (searchQuery.trim()) {
-      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
+      navigate(
+        `/shop?q=${encodeURIComponent(searchQuery.trim())}`
+      );
+
       setSearchOpen(false);
       setSearchQuery("");
     }
@@ -259,7 +197,6 @@ export function Navbar() {
         style={{
           background: COLORS.primary,
           letterSpacing: "0.22em",
-          fontFamily: "Arial, sans-serif",
         }}
       >
         {t.announcement}
@@ -273,7 +210,6 @@ export function Navbar() {
         style={{
           borderColor: COLORS.border,
           boxShadow: "0 2px 20px rgba(0,0,0,0.04)",
-          fontFamily: "Arial, sans-serif",
         }}
       >
         <div className="max-w-[1440px] mx-auto px-8">
@@ -287,75 +223,109 @@ export function Navbar() {
                 className="w-10 h-10 rounded-full object-cover"
               />
 
-<span
-  className="hidden sm:block uppercase select-none"
-  style={{
-    color: COLORS.primary,
-    fontSize: "15px",
-    fontWeight: 700,
-    letterSpacing: "0.18em",
-    fontFamily: "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif",
-    lineHeight: 1,
-  }}
->
-  988 THRIFT
-</span>
+              <span
+                className="hidden sm:block uppercase select-none"
+                style={{
+                  color: COLORS.primary,
+                  fontSize: "15px",
+                  fontWeight: 700,
+                  letterSpacing: "0.18em",
+                }}
+              >
+                988 THRIFT
+              </span>
             </Link>
 
             {/* DESKTOP NAV */}
 
             <div className="hidden lg:flex items-center justify-center gap-8">
-              {NAV_ITEMS.map((item) => (
-                <div
-                  key={item}
-                  className="relative"
-                  onMouseEnter={() => openMenu(item)}
-                  onMouseLeave={scheduleClose}
-                >
-                  <button
-                    className="flex items-center gap-1.5 px-3 py-5 text-[12px] uppercase transition-all duration-200"
-                    style={{
-                      color:
-                        item === "Sale"
-                          ? "#557C55"
-                          : activeMenu === item
-                          ? COLORS.primary
-                          : COLORS.muted,
-                      letterSpacing: "0.18em",
-                      fontWeight: activeMenu === item ? 600 : 500,
-                    }}
-                  >
-                    {item}
+              {NAV_ITEMS
+  .filter((item) => {
+    if (!isAdmin) return true;
 
-                    <ChevronDown
-                      className={`w-3 h-3 transition-transform duration-200 ${
-                        activeMenu === item ? "rotate-180" : ""
-                      }`}
-                    />
-                  </button>
+    // admin үед нуух зүйлс
+    const hidden = ["Women", "Men", "Sale"];
 
-                  <span
-                    className={`absolute bottom-0 left-6 right-6 h-[2px] transition-all duration-300 ${
-                      activeMenu === item
-                        ? "opacity-100 scale-x-100"
-                        : "opacity-0 scale-x-0"
-                    }`}
-                    style={{
-                      background: COLORS.primary,
-                    }}
-                  />
-                </div>
-              ))}
+    return !hidden.includes(item);
+  })
+  .map((item) => (
+    <div
+      key={item}
+      className="relative"
+      onMouseEnter={() => openMenu(item)}
+      onMouseLeave={scheduleClose}
+    >
+      <button
+        className="flex items-center gap-1.5 px-3 py-5 text-[12px] uppercase"
+        style={{
+          color:
+            item === "Sale"
+              ? "#557C55"
+              : activeMenu === item
+              ? COLORS.primary
+              : COLORS.muted,
+        }}
+      >
+        {item}
+
+        <ChevronDown
+          className={`w-3 h-3 transition-transform duration-200 ${
+            activeMenu === item ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+    </div>
+  ))}
             </div>
 
             {/* RIGHT SIDE */}
 
             <div className="hidden lg:flex items-center gap-4">
+
+              {!isAdmin && (
+  <>
+    {/* SEARCH */}
+    <button
+      className="p-2 rounded-full hover:bg-[#F3F5F2]"
+      onClick={() => setSearchOpen((v) => !v)}
+    >
+      <Search className="w-[18px] h-[18px]" />
+    </button>
+
+    {/* FAVORITES */}
+    <Link
+      to="/favorites"
+      className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+    >
+      <Heart className="w-[18px] h-[18px]" />
+      {getFavoritesCount() > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+          {getFavoritesCount()}
+        </span>
+      )}
+    </Link>
+
+    {/* CART */}
+    <Link
+      to="/cart"
+      className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+    >
+      <ShoppingCart className="w-[18px] h-[18px]" />
+      {getCartCount() > 0 && (
+        <span className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
+          {getCartCount()}
+        </span>
+      )}
+    </Link>
+  </>
+)}
               {/* SEARCH */}
 
               <button
-                className="p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
-                onClick={() => setSearchOpen((v) => !v)}
+                className="p-2 rounded-full hover:bg-[#F3F5F2]"
+                onClick={() =>
+                  setSearchOpen((v) => !v)
+                }
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
@@ -364,7 +334,7 @@ export function Navbar() {
 
               <Link
                 to="/favorites"
-                className="relative p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
+                className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
               >
                 <Heart className="w-[18px] h-[18px]" />
 
@@ -373,7 +343,6 @@ export function Navbar() {
                     className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
                     style={{
                       background: COLORS.primary,
-                      fontWeight: 700,
                     }}
                   >
                     {getFavoritesCount()}
@@ -385,7 +354,7 @@ export function Navbar() {
 
               <Link
                 to="/cart"
-                className="relative p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
+                className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
               >
                 <ShoppingCart className="w-[18px] h-[18px]" />
 
@@ -394,7 +363,6 @@ export function Navbar() {
                     className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
                     style={{
                       background: COLORS.primary,
-                      fontWeight: 700,
                     }}
                   >
                     {getCartCount()}
@@ -406,15 +374,10 @@ export function Navbar() {
 
               {/* LANGUAGE */}
 
-              <div
-                className="flex items-center rounded-full p-1 gap-1"
-                style={{
-                  background: "#F3F5F2",
-                }}
-              >
+              <div className="flex items-center rounded-full p-1 gap-1 bg-[#F3F5F2]">
                 <button
                   onClick={() => setLang("en")}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-200"
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
                   style={
                     lang === "en"
                       ? {
@@ -431,7 +394,7 @@ export function Navbar() {
 
                 <button
                   onClick={() => setLang("mn")}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-200"
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold"
                   style={
                     lang === "mn"
                       ? {
@@ -451,8 +414,11 @@ export function Navbar() {
 
               {/* AUTH */}
 
-              {localStorage.getItem("data") ? (
-                <UserMenu user={user ?? undefined} onLogout={logout} />
+              {user ? (
+                <UserMenu
+                  user={user}
+                  onLogout={logout}
+                />
               ) : (
                 <div className="flex items-center gap-3">
                   <Link
@@ -460,7 +426,6 @@ export function Navbar() {
                     className="px-3 py-1.5 text-[11px] uppercase"
                     style={{
                       color: COLORS.muted,
-                      letterSpacing: "0.16em",
                     }}
                   >
                     {t.nav.logIn}
@@ -468,12 +433,10 @@ export function Navbar() {
 
                   <Link
                     to="/signup"
-                    className="flex items-center gap-1.5 px-5 py-2 rounded-full text-[11px] uppercase transition-all duration-300 hover:scale-105"
+                    className="flex items-center gap-1.5 px-5 py-2 rounded-full text-[11px] uppercase"
                     style={{
                       background: COLORS.primary,
                       color: "#fff",
-                      letterSpacing: "0.16em",
-                      fontWeight: 600,
                     }}
                   >
                     {t.nav.signUp}
@@ -490,9 +453,6 @@ export function Navbar() {
           className={`overflow-hidden transition-all duration-300 border-t bg-white ${
             searchOpen ? "max-h-20" : "max-h-0"
           }`}
-          style={{
-            borderColor: COLORS.border,
-          }}
         >
           <form
             onSubmit={handleSearch}
@@ -505,12 +465,10 @@ export function Navbar() {
               type="text"
               placeholder={t.nav.searchPlaceholder}
               className="flex-1 text-sm outline-none bg-transparent"
-              style={{
-                fontFamily: "Arial, sans-serif",
-                color: COLORS.text,
-              }}
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) =>
+                setSearchQuery(e.target.value)
+              }
             />
 
             <button
@@ -518,7 +476,6 @@ export function Navbar() {
               className="text-xs uppercase"
               style={{
                 color: COLORS.muted,
-                letterSpacing: "0.16em",
               }}
               onClick={() => setSearchOpen(false)}
             >
@@ -538,10 +495,13 @@ export function Navbar() {
               top: dropdownTop,
               zIndex: 9999,
               borderColor: COLORS.border,
-              boxShadow: "0 30px 60px rgba(0,0,0,0.08)",
+              boxShadow:
+                "0 30px 60px rgba(0,0,0,0.08)",
             }}
             onMouseEnter={() => {
-              if (closeTimer.current) clearTimeout(closeTimer.current);
+              if (closeTimer.current) {
+                clearTimeout(closeTimer.current);
+              }
             }}
             onMouseLeave={scheduleClose}
           >
@@ -553,42 +513,40 @@ export function Navbar() {
   );
 }
 
-function MegaMenuPanel({ item }: { item: NavItem }) {
+function MegaMenuPanel({
+  item,
+}: {
+  item: NavItem;
+}) {
   const data = megaMenus[item];
 
   return (
     <div className="max-w-[1440px] mx-auto px-8 py-10">
       <div className="grid grid-cols-[220px_1fr] gap-12">
-        <div className="relative group overflow-hidden rounded-2xl">
+        <div className="relative overflow-hidden rounded-2xl">
           <img
             src={data.image}
             alt={item}
-            className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
+            className="w-full h-64 object-cover"
           />
 
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
           <div className="absolute bottom-4 left-4 text-white">
-            <p className="text-xs uppercase tracking-[0.2em] opacity-80">
+            <p className="text-xs uppercase opacity-80">
               {item}
             </p>
 
-            <p className="text-xl font-light mt-1">{data.imageLabel}</p>
+            <p className="text-xl font-light mt-1">
+              {data.imageLabel}
+            </p>
           </div>
         </div>
 
         <div className="grid grid-cols-4 gap-8">
           {data.columns.map((col) => (
             <div key={col.heading}>
-              <h3
-                className="text-[11px] uppercase mb-4 pb-2 border-b"
-                style={{
-                  color: "#9CA3AF",
-                  borderColor: "#F3F4F6",
-                  letterSpacing: "0.22em",
-                  fontWeight: 700,
-                }}
-              >
+              <h3 className="text-[11px] uppercase mb-4">
                 {col.heading}
               </h3>
 
@@ -597,10 +555,7 @@ function MegaMenuPanel({ item }: { item: NavItem }) {
                   <li key={lnk.label}>
                     <Link
                       to={lnk.to}
-                      className="text-sm transition-all duration-200 inline-flex items-center gap-1 hover:translate-x-1"
-                      style={{
-                        color: "#374151",
-                      }}
+                      className="text-sm"
                     >
                       {lnk.label}
                     </Link>
@@ -630,79 +585,81 @@ function UserMenu({
 
   return (
     <div className="relative">
-      {/* Avatar button */}
+      {/* PROFILE BUTTON */}
+
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-2"
+        className="flex items-center gap-3"
       >
-        <div className="w-8 h-8 rounded-full bg-[#1F3A2E] flex items-center justify-center text-white text-xs font-bold">
-          {initials}
+        {/* AVATAR */}
+
+        <div className="w-9 h-9 rounded-full bg-[#1F3A2E] flex items-center justify-center text-white text-xs font-bold">
+          {initials || "U"}
+        </div>
+
+        {/* USERNAME */}
+
+        <div className="flex flex-col items-start">
+          <span className="text-[13px] font-semibold text-[#1F3A2E] leading-none">
+            {user?.username ||
+              `${user?.firstName}_${user?.lastName}`}
+          </span>
+
+          <span className="text-[11px] text-gray-400 leading-none mt-1">
+            {user?.email}
+          </span>
         </div>
 
         <ChevronDown className="w-3 h-3 text-gray-500" />
       </button>
 
-      {/* Dropdown */}
+      {/* DROPDOWN */}
+
       {open && (
         <div
           className="absolute right-0 top-full mt-3 w-72 rounded-2xl overflow-hidden z-50 bg-white"
           style={{
-            boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+            boxShadow:
+              "0 20px 50px rgba(0,0,0,0.08)",
             border: "1px solid #EEF1ED",
           }}
         >
-          {/* Header */}
+          {/* HEADER */}
+
           <div className="px-5 py-4 bg-[#1F3A2E]">
-            <p className="text-white font-semibold">
-              {user?.firstName} {user?.lastName}
+            <p className="text-white font-semibold text-lg">
+              @{user?.username}
             </p>
-            <p className="text-white/70 text-sm">{user?.email}</p>
+
+            <p className="text-white/80 text-sm mt-1">
+              {user?.firstName}{" "}
+              {user?.lastName}
+            </p>
+
+            <p className="text-white/60 text-xs mt-1">
+              {user?.email}
+            </p>
           </div>
 
-          {/* Quick stats */}
-          <div className="px-4 py-3 grid grid-cols-2 gap-2 text-xs">
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-gray-400">Username</p>
-              <p className="font-medium text-gray-700">
-                {user?.username || "—"}
-              </p>
-            </div>
+          {/* BODY */}
 
-            <div className="bg-gray-50 rounded-xl p-3">
-              <p className="text-gray-400">Email</p>
-              <p className="font-medium text-gray-700 truncate">
-                {user?.email}
-              </p>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <div className="p-2 border-t">
-            
-
-            <button
-              onClick={() => {
-                setOpen(false);
-                window.location.href = "/favorites";
-              }}
+          <div className="p-2">
+            <Link
+              to="/favorites"
               className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-[#1F3A2E] py-2 px-3 rounded-lg hover:bg-gray-50"
             >
               <Heart className="w-4 h-4" />
               Favorites
-            </button>
+            </Link>
 
-            <button
-              onClick={() => {
-                setOpen(false);
-                window.location.href = "/cart";
-              }}
+            <Link
+              to="/cart"
               className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-[#1F3A2E] py-2 px-3 rounded-lg hover:bg-gray-50"
             >
               <ShoppingCart className="w-4 h-4" />
               Cart
-            </button>
+            </Link>
 
-            {/* Logout */}
             <button
               onClick={onLogout}
               className="w-full flex items-center gap-2 text-sm text-red-500 hover:text-red-600 py-2 px-3 rounded-lg hover:bg-red-50 mt-1"

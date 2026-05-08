@@ -489,10 +489,11 @@ const css = `
   }
 `;
 
-// ── Response төрөл (backend-ээс ирэх) ─────────────────────────────────────
 interface SignupResponse {
   message: string;
-  data: string; // JWT token
+
+  data: string;
+
   user: {
     id: string;
     first_name: string;
@@ -505,76 +506,182 @@ interface SignupResponse {
 export function Signup() {
   const navigate = useNavigate();
 
-  // ── AuthContext-с login функц авна ──────────────────────────────────────
-  const { login } = useAuth();
+  /* AUTH CONTEXT */
 
-  const [firstName,    setFirstName]    = useState<string>("");
-  const [lastName,     setLastName]     = useState<string>("");
-  const [email,        setEmail]        = useState<string>("");
-  const [password,     setPassword]     = useState<string>("");
-  const [showPass,     setShowPass]     = useState<boolean>(false);
-  const [error,        setError]        = useState<string>("");
-  const [loading,      setLoading]      = useState<boolean>(false);
-  const [success,      setSuccess]      = useState<boolean>(false);
+  const { updateUser } = useAuth();
+
+  /* FORM STATES */
+
+  const [firstName, setFirstName] =
+    useState<string>("");
+
+  const [lastName, setLastName] =
+    useState<string>("");
+
+  const [email, setEmail] =
+    useState<string>("");
+
+  const [password, setPassword] =
+    useState<string>("");
+
+  const [showPass, setShowPass] =
+    useState<boolean>(false);
+
+  /* UI STATES */
+
+  const [error, setError] =
+    useState<string>("");
+
+  const [loading, setLoading] =
+    useState<boolean>(false);
+
+  const [success, setSuccess] =
+    useState<boolean>(false);
+
+  /* CSS */
 
   useEffect(() => {
     const id = "su-css";
+
     if (!document.getElementById(id)) {
-      const el = document.createElement("style");
+      const el =
+        document.createElement("style");
+
       el.id = id;
+
       el.textContent = css;
+
       document.head.appendChild(el);
     }
-    return () => { document.getElementById(id)?.remove(); };
+
+    return () => {
+      document
+        .getElementById(id)
+        ?.remove();
+    };
   }, []);
 
-  const handleSignup = async (e: FormEvent<HTMLFormElement>) => {
+  /* SIGNUP */
+
+  const handleSignup = async (
+    e: FormEvent<HTMLFormElement>
+  ) => {
     e.preventDefault();
+
     setError("");
 
-    if (!firstName || !lastName || !email || !password) {
-      setError("Бүх талбарыг бөглөнө үү");
+    if (
+      !firstName.trim() ||
+      !lastName.trim() ||
+      !email.trim() ||
+      !password.trim()
+    ) {
+      setError(
+        "Бүх талбарыг бөглөнө үү"
+      );
+
       return;
     }
 
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          first_name: firstName,
-          last_name: lastName,
-          email,
-          password,
-        }),
-      });
+      const res = await fetch(
+        "http://localhost:8080/signup",
+        {
+          method: "POST",
 
-      const data: SignupResponse = await res.json();
+          headers: {
+            "Content-Type":
+              "application/json",
+          },
+
+          body: JSON.stringify({
+            first_name: firstName,
+            last_name: lastName,
+            email,
+            password,
+          }),
+        }
+      );
+
+      const data: SignupResponse =
+        await res.json();
+
+      /* ERROR */
 
       if (!res.ok) {
-        setError((data as any).message ?? "Бүртгэл амжилтгүй");
+        setError(
+          (data as any).message ||
+            "Бүртгэл амжилтгүй"
+        );
+
         setLoading(false);
+
         return;
       }
 
-      // ── Role system: AuthContext-р нэвтрэх ────────────────────────────
-      // login() нь token-ийг localStorage + context-д хадгална
-      login(data.data, data.user);
+      /* USER OBJECT */
+
+      const newUser = {
+        id: data.user.id,
+
+        firstName:
+          data.user.first_name,
+
+        lastName:
+          data.user.last_name,
+
+        username: `${data.user.first_name.toLowerCase()}_${data.user.last_name.toLowerCase()}`,
+
+        email: data.user.email,
+
+        joinedAt:
+          new Date().toISOString(),
+
+        isAdmin:
+          data.user.role === "admin",
+      };
+
+      /* SAVE TOKEN */
+
+      localStorage.setItem(
+        "token",
+        data.data
+      );
+
+      /* SAVE USER */
+
+      localStorage.setItem(
+        "thrift_user",
+        JSON.stringify(newUser)
+      );
+
+      /* UPDATE AUTH CONTEXT */
+
+      updateUser(newUser);
+
+      /* SUCCESS */
+
       setSuccess(true);
 
-      // Role-оос хамааран өөр route руу redirect
+      /* REDIRECT */
+
       setTimeout(() => {
-        if (data.user.role === "admin") {
+        if (
+          data.user.role === "admin"
+        ) {
           navigate("/admin");
         } else {
           navigate("/");
         }
-      }, 1200);
+      }, 1000);
+    } catch (err) {
+      console.log(err);
 
-    } catch {
-      setError("Сервертэй холбогдох боломжгүй");
+      setError(
+        "Сервертэй холбогдох боломжгүй"
+      );
     }
 
     setLoading(false);
@@ -582,152 +689,300 @@ export function Signup() {
 
   return (
     <div className="su-root">
-      {/* ── Left branding ── */}
+      {/* LEFT */}
+
       <div className="su-left">
         <div className="su-glow" />
+
         <div className="su-deco-ring" />
+
         <div className="su-deco-ring2" />
 
-        <Link to="/" className="su-wordmark">
-  <img
-    src={logo}
-    alt="988 Thrift"
-    style={{
-      width: "42px",
-      height: "42px",
-      objectFit: "contain",
-    }}
-  />
+        <Link
+          to="/"
+          className="su-wordmark"
+        >
+          <img
+            src={logo}
+            alt="988 Thrift"
+            style={{
+              width: "42px",
+              height: "42px",
+              objectFit: "contain",
+            }}
+          />
 
-  <span
-    className="hidden sm:block uppercase select-none"
-    style={{
-      color: "var(--g5)",
-      fontSize: "15px",
-      fontWeight: 700,
-      letterSpacing: "0.18em",
-      fontFamily:
-        "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif",
-      lineHeight: 1,
-    }}
-  >
-    988 THRIFT
-  </span>
-</Link>
+          <span
+            className="hidden sm:block uppercase select-none"
+            style={{
+              color: "var(--g5)",
+              fontSize: "15px",
+              fontWeight: 700,
+              letterSpacing: "0.18em",
+              fontFamily:
+                "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif",
+              lineHeight: 1,
+            }}
+          >
+            988 THRIFT
+          </span>
+        </Link>
 
         <div className="su-hero">
-          <div className="su-eyebrow">New arrivals daily</div>
+          <div className="su-eyebrow">
+            New arrivals daily
+          </div>
+
           <h1 className="su-headline">
-            Start<br />your<br /><em>story.</em>
+            Start
+            <br />
+            your
+            <br />
+            <em>story.</em>
           </h1>
+
           <p className="su-subtext">
-            Pre-loved, hand-picked, and priced right. Every piece has a past — yours starts here.
+            Pre-loved, hand-picked, and
+            priced right.
           </p>
         </div>
-
-        
       </div>
 
-      {/* ── Right auth ── */}
+      {/* RIGHT */}
+
       <div className="su-right">
         <div className="su-card">
           <div className="su-glass">
-            <div className="su-card-title">Join the shop</div>
-            <div className="su-card-sub">Create a free account and start browsing.</div>
+            <div className="su-card-title">
+              Join the shop
+            </div>
 
-            <form className="su-form" onSubmit={handleSignup}>
+            <div className="su-card-sub">
+              Create a free account
+              and start browsing.
+            </div>
+
+            {/* FORM */}
+
+            <form
+              className="su-form"
+              onSubmit={handleSignup}
+            >
+              {/* NAME ROW */}
 
               <div className="su-row">
                 <div className="su-field">
-                  <label className="su-label">First name</label>
+                  <label className="su-label">
+                    First name
+                  </label>
+
                   <input
                     type="text"
                     className="su-input"
                     placeholder="Enter your first name"
                     value={firstName}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setFirstName(e.target.value)}
+                    onChange={(
+                      e: ChangeEvent<HTMLInputElement>
+                    ) =>
+                      setFirstName(
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
+
                 <div className="su-field">
-                  <label className="su-label">Last name</label>
+                  <label className="su-label">
+                    Last name
+                  </label>
+
                   <input
                     type="text"
                     className="su-input"
                     placeholder="Enter your last name"
                     value={lastName}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setLastName(e.target.value)}
+                    onChange={(
+                      e: ChangeEvent<HTMLInputElement>
+                    ) =>
+                      setLastName(
+                        e.target.value
+                      )
+                    }
                   />
                 </div>
               </div>
 
+              {/* EMAIL */}
+
               <div className="su-field">
-                <label className="su-label">Email address</label>
+                <label className="su-label">
+                  Email address
+                </label>
+
                 <input
                   type="email"
                   className="su-input"
                   placeholder="Enter your email address"
                   value={email}
-                  onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                  onChange={(
+                    e: ChangeEvent<HTMLInputElement>
+                  ) =>
+                    setEmail(
+                      e.target.value
+                    )
+                  }
                 />
               </div>
 
+              {/* PASSWORD */}
+
               <div className="su-field">
-                <label className="su-label">Password</label>
+                <label className="su-label">
+                  Password
+                </label>
+
                 <div className="su-input-wrap">
                   <input
-                    type={showPass ? "text" : "password"}
+                    type={
+                      showPass
+                        ? "text"
+                        : "password"
+                    }
                     className="su-input with-icon"
                     placeholder="············"
                     value={password}
-                    onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+                    onChange={(
+                      e: ChangeEvent<HTMLInputElement>
+                    ) =>
+                      setPassword(
+                        e.target.value
+                      )
+                    }
                   />
+
                   <button
                     type="button"
                     className="su-input-icon"
-                    onClick={() => setShowPass(p => !p)}
-                    aria-label={showPass ? "Hide password" : "Show password"}
+                    onClick={() =>
+                      setShowPass(
+                        (p) => !p
+                      )
+                    }
                   >
                     {showPass ? (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" strokeLinecap="round" strokeLinejoin="round"/>
-                        <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" strokeLinecap="round" strokeLinejoin="round"/>
-                        <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        <path
+                          d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        <line
+                          x1="1"
+                          y1="1"
+                          x2="23"
+                          y2="23"
+                          strokeLinecap="round"
+                        />
                       </svg>
                     ) : (
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" strokeLinecap="round" strokeLinejoin="round"/>
-                        <circle cx="12" cy="12" r="3" strokeLinecap="round" strokeLinejoin="round"/>
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+
+                        <circle
+                          cx="12"
+                          cy="12"
+                          r="3"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                     )}
                   </button>
                 </div>
               </div>
 
-              {error && <div className="su-error">⚠ {error}</div>}
+              {/* ERROR */}
 
-              <button className="su-btn" type="submit" disabled={loading || success}>
-                {success
-                  ? <span className="su-success-check">✓ Welcome to the shop!</span>
-                  : loading
-                  ? <span className="su-spinner" />
-                  : "Create account"
+              {error && (
+                <div className="su-error">
+                  ⚠ {error}
+                </div>
+              )}
+
+              {/* BUTTON */}
+
+              <button
+                className="su-btn"
+                type="submit"
+                disabled={
+                  loading || success
                 }
+              >
+                {success ? (
+                  <span className="su-success-check">
+                    ✓ Welcome to the
+                    shop!
+                  </span>
+                ) : loading ? (
+                  <span className="su-spinner" />
+                ) : (
+                  "Create account"
+                )}
               </button>
 
+              {/* TERMS */}
+
               <div className="su-terms">
-                By joining you agree to our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>
+                By joining you agree
+                to our <a>Terms</a> and{" "}
+                <a>
+                  Privacy Policy
+                </a>
               </div>
+
+              {/* DIVIDER */}
 
               <div className="su-divider">
                 <div className="su-divider-line" />
-                <span className="su-divider-txt">or</span>
+
+                <span className="su-divider-txt">
+                  or
+                </span>
+
                 <div className="su-divider-line" />
               </div>
 
-              <div className="su-footer">
-                Already a member? <a onClick={() => navigate("/login")}>Sign in</a>
-              </div>
+              {/* FOOTER */}
 
+              <div className="su-footer">
+                Already a member?{" "}
+                <a
+                  onClick={() =>
+                    navigate("/login")
+                  }
+                >
+                  Sign in
+                </a>
+              </div>
             </form>
           </div>
         </div>

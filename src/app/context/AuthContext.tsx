@@ -4,28 +4,46 @@ import {
   useState,
   useEffect,
   ReactNode,
-  
 } from "react";
+
+/* =========================
+   USER TYPE
+========================= */
 
 export interface User {
   id: string;
+
   firstName: string;
+
   lastName: string;
+
   username?: string;
+
   email: string;
+
   avatar?: string;
+
   joinedAt: string;
+
   isAdmin?: boolean;
 }
 
+/* =========================
+   CONTEXT TYPE
+========================= */
+
 interface AuthContextType {
   user: User | null;
+
   isLoading: boolean;
 
   login: (
     email: string,
     password: string
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
 
   signup: (
     firstName: string,
@@ -33,59 +51,99 @@ interface AuthContextType {
     email: string,
     password: string,
     isAdmin?: boolean
-  ) => Promise<{ success: boolean; error?: string }>;
+  ) => Promise<{
+    success: boolean;
+    error?: string;
+  }>;
 
   logout: () => void;
 
-  updateUser: (data: Partial<User>) => void;
+  updateUser: (
+    data: Partial<User> | User
+  ) => void;
 }
 
-const AuthContext = createContext<AuthContextType>({
-  user: null,
-  isLoading: false,
-
-  login: async () => ({
-    success: false,
-    error: "AuthProvider not mounted",
-  }),
-
-  signup: async () => ({
-    success: false,
-    error: "AuthProvider not mounted",
-  }),
-
-  logout: () => {},
-
-  updateUser: () => {},
-});
-
-const STORAGE_KEY = "thrift_user";
-const FAKE_USERS_KEY = "thrift_registered_users";
-
 /* =========================
-   LocalStorage Helpers
+   CONTEXT
 ========================= */
 
-function getRegisteredUsers(): {
+const AuthContext =
+  createContext<AuthContextType>({
+    user: null,
+
+    isLoading: true,
+
+    login: async () => ({
+      success: false,
+      error: "AuthProvider missing",
+    }),
+
+    signup: async () => ({
+      success: false,
+      error: "AuthProvider missing",
+    }),
+
+    logout: () => {},
+
+    updateUser: () => {},
+  });
+
+/* =========================
+   STORAGE KEYS
+========================= */
+
+const STORAGE_KEY = "thrift_user";
+
+const USERS_KEY =
+  "thrift_registered_users";
+
+/* =========================
+   STORED USER TYPE
+========================= */
+
+interface StoredUser {
   email: string;
+
   password: string;
+
   user: User;
-}[] {
+}
+
+/* =========================
+   STORAGE HELPERS
+========================= */
+
+function getRegisteredUsers(): StoredUser[] {
   try {
-    return JSON.parse(
-      localStorage.getItem(FAKE_USERS_KEY) || "[]"
-    );
+    const raw =
+      localStorage.getItem(
+        USERS_KEY
+      );
+
+    return raw
+      ? JSON.parse(raw)
+      : [];
   } catch {
     return [];
   }
 }
 
-function saveRegisteredUser(
+function saveRegisteredUsers(
+  users: StoredUser[]
+) {
+  localStorage.setItem(
+    USERS_KEY,
+    JSON.stringify(users)
+  );
+}
+
+function addRegisteredUser(
   email: string,
   password: string,
   user: User
 ) {
-  const users = getRegisteredUsers();
+  const users =
+    getRegisteredUsers();
 
   users.push({
     email,
@@ -93,14 +151,11 @@ function saveRegisteredUser(
     user,
   });
 
-  localStorage.setItem(
-    FAKE_USERS_KEY,
-    JSON.stringify(users)
-  );
+  saveRegisteredUsers(users);
 }
 
 /* =========================
-   Provider
+   PROVIDER
 ========================= */
 
 export function AuthProvider({
@@ -108,36 +163,56 @@ export function AuthProvider({
 }: {
   children: ReactNode;
 }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] =
+    useState<User | null>(null);
 
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] =
+    useState(true);
 
-  /* Restore user from localStorage */
+  /* =========================
+     RESTORE USER
+  ========================= */
+
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored =
+        localStorage.getItem(
+          STORAGE_KEY
+        );
 
       if (stored) {
-        setUser(JSON.parse(stored));
+        setUser(
+          JSON.parse(stored)
+        );
       }
     } catch (err) {
-      console.log(err);
+      console.log(
+        "Restore user error:",
+        err
+      );
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   }, []);
 
-  /* Save user */
-  const persist = (u: User | null) => {
-    setUser(u);
+  /* =========================
+     PERSIST USER
+  ========================= */
 
-    if (u) {
+  const persistUser = (
+    userData: User | null
+  ) => {
+    setUser(userData);
+
+    if (userData) {
       localStorage.setItem(
         STORAGE_KEY,
-        JSON.stringify(u)
+        JSON.stringify(userData)
       );
     } else {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(
+        STORAGE_KEY
+      );
     }
   };
 
@@ -148,77 +223,116 @@ export function AuthProvider({
   const login = async (
     email: string,
     password: string
-  ): Promise<{
-    success: boolean;
-    error?: string;
-  }> => {
-    await new Promise((r) => setTimeout(r, 900));
+  ) => {
+    try {
+      setIsLoading(true);
 
-    /* Admin account */
-    if (
-      email.toLowerCase() === "admin@thrift.com" &&
-      password === "admin1234"
-    ) {
-      const admin: User = {
-        id: "admin",
-        firstName: "Admin",
-        lastName: "User",
-        username: "admin",
-        email: "admin@thrift.com",
-        joinedAt: new Date().toISOString(),
-        isAdmin: true,
-      };
+      await new Promise((r) =>
+        setTimeout(r, 700)
+      );
 
-      persist(admin);
+      /* ADMIN */
+
+      if (
+        email.toLowerCase() ===
+          "admin@thrift.com" &&
+        password === "admin1234"
+      ) {
+        const adminUser: User = {
+          id: "admin",
+
+          firstName: "Admin",
+
+          lastName: "User",
+
+          username: "admin",
+
+          email:
+            "admin@thrift.com",
+
+          joinedAt:
+            new Date().toISOString(),
+
+          isAdmin: true,
+        };
+
+        persistUser(adminUser);
+
+        return {
+          success: true,
+        };
+      }
+
+      /* USERS */
+
+      const users =
+        getRegisteredUsers();
+
+      const matched =
+        users.find(
+          (u) =>
+            u.email.toLowerCase() ===
+              email.toLowerCase() &&
+            u.password === password
+        );
+
+      if (matched) {
+        persistUser(
+          matched.user
+        );
+
+        return {
+          success: true,
+        };
+      }
+
+      /* DEMO */
+
+      if (
+        email.toLowerCase() ===
+          "demo@thrift.com" &&
+        password === "demo1234"
+      ) {
+        const demoUser: User = {
+          id: "demo",
+
+          firstName: "Alex",
+
+          lastName: "Demo",
+
+          username:
+            "alex_demo",
+
+          email:
+            "demo@thrift.com",
+
+          joinedAt:
+            new Date().toISOString(),
+        };
+
+        persistUser(demoUser);
+
+        return {
+          success: true,
+        };
+      }
 
       return {
-        success: true,
+        success: false,
+        error:
+          "Invalid email or password",
       };
-    }
-
-    /* Registered users */
-    const users = getRegisteredUsers();
-
-    const match = users.find(
-      (u) =>
-        u.email.toLowerCase() ===
-          email.toLowerCase() &&
-        u.password === password
-    );
-
-    if (match) {
-      persist(match.user);
+    } catch (err) {
+      console.log(err);
 
       return {
-        success: true,
+        success: false,
+        error:
+          "Something went wrong",
       };
+    } finally {
+      setIsLoading(false);
     }
-
-    /* Demo account */
-    if (
-      email.toLowerCase() === "demo@thrift.com" &&
-      password === "demo1234"
-    ) {
-      const demo: User = {
-        id: "demo",
-        firstName: "Alex",
-        lastName: "Demo",
-        username: "alex_demo",
-        email: "demo@thrift.com",
-        joinedAt: new Date().toISOString(),
-      };
-
-      persist(demo);
-
-      return {
-        success: true,
-      };
-    }
-
-    return {
-      success: false,
-      error: "Invalid email or password.",
-    };
   };
 
   /* =========================
@@ -231,64 +345,88 @@ export function AuthProvider({
     email: string,
     password: string,
     isAdmin?: boolean
-  ): Promise<{
-    success: boolean;
-    error?: string;
-  }> => {
-    await new Promise((r) => setTimeout(r, 1000));
+  ) => {
+    try {
+      setIsLoading(true);
 
-    if (
-      email.toLowerCase() === "admin@thrift.com"
-    ) {
-      return {
-        success: false,
-        error: "This email is reserved.",
+      await new Promise((r) =>
+        setTimeout(r, 900)
+      );
+
+      if (
+        email.toLowerCase() ===
+        "admin@thrift.com"
+      ) {
+        return {
+          success: false,
+          error:
+            "This email is reserved",
+        };
+      }
+
+      const users =
+        getRegisteredUsers();
+
+      const exists = users.some(
+        (u) =>
+          u.email.toLowerCase() ===
+          email.toLowerCase()
+      );
+
+      if (exists) {
+        return {
+          success: false,
+          error:
+            "Email already exists",
+        };
+      }
+
+      /* CREATE USER */
+
+      const newUser: User = {
+        id: `user_${Date.now()}`,
+
+        firstName,
+
+        lastName,
+
+        username: `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
+
+        email,
+
+        joinedAt:
+          new Date().toISOString(),
+
+        isAdmin:
+          isAdmin || false,
       };
-    }
 
-    const users = getRegisteredUsers();
+      /* SAVE */
 
-    const alreadyExists = users.some(
-      (u) =>
-        u.email.toLowerCase() ===
-        email.toLowerCase()
-    );
+      addRegisteredUser(
+        email,
+        password,
+        newUser
+      );
 
-    if (alreadyExists) {
+      /* AUTO LOGIN */
+
+      persistUser(newUser);
+
+      return {
+        success: true,
+      };
+    } catch (err) {
+      console.log(err);
+
       return {
         success: false,
         error:
-          "An account with this email already exists.",
+          "Signup failed",
       };
+    } finally {
+      setIsLoading(false);
     }
-
-    const newUser: User = {
-      id: `user_${Date.now()}`,
-
-      firstName,
-
-      lastName,
-
-      username: `${firstName.toLowerCase()}_${lastName.toLowerCase()}`,
-
-      email,
-
-      joinedAt: new Date().toISOString(),
-
-      isAdmin: isAdmin || false,
-    };
-
-    saveRegisteredUser(
-      email,
-      password,
-      newUser
-    );
-
-    persist(newUser);
-
-    return {
-      success: true,
-    };
   };
 
   /* =========================
@@ -296,9 +434,14 @@ export function AuthProvider({
   ========================= */
 
   const logout = () => {
-    persist(null);
+    persistUser(null);
 
-    window.location.href = "/login";
+    localStorage.removeItem(
+      "token"
+    );
+
+    window.location.href =
+      "/login";
   };
 
   /* =========================
@@ -306,26 +449,66 @@ export function AuthProvider({
   ========================= */
 
   const updateUser = (
-    data: Partial<User>
+    data: Partial<User> | User
   ) => {
-    if (!user) return;
+    /* NEW USER LOGIN */
 
-    const updatedUser = {
+    if (!user) {
+      const newUser =
+        data as User;
+
+      persistUser(newUser);
+
+      return;
+    }
+
+    /* UPDATE EXISTING */
+
+    const updatedUser: User = {
       ...user,
       ...data,
     };
 
-    persist(updatedUser);
+    persistUser(updatedUser);
+
+    /* UPDATE STORAGE USERS */
+
+    const users =
+      getRegisteredUsers();
+
+    const updatedUsers =
+      users.map((u) => {
+        if (
+          u.user.id ===
+          updatedUser.id
+        ) {
+          return {
+            ...u,
+            user: updatedUser,
+          };
+        }
+
+        return u;
+      });
+
+    saveRegisteredUsers(
+      updatedUsers
+    );
   };
 
   return (
     <AuthContext.Provider
       value={{
         user,
+
         isLoading,
+
         login,
+
         signup,
+
         logout,
+
         updateUser,
       }}
     >
@@ -335,7 +518,7 @@ export function AuthProvider({
 }
 
 /* =========================
-   Hook
+   HOOK
 ========================= */
 
 export function useAuth() {
