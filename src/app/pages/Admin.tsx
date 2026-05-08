@@ -1,5 +1,4 @@
 import { Link } from "react-router";
-import { useState } from "react";
 import {
   Plus, Trash2, Edit3, Package, X, Check,
   BarChart2, ShoppingBag, Tag, TrendingUp, Eye, Search,
@@ -8,7 +7,13 @@ import {
 import { useProducts } from "../context/ProductContext";
 import { Product, categories } from "../data/products";
 import { useLanguage } from "../context/LanguageContext";
-import React from "react";
+import React, {
+  useState,
+  useEffect,
+  ChangeEvent,
+} from "react";
+
+
 
 const BLANK: Omit<Product, "id"> = {
   name: "",
@@ -50,6 +55,7 @@ export function Admin() {
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
   const [toast, setToast] = useState<{ msg: string; type: "success" | "error" } | null>(null);
 
+
   const showToast = (msg: string, type: "success" | "error" = "success") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
@@ -80,6 +86,25 @@ export function Admin() {
     setEditingId(null);
     setErrors({});
     setView("products");
+  };
+
+  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+  
+    if (!file) return;
+  
+    const reader = new FileReader();
+  
+    reader.readAsDataURL(file);
+  
+    reader.onloadend = () => {
+      const base64 = reader.result as string;
+  
+      setForm((prev) => ({
+        ...prev,
+        imageUrl: base64,
+      }));
+    };
   };
 
   const handleEdit = (product: Product) => {
@@ -585,13 +610,12 @@ export function Admin() {
                   </FormField>
 
                   <FormField label={t.adminPage.imageUrl} error={errors.imageUrl} required>
-                    <input
-                      type="text"
-                      placeholder="https://images.unsplash.com/..."
-                      className={inputCls(!!errors.imageUrl)}
-                      value={form.imageUrl}
-                      onChange={(e) => setForm({ ...form, imageUrl: e.target.value })}
-                    />
+                  <input
+  type="file"
+  accept="image/*"
+  onChange={handleImageUpload}
+  className="w-full px-4 py-3 rounded-lg text-sm border border-gray-200 bg-white"
+/>
                     <p className="text-xs mt-1.5 flex items-center gap-1" style={{ color: "#9ca3af" }}>
                       <Upload className="w-3 h-3" />
                       {t.adminPage.pasteImageUrl}
@@ -730,3 +754,4 @@ function inputCls(hasError: boolean) {
     hasError ? "border-red-300" : "border-gray-200 focus:border-[#245230]"
   }`;
 }
+
