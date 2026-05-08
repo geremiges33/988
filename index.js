@@ -10,17 +10,11 @@ const app = express();
 ─────────────────────────────── */
 
 app.use(cors());
-
-// BASE64 зураг том байдаг учраас limit нэмнэ
 app.use(express.json({ limit: "50mb" }));
-
-app.use(express.urlencoded({
-  limit: "50mb",
-  extended: true,
-}));
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 /* ───────────────────────────────
-   MongoDB Connection
+   DB CONNECTION
 ─────────────────────────────── */
 
 mongoose
@@ -28,78 +22,75 @@ mongoose
     "mongodb+srv://thriftshop:xOHI8TzyHgr6gAu3@thriftshop.zqhyw5s.mongodb.net/thriftshop?retryWrites=true&w=majority"
   )
   .then(() => console.log("🔥 MongoDB connected"))
-  .catch((err) => console.log("MongoDB error:", err));
+  .catch((err) => console.log(err));
 
 /* ───────────────────────────────
    USER MODEL
 ─────────────────────────────── */
 
-const userSchema = new mongoose.Schema({
-  first_name: String,
-  last_name: String,
-
-  email: {
-    type: String,
-    unique: true,
+const userSchema = new mongoose.Schema(
+  {
+    first_name: String,
+    last_name: String,
+    email: { type: String, unique: true },
+    password: String,
+    role: {
+      type: String,
+      default: "user",
+    },
   },
-
-  password: String,
-
-  role: {
-    type: String,
-    enum: ["customer", "admin"],
-    default: "customer",
-  },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const User = mongoose.model("User", userSchema);
 
 /* ───────────────────────────────
-   LOGIN HISTORY MODEL
+   LOGIN MODEL
 ─────────────────────────────── */
 
-const loginSchema = new mongoose.Schema({
-  email: String,
-
-  loginTime: {
-    type: Date,
-    default: Date.now,
+const loginSchema = new mongoose.Schema(
+  {
+    email: String,
+    loginTime: {
+      type: Date,
+      default: Date.now,
+    },
   },
-});
+  {
+    timestamps: true,
+  }
+);
 
 const Login = mongoose.model("Login", loginSchema);
 
 /* ───────────────────────────────
-   PRODUCT MODEL
+   PRODUCT MODEL (FIXED)
 ─────────────────────────────── */
 
-const productSchema = new mongoose.Schema({
-  id: String,
-
-  name: String,
-
-  price: Number,
-
-  originalPrice: Number,
-
-  category: String,
-
-  description: String,
-
-  condition: String,
-
-  size: String,
-
-  // BASE64 зураг энд хадгалагдана
-  imageUrl: String,
-
-  featured: Boolean,
-});
+const productSchema = new mongoose.Schema(
+  {
+    id: String,
+    name: String,
+    price: Number,
+    originalPrice: Number,
+    category: String,
+    description: String,
+    condition: String,
+    size: String,
+    imageUrl: String,
+    featured: Boolean,
+  },
+  {
+    timestamps: true,
+  }
+);
 
 const Product = mongoose.model("Product", productSchema);
 
 /* ───────────────────────────────
-   TEST ROUTE
+   TEST
 ─────────────────────────────── */
 
 app.get("/", (req, res) => {
@@ -111,15 +102,8 @@ app.get("/", (req, res) => {
 ─────────────────────────────── */
 
 app.get("/users", async (req, res) => {
-  try {
-    const users = await User.find().select("-password");
-
-    res.json(users);
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
+  const users = await User.find().select("-password");
+  res.json(users);
 });
 
 /* ───────────────────────────────
@@ -128,121 +112,78 @@ app.get("/users", async (req, res) => {
 
 app.post("/signup", async (req, res) => {
   try {
-    const {
-      first_name,
-      last_name,
-      email,
-      password,
-    } = req.body;
+    const { first_name, last_name, email, password } = req.body;
 
-    if (
-      !first_name ||
-      !last_name ||
-      !email ||
-      !password
-    ) {
-      return res.status(400).json({
-        message: "Мэдээлэл бүрэн оруулна уу",
-      });
+    if (!first_name || !last_name || !email || !password) {
+      return res.status(400).json({ message: "Мэдээлэл дутуу" });
     }
 
-    const existingUser = await User.findOne({
-      email,
-    });
-
-    if (existingUser) {
-      return res.status(400).json({
-        message: "Email бүртгэлтэй байна",
-      });
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ message: "Email бүртгэлтэй" });
     }
 
-    const hashedPassword =
-      await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-    const newUser = new User({
+    const user = new User({
       first_name,
       last_name,
       email,
       password: hashedPassword,
+      role: "user",
     });
 
-    await newUser.save();
+    await user.save();
 
     res.json({
       message: "✅ Амжилттай бүртгэгдлээ",
-
-      data: "fake-token",
-
       user: {
-        id: newUser._id,
-        first_name: newUser.first_name,
-        last_name: newUser.last_name,
-        email: newUser.email,
-        role: newUser.role,
+        id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
       },
     });
-
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
 /* ───────────────────────────────
-   CUSTOMER LOGIN
+   LOGIN (USER)
 ─────────────────────────────── */
 
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Мэдээлэл бүрэн оруулна уу",
-      });
-    }
-
     const user = await User.findOne({ email });
 
     if (!user) {
-      return res.status(400).json({
-        message: "Email олдсонгүй",
-      });
+      return res.status(400).json({ message: "User олдсонгүй" });
     }
 
-    // admin энд нэвтрэхгүй
-    if (user.role === "admin") {
-      return res.status(400).json({
-        message: "Та admin хэрэглэгч байна",
-      });
+    const ok = await bcrypt.compare(password, user.password);
+
+    if (!ok) {
+      return res.status(400).json({ message: "Нууц үг буруу" });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Нууц үг буруу",
-      });
-    }
-
-    await new Login({
-      email: user.email,
-    }).save();
+    await new Login({ email }).save();
 
     res.json({
-      message: "✅ Амжилттай нэвтэрлээ",
-
-      data: user,
+      message: "✅ Login OK",
+      user: {
+        id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        email: user.email,
+        role: user.role,
+      },
     });
-
   } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+    res.status(500).json({ message: err.message });
   }
 });
 
@@ -251,180 +192,61 @@ app.post("/login", async (req, res) => {
 ─────────────────────────────── */
 
 app.post("/admin/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  const { email, password } = req.body;
 
-    if (!email || !password) {
-      return res.status(400).json({
-        message: "Мэдээлэл бүрэн оруулна уу",
-      });
-    }
+  const user = await User.findOne({ email });
 
-    const user = await User.findOne({
-      email,
-    });
-
-    if (!user) {
-      return res.status(400).json({
-        message: "Email олдсонгүй",
-      });
-    }
-
-    // зөвхөн admin
-    if (user.role !== "admin") {
-      return res.status(400).json({
-        message: "Admin хэрэглэгч биш байна",
-      });
-    }
-
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
-
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Нууц үг буруу",
-      });
-    }
-
-    await new Login({
-      email: user.email,
-    }).save();
-
-    res.json({
-      message: "✅ Admin амжилттай нэвтэрлээ",
-
-      success: true,
-
-      data: user,
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
+  if (!user || user.role !== "admin") {
+    return res.status(400).json({ message: "Admin биш" });
   }
+
+  const ok = await bcrypt.compare(password, user.password);
+
+  if (!ok) {
+    return res.status(400).json({ message: "Буруу password" });
+  }
+
+  await new Login({ email }).save();
+
+  res.json({
+    message: "✅ Admin OK",
+    user,
+  });
 });
 
 /* ───────────────────────────────
-   LOGIN HISTORY
+   PRODUCTS
 ─────────────────────────────── */
 
-app.get("/logins", async (req, res) => {
-  try {
-    const logins = await Login.find()
-      .sort({ loginTime: -1 });
-
-    res.json(logins);
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
-});
-
-/* ───────────────────────────────
-   PRODUCTS API
-─────────────────────────────── */
-
-// GET ALL PRODUCTS
 app.get("/products", async (req, res) => {
-  try {
-    const products = await Product.find();
-
-    res.json(products);
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
+  const products = await Product.find();
+  res.json(products);
 });
 
-// ADD PRODUCT
 app.post("/products", async (req, res) => {
-  try {
-    const {
-      id,
-      name,
-      price,
-      originalPrice,
-      category,
-      description,
-      condition,
-      size,
-      imageUrl,
-      featured,
-    } = req.body;
+  const product = new Product(req.body);
+  await product.save();
 
-    const newProduct = new Product({
-      id,
-      name,
-      price,
-      originalPrice,
-      category,
-      description,
-      condition,
-      size,
-
-      // BASE64 STRING
-      imageUrl,
-
-      featured,
-    });
-
-    await newProduct.save();
-
-    res.json({
-      message: "✅ Product нэмэгдлээ",
-
-      data: newProduct,
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
+  res.json({
+    message: "✅ Product нэмэгдлээ",
+    product,
+  });
 });
 
-// UPDATE PRODUCT
 app.put("/products/:id", async (req, res) => {
-  try {
-    const updatedProduct =
-      await Product.findOneAndUpdate(
-        { id: req.params.id },
-        req.body,
-        { new: true }
-      );
+  const updated = await Product.findOneAndUpdate(
+    { id: req.params.id },
+    req.body,
+    { new: true }
+  );
 
-    res.json(updatedProduct);
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
+  res.json(updated);
 });
 
-// DELETE PRODUCT
 app.delete("/products/:id", async (req, res) => {
-  try {
-    await Product.findOneAndDelete({
-      id: req.params.id,
-    });
+  await Product.findOneAndDelete({ id: req.params.id });
 
-    res.json({
-      message: "✅ Product deleted",
-    });
-
-  } catch (err) {
-    res.status(500).json({
-      message: err.message,
-    });
-  }
+  res.json({ message: "✅ Deleted" });
 });
 
 /* ───────────────────────────────

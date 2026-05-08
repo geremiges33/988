@@ -1,6 +1,8 @@
 import React from "react";
 import { useState, useEffect, FormEvent, ChangeEvent } from "react";
 import { Link } from "react-router-dom";
+// ADD THIS IMPORT
+import { useAuth } from "../context/AuthContext";
 
 const css = `
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
@@ -553,6 +555,7 @@ const css = `
 
 export function AuthPage() {
   const [isAdminMode, setIsAdminMode] = useState(false);
+  
 
   // User login state
   const [loginEmail, setLoginEmail] = useState("");
@@ -570,6 +573,9 @@ export function AuthPage() {
   const [adminLoading, setAdminLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [adminSuccess, setAdminSuccess] = useState(false);
+  // INSIDE AuthPage()
+
+const { updateUser } = useAuth();
 
   useEffect(() => {
     const id = "auth-css-v3";
@@ -588,49 +594,95 @@ export function AuthPage() {
     setAdminSuccess(false);
   };
 
+ 
+
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
+  
     setError("");
-    if (!loginEmail || !loginPass) { setError("Бүх талбарыг бөглөнө үү"); return; }
+  
+    if (!loginEmail || !loginPass) {
+      setError("Бүх талбарыг бөглөнө үү");
+      return;
+    }
+  
     setLoading(true);
+  
     try {
       const res = await fetch("http://localhost:8080/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: loginEmail, password: loginPass }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: loginEmail,
+          password: loginPass,
+        }),
       });
+  
       const data = await res.json();
-      if (!res.ok) { setError(data.message ?? "Нэвтрэх амжилтгүй"); setLoading(false); return; }
-      localStorage.setItem("data", data.data ?? "");
+  
+      if (!res.ok) {
+        setError(data.message ?? "Нэвтрэх амжилтгүй");
+        setLoading(false);
+        return;
+      }
+  
+      /*
+        BACKEND-ees irj baigaa user object:
+        {
+          user: {
+            _id,
+            firstName,
+            lastName,
+            username,
+            email
+          }
+        }
+      */
+  
+      const loggedUser = {
+        id: data.user?._id || data.user?.id,
+  
+        firstName: data.user?.firstName || "",
+  
+        lastName: data.user?.lastName || "",
+  
+        username:
+          data.user?.username ||
+          `${data.user?.firstName?.toLowerCase()}_${data.user?.lastName?.toLowerCase()}`,
+  
+        email: data.user?.email || "",
+  
+        joinedAt:
+          data.user?.joinedAt ||
+          new Date().toISOString(),
+  
+        isAdmin: false,
+      };
+  
+      // SAVE TO LOCAL STORAGE
+      localStorage.setItem(
+        "thrift_user",
+        JSON.stringify(loggedUser)
+      );
+  
+      // UPDATE AUTH CONTEXT
+      updateUser(loggedUser);
+  
       setSuccess(true);
-      setTimeout(() => { window.location.href = "/"; }, 1200);
-    } catch {
+  
+      setTimeout(() => {
+        window.location.href = "/";
+      }, 1200);
+  
+    } catch (err) {
+      console.log(err);
+  
       setError("Сервертэй холбогдох боломжгүй");
     }
+  
     setLoading(false);
-  };
-
-  const handleAdminLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    setAdminError("");
-    if (!adminEmail || !adminPass) { setAdminError("Admin credentials required"); return; }
-    setAdminLoading(true);
-    try {
-      const res = await fetch("http://localhost:8080/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: adminEmail, password: adminPass }),
-      });
-      const data = await res.json();
-      if (!res.ok) { setAdminError(data.message ?? "Admin login failed"); setAdminLoading(false); return; }
-      localStorage.setItem("adminData", data.data ?? "");
-      localStorage.setItem("isAdmin", "true");
-      setAdminSuccess(true);
-      setTimeout(() => { window.location.href = "/admin"; }, 1200);
-    } catch {
-      setAdminError("Could not connect to server");
-    }
-    setAdminLoading(false);
   };
 
   const EyeOpen = () => (
@@ -647,6 +699,12 @@ export function AuthPage() {
       <line x1="1" y1="1" x2="23" y2="23" strokeLinecap="round"/>
     </svg>
   );
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem("user");
+  };
+
+  
 
   return (
     <div className="auth-root">
@@ -765,7 +823,7 @@ export function AuthPage() {
                   <div className="auth-mode-sep-line" />
                 </div>
 
-                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleAdminLogin}>
+                <form className="auth-form" style={{ marginTop: "20px" }} onSubmit={handleLogin}>
                   <div className="admin-badge">
                     <span className="admin-badge-dot" />
                     Owner credentials
@@ -819,3 +877,7 @@ export function AuthPage() {
 }
 
 export { AuthPage as Login };
+
+function setUser(arg0: null) {
+  throw new Error("Function not implemented.");
+}

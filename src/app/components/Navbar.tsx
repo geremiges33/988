@@ -1,5 +1,16 @@
 import { Link, useLocation, useNavigate } from "react-router";
-import { ShoppingCart, Search, Heart, Menu, X, ChevronDown, User, LogOut, Package, Settings } from "lucide-react";
+import {
+  ShoppingCart,
+  Search,
+  Heart,
+  Menu,
+  X,
+  ChevronDown,
+  User,
+  LogOut,
+  Package,
+  Settings,
+} from "lucide-react";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { useLanguage } from "../context/LanguageContext";
@@ -9,14 +20,24 @@ import { createPortal } from "react-dom";
 import logo from "../../assets/logo.png";
 import React from "react";
 
-/* ─────────────────────────── mega-menu data ─────────────────────────── */
+const COLORS = {
+  primary: "#1F3A2E",
+  secondary: "#2D4A3A",
+  accent: "#4F6F52",
+  soft: "#F5F7F4",
+  border: "#E5E7EB",
+  text: "#111827",
+  muted: "#6B7280",
+};
 
 const WOMEN_IMAGE =
-  "https://images.unsplash.com/photo-1629922949137-e236a5ab497d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21lbiUyMGZhc2hpb24lMjBlZGl0b3JpYWwlMjBtaW5pbWFsaXN0fGVufDF8fHx8MTc3MjQ5ODc3N3ww&ixlib=rb-4.1.0&q=80&w=1080";
+  "https://images.unsplash.com/photo-1629922949137-e236a5ab497d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+
 const MEN_IMAGE =
-  "https://images.unsplash.com/photo-1630173250799-2813d34ed14b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtZW4lMjBmYXNoaW9uJTIwbWluaW1hbCUyMHN0eWxlJTIwb3V0Zml0fGVufDF8fHx8MTc3MjQ5ODc3OHww&ixlib=rb-4.1.0&q=80&w=1080";
+  "https://images.unsplash.com/photo-1630173250799-2813d34ed14b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
+
 const SALE_IMAGE =
-  "https://images.unsplash.com/photo-1766524871302-88590e1fa1bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxzYWxlJTIwZGlzY291bnQlMjBmYXNoaW9uJTIwY2xvdGhpbmclMjByYWNrfGVufDF8fHx8MTc3MjQ5ODc3OXww&ixlib=rb-4.1.0&q=80&w=1080";
+  "https://images.unsplash.com/photo-1766524871302-88590e1fa1bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080";
 
 interface MegaColumn {
   heading: string;
@@ -33,117 +54,132 @@ const megaMenus: Record<string, MegaMenuData> = {
   Women: {
     image: WOMEN_IMAGE,
     imageLabel: "New Collection",
+  
     columns: [
       {
         heading: "Shop by Size",
         links: [
-          { label: "XS",  to: "/shop/women?size=XS" },
-          { label: "S",   to: "/shop/women?size=S" },
-          { label: "M",   to: "/shop/women?size=M" },
-          { label: "L",   to: "/shop/women?size=L" },
-          { label: "XL",  to: "/shop/women?size=XL" },
-          { label: "XXL", to: "/shop/women?size=XXL" },
+          { label: "XS", to: "/shop/women?size=XS" },
+          { label: "S", to: "/shop/women?size=S" },
+          { label: "M", to: "/shop/women?size=M" },
+          { label: "L", to: "/shop/women?size=L" },
+          { label: "XL", to: "/shop/women?size=XL" },
         ],
       },
-      {
-        heading: "Clothing",
-        links: [
-          { label: "All Women's",      to: "/shop/women" },
-          { label: "Blouses & Shirts", to: "/shop/women?q=blouse" },
-          { label: "Dresses",          to: "/shop/women?q=dress" },
-          { label: "Skirts",           to: "/shop/women?q=skirt" },
-          { label: "Coats & Jackets",  to: "/shop/women?q=coat" },
-          { label: "Knitwear",         to: "/shop/women?q=knit" },
-        ],
-      },
-      {
-        heading: "Featured",
-        links: [
-          { label: "New Arrivals", to: "/shop/women?sort=newest" },
-          { label: "Best Sellers", to: "/shop/women?sort=featured" },
-          { label: "On Sale",      to: "/shop/women?sale=true" },
-          { label: "Under ₮30",    to: "/shop/women?maxPrice=30" },
-          { label: "Under ₮50",    to: "/shop/women?maxPrice=50" },
-        ],
-      },
-    ],
-  },
-  Men: {
-    image: MEN_IMAGE,
-    imageLabel: "Men's Essentials",
-    columns: [
-      {
-        heading: "Shop by Size",
-        links: [
-          { label: "XS",  to: "/shop/men?size=XS" },
-          { label: "S",   to: "/shop/men?size=S" },
-          { label: "M",   to: "/shop/men?size=M" },
-          { label: "L",   to: "/shop/men?size=L" },
-          { label: "XL",  to: "/shop/men?size=XL" },
-          { label: "XXL", to: "/shop/men?size=XXL" },
-        ],
-      },
-      {
-        heading: "Clothing",
-        links: [
-          { label: "All Men's",       to: "/shop/men" },
-          { label: "T-Shirts & Tees", to: "/shop/men?q=tee" },
-          { label: "Polo Shirts",     to: "/shop/men?q=polo" },
-          { label: "Hoodies",         to: "/shop/men?q=hoodie" },
-          { label: "Jackets",         to: "/shop/men?q=jacket" },
-          { label: "Jeans & Denim",   to: "/shop/men?q=denim" },
-        ],
-      },
-      
-      {
-        heading: "Featured",
-        links: [
-          { label: "New Arrivals", to: "/shop/men?sort=newest" },
-          { label: "Best Sellers", to: "/shop/men?sort=featured" },
-          { label: "On Sale",      to: "/shop/men?sale=true" },
-          { label: "Under ₮40",    to: "/shop/men?maxPrice=40" },
-          { label: "Under ₮100",   to: "/shop/men?maxPrice=100" },
-        ],
-      },
-    ],
-  },
-  Sale: {
-    image: SALE_IMAGE,
-    imageLabel: "Up to 70% Off",
-    columns: [
-      {
-        heading: "Sale by Category",
-        links: [
-          { label: "All Sale Items",   to: "/shop?sale=true" },
-          { label: "Clothing Sale",    to: "/shop/clothing?sale=true" },
-          
-        ],
-      },
+  
       {
         heading: "By Price",
         links: [
-          { label: "Under ₮10,000", to: "/shop?sale=true&maxPrice=10" },
-          { label: "Under ₮20,000", to: "/shop?sale=true&maxPrice=20" },
-          { label: "Under ₮30,000", to: "/shop?sale=true&maxPrice=30" },
-          { label: "Under ₮50,000", to: "/shop?sale=true&maxPrice=50" },
-          { label: "Under ₮100,00,", to: "/shop?sale=true&maxPrice=100" },
+          { label: "Under ₮20K", to: "/shop/women?maxPrice=20" },
+          { label: "Under ₮50K", to: "/shop/women?maxPrice=50" },
+          { label: "Under ₮100K", to: "/shop/women?maxPrice=100" },
+          { label: "Luxury Pieces", to: "/shop/women?minPrice=100" },
         ],
       },
+  
       {
         heading: "By Condition",
         links: [
-          { label: "Excellent Condition", to: "/shop?sale=true&condition=Excellent" },
-          { label: "Very Good",           to: "/shop?sale=true&condition=Very+Good" },
-          { label: "Good Condition",      to: "/shop?sale=true&condition=Good" },
+          {
+            label: "Excellent",
+            to: "/shop/women?condition=Excellent",
+          },
+          {
+            label: "Very Good",
+            to: "/shop/women?condition=Very+Good",
+          },
+          {
+            label: "Good",
+            to: "/shop/women?condition=Good",
+          },
         ],
       },
+    ],
+  },
+  
+  Men: {
+    image: MEN_IMAGE,
+    imageLabel: "Men Essentials",
+  
+    columns: [
       {
-        heading: "Best Deals",
+        heading: "Shop by Size",
         links: [
-          { label: "Biggest Discounts", to: "/shop?sort=discount" },
-          { label: "Clearance",         to: "/shop?sale=true&sort=discount" },
-          { label: "Featured Deals",    to: "/shop?sale=true&sort=featured" },
-          { label: "New Markdowns",     to: "/shop?sale=true&sort=newest" },
+          { label: "S", to: "/shop/men?size=S" },
+          { label: "M", to: "/shop/men?size=M" },
+          { label: "L", to: "/shop/men?size=L" },
+          { label: "XL", to: "/shop/men?size=XL" },
+        ],
+      },
+  
+      {
+        heading: "By Price",
+        links: [
+          { label: "Under ₮20K", to: "/shop/men?maxPrice=20" },
+          { label: "Under ₮50K", to: "/shop/men?maxPrice=50" },
+          { label: "Under ₮100K", to: "/shop/men?maxPrice=100" },
+          { label: "Luxury Pieces", to: "/shop/men?minPrice=100" },
+        ],
+      },
+  
+      {
+        heading: "By Condition",
+        links: [
+          {
+            label: "Excellent",
+            to: "/shop/men?condition=Excellent",
+          },
+          {
+            label: "Very Good",
+            to: "/shop/men?condition=Very+Good",
+          },
+          {
+            label: "Good",
+            to: "/shop/men?condition=Good",
+          },
+        ],
+      },
+    ],
+  },
+  
+  Sale: {
+    image: SALE_IMAGE,
+    imageLabel: "Up to 70% Off",
+  
+    columns: [
+      {
+        heading: "Sale",
+        links: [
+          { label: "All Sale", to: "/shop?sale=true" },
+          { label: "Best Deals", to: "/shop?sort=discount" },
+        ],
+      },
+  
+      {
+        heading: "By Price",
+        links: [
+          { label: "Under ₮20K", to: "/shop?sale=true&maxPrice=20" },
+          { label: "Under ₮50K", to: "/shop?sale=true&maxPrice=50" },
+          { label: "Under ₮100K", to: "/shop?sale=true&maxPrice=100" },
+          { label: "Luxury Deals", to: "/shop?sale=true&minPrice=100" },
+        ],
+      },
+  
+      {
+        heading: "By Condition",
+        links: [
+          {
+            label: "Excellent",
+            to: "/shop?sale=true&condition=Excellent",
+          },
+          {
+            label: "Very Good",
+            to: "/shop?sale=true&condition=Very+Good",
+          },
+          {
+            label: "Good",
+            to: "/shop?sale=true&condition=Good",
+          },
         ],
       },
     ],
@@ -153,64 +189,60 @@ const megaMenus: Record<string, MegaMenuData> = {
 const NAV_ITEMS = ["Women", "Men", "Sale"] as const;
 type NavItem = (typeof NAV_ITEMS)[number];
 
-/* ─────────────────────────── component ─────────────────────────── */
-
 export function Navbar() {
   const { getCartCount } = useCart();
   const { getFavoritesCount } = useFavorites();
   const { user, logout } = useAuth();
   const { lang, setLang, t } = useLanguage();
+
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [activeMenu, setActiveMenu] = useState<NavItem | null>(null);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [mobileExpanded, setMobileExpanded] = useState<NavItem | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [dropdownTop, setDropdownTop] = useState(0);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const navRef = useRef<HTMLElement>(null);
-  const location = useLocation();
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [dropdownTop, setDropdownTop] = useState(0);
 
   useEffect(() => {
     setActiveMenu(null);
-    setMobileOpen(false);
   }, [location.pathname]);
 
-  // Keep dropdownTop in sync with the navbar's actual bottom edge,
-  // both on mount and on every scroll/resize.
   useEffect(() => {
     const update = () => {
       if (navRef.current) {
         setDropdownTop(navRef.current.getBoundingClientRect().bottom);
       }
     };
+
     update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update, { passive: true });
+
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update);
+
     return () => {
-      window.removeEventListener("scroll", update);
       window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update);
     };
-  }, [searchOpen]); // re-run when search bar opens/closes (changes nav height)
+  }, []);
 
   const openMenu = useCallback((item: NavItem) => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setActiveMenu(item);
-    if (navRef.current) {
-      setDropdownTop(navRef.current.getBoundingClientRect().bottom);
-    }
   }, []);
 
   const scheduleClose = useCallback(() => {
-    closeTimer.current = setTimeout(() => setActiveMenu(null), 120);
-  }, []);
-
-  const cancelClose = useCallback(() => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => {
+      setActiveMenu(null);
+    }, 120);
   }, []);
 
   const handleSearch = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
     if (searchQuery.trim()) {
       navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
@@ -218,35 +250,61 @@ export function Navbar() {
     }
   };
 
-  /* Translated nav labels */
-  const navLabels: Record<NavItem, string> = {
-    Women: t.nav.women,
-    Men: t.nav.men,
-    Sale: t.nav.sale,
-  };
-
   return (
     <>
-      {/* ── Top announcement bar ── */}
-      <div className="bg-black text-white text-center py-2 text-xs tracking-widest uppercase">
+      {/* TOP BAR */}
+
+      <div
+        className="text-white text-center py-2 text-[11px] uppercase"
+        style={{
+          background: COLORS.primary,
+          letterSpacing: "0.22em",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
         {t.announcement}
       </div>
 
-      {/* ── Main navbar ── */}
-      <nav ref={navRef} className="sticky top-0 z-50 bg-white border-b border-gray-100" style={{ boxShadow: "0 2px 20px rgba(0,0,0,0.06)" }}>
+      {/* NAVBAR */}
+
+      <nav
+        ref={navRef}
+        className="sticky top-0 z-50 bg-white border-b"
+        style={{
+          borderColor: COLORS.border,
+          boxShadow: "0 2px 20px rgba(0,0,0,0.04)",
+          fontFamily: "Arial, sans-serif",
+        }}
+      >
         <div className="max-w-[1440px] mx-auto px-8">
           <div className="grid grid-cols-[auto_1fr_auto] items-center h-16 gap-4">
+            {/* LOGO */}
 
-            {/* ── Logo ── */}
-            <Link to="/" className="flex items-center gap-2.5 flex-shrink-0">
-              <img src={logo} alt="988 Thrift Shop" className="w-10 h-10 rounded-full object-cover" />
-              <span className="text-base tracking-[0.1em] uppercase font-semibold text-gray-900 select-none hidden sm:block">
-                988 Thrift
-              </span>
+            <Link to="/" className="flex items-center gap-3">
+              <img
+                src={logo}
+                alt="988 Thrift"
+                className="w-10 h-10 rounded-full object-cover"
+              />
+
+<span
+  className="hidden sm:block uppercase select-none"
+  style={{
+    color: COLORS.primary,
+    fontSize: "15px",
+    fontWeight: 700,
+    letterSpacing: "0.18em",
+    fontFamily: "Impact, Haettenschweiler, Arial Narrow Bold, sans-serif",
+    lineHeight: 1,
+  }}
+>
+  988 THRIFT
+</span>
             </Link>
 
-            {/* ── Desktop main nav ── */}
-            <div className="hidden lg:flex items-center justify-center gap-6">
+            {/* DESKTOP NAV */}
+
+            <div className="hidden lg:flex items-center justify-center gap-8">
               {NAV_ITEMS.map((item) => (
                 <div
                   key={item}
@@ -255,339 +313,296 @@ export function Navbar() {
                   onMouseLeave={scheduleClose}
                 >
                   <button
-                    className={`flex items-center gap-1.5 px-3 py-5 text-sm tracking-widest uppercase transition-colors duration-150 select-none ${
-                      item === "Sale"
-                        ? "text-[#FF6B6B] font-medium"
-                        : activeMenu === item
-                        ? "text-black"
-                        : "text-gray-600 hover:text-black"
-                    }`}
+                    className="flex items-center gap-1.5 px-3 py-5 text-[12px] uppercase transition-all duration-200"
+                    style={{
+                      color:
+                        item === "Sale"
+                          ? "#557C55"
+                          : activeMenu === item
+                          ? COLORS.primary
+                          : COLORS.muted,
+                      letterSpacing: "0.18em",
+                      fontWeight: activeMenu === item ? 600 : 500,
+                    }}
                   >
-                    {navLabels[item]}
+                    {item}
+
                     <ChevronDown
-                      className={`w-3 h-3 transition-transform duration-200 ${activeMenu === item ? "rotate-180" : ""}`}
+                      className={`w-3 h-3 transition-transform duration-200 ${
+                        activeMenu === item ? "rotate-180" : ""
+                      }`}
                     />
                   </button>
-                  {/* active underline */}
+
                   <span
-                    className={`absolute bottom-0 left-6 right-6 h-[2px] bg-black transition-all duration-200 ${activeMenu === item ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"}`}
-                    style={{ transformOrigin: "center" }}
+                    className={`absolute bottom-0 left-6 right-6 h-[2px] transition-all duration-300 ${
+                      activeMenu === item
+                        ? "opacity-100 scale-x-100"
+                        : "opacity-0 scale-x-0"
+                    }`}
+                    style={{
+                      background: COLORS.primary,
+                    }}
                   />
                 </div>
               ))}
             </div>
 
-            {/* ── Desktop right icons ── */}
+            {/* RIGHT SIDE */}
+
             <div className="hidden lg:flex items-center gap-4">
-              {/* Search */}
+              {/* SEARCH */}
+
               <button
-                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
                 onClick={() => setSearchOpen((v) => !v)}
               >
                 <Search className="w-[18px] h-[18px]" />
               </button>
-              {/* Wishlist */}
+
+              {/* FAVORITES */}
+
               <Link
                 to="/favorites"
-                className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="relative p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
               >
                 <Heart className="w-[18px] h-[18px]" />
+
                 {getFavoritesCount() > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#FF6B6B] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
+                    style={{
+                      background: COLORS.primary,
+                      fontWeight: 700,
+                    }}
+                  >
                     {getFavoritesCount()}
                   </span>
                 )}
               </Link>
-              {/* Cart */}
+
+              {/* CART */}
+
               <Link
                 to="/cart"
-                className="relative p-2 rounded-full hover:bg-gray-100 transition-colors"
+                className="relative p-2 rounded-full transition-all duration-200 hover:bg-[#F3F5F2]"
               >
                 <ShoppingCart className="w-[18px] h-[18px]" />
+
                 {getCartCount() > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#FF6B6B] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
+                  <span
+                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
+                    style={{
+                      background: COLORS.primary,
+                      fontWeight: 700,
+                    }}
+                  >
                     {getCartCount()}
                   </span>
                 )}
               </Link>
 
-              {/* Divider */}
               <div className="w-px h-5 bg-gray-200" />
 
-              {/* Language toggle */}
-              <div className="flex items-center bg-gray-100 rounded-full p-1 gap-1">
+              {/* LANGUAGE */}
+
+              <div
+                className="flex items-center rounded-full p-1 gap-1"
+                style={{
+                  background: "#F3F5F2",
+                }}
+              >
                 <button
                   onClick={() => setLang("en")}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] tracking-wider font-semibold transition-all duration-200"
-                  style={lang === "en"
-                    ? { background: "#0A0A0A", color: "#fff" }
-                    : { color: "#9CA3AF" }}
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-200"
+                  style={
+                    lang === "en"
+                      ? {
+                          background: COLORS.primary,
+                          color: "#fff",
+                        }
+                      : {
+                          color: COLORS.muted,
+                        }
+                  }
                 >
                   EN
                 </button>
+
                 <button
                   onClick={() => setLang("mn")}
-                  className="px-2.5 py-0.5 rounded-full text-[11px] tracking-wider font-semibold transition-all duration-200"
-                  style={lang === "mn"
-                    ? { background: "#FF6B6B", color: "#fff" }
-                    : { color: "#9CA3AF" }}
+                  className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold transition-all duration-200"
+                  style={
+                    lang === "mn"
+                      ? {
+                          background: COLORS.secondary,
+                          color: "#fff",
+                        }
+                      : {
+                          color: COLORS.muted,
+                        }
+                  }
                 >
                   МН
                 </button>
               </div>
 
-              {/* Divider */}
               <div className="w-px h-5 bg-gray-200" />
 
-              {/* Auth section */}
+              {/* AUTH */}
+
               {localStorage.getItem("data") ? (
                 <UserMenu user={user ?? undefined} onLogout={logout} />
               ) : (
                 <div className="flex items-center gap-3">
                   <Link
                     to="/login"
-                    className="px-3 py-1.5 text-xs tracking-widest uppercase text-gray-600 hover:text-black transition-colors"
+                    className="px-3 py-1.5 text-[11px] uppercase"
+                    style={{
+                      color: COLORS.muted,
+                      letterSpacing: "0.16em",
+                    }}
                   >
                     {t.nav.logIn}
                   </Link>
+
                   <Link
                     to="/signup"
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs tracking-widest uppercase bg-[#0A0A0A] text-white hover:bg-[#FF6B6B] transition-all duration-200"
+                    className="flex items-center gap-1.5 px-5 py-2 rounded-full text-[11px] uppercase transition-all duration-300 hover:scale-105"
+                    style={{
+                      background: COLORS.primary,
+                      color: "#fff",
+                      letterSpacing: "0.16em",
+                      fontWeight: 600,
+                    }}
                   >
                     {t.nav.signUp}
                   </Link>
                 </div>
               )}
             </div>
-
-            {/* ── Mobile right ── */}
-            <div className="flex lg:hidden items-center gap-2">
-              {/* Mobile language toggle */}
-              <div className="flex items-center bg-gray-100 rounded-full p-0.5">
-                <button
-                  onClick={() => setLang("en")}
-                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all"
-                  style={lang === "en" ? { background: "#0A0A0A", color: "#fff" } : { color: "#9CA3AF" }}
-                >EN</button>
-                <button
-                  onClick={() => setLang("mn")}
-                  className="px-2 py-0.5 rounded-full text-[10px] font-semibold transition-all"
-                  style={lang === "mn" ? { background: "#FF6B6B", color: "#fff" } : { color: "#9CA3AF" }}
-                >МН</button>
-              </div>
-              <Link to="/cart" className="relative p-2">
-                <ShoppingCart className="w-5 h-5" />
-                {getCartCount() > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 bg-[#FF6B6B] text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center font-bold">
-                    {getCartCount()}
-                  </span>
-                )}
-              </Link>
-              <button className="p-2" onClick={() => setMobileOpen((v) => !v)}>
-                {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </button>
-            </div>
           </div>
         </div>
 
-        {/* ── Search bar (slides down) ── */}
+        {/* SEARCH BAR */}
+
         <div
-          className={`overflow-hidden transition-all duration-300 border-t border-gray-100 bg-white ${searchOpen ? "max-h-20" : "max-h-0"}`}
+          className={`overflow-hidden transition-all duration-300 border-t bg-white ${
+            searchOpen ? "max-h-20" : "max-h-0"
+          }`}
+          style={{
+            borderColor: COLORS.border,
+          }}
         >
-          <form onSubmit={handleSearch} className="max-w-[1440px] mx-auto px-8 py-3 flex items-center gap-3">
-            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+          <form
+            onSubmit={handleSearch}
+            className="max-w-[1440px] mx-auto px-8 py-3 flex items-center gap-3"
+          >
+            <Search className="w-4 h-4 text-gray-400" />
+
             <input
               autoFocus={searchOpen}
               type="text"
               placeholder={t.nav.searchPlaceholder}
-              className="flex-1 text-sm outline-none placeholder:text-gray-400 tracking-wide"
+              className="flex-1 text-sm outline-none bg-transparent"
+              style={{
+                fontFamily: "Arial, sans-serif",
+                color: COLORS.text,
+              }}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <button type="button" className="text-xs tracking-widest uppercase text-gray-400 hover:text-black transition-colors" onClick={() => setSearchOpen(false)}>
+
+            <button
+              type="button"
+              className="text-xs uppercase"
+              style={{
+                color: COLORS.muted,
+                letterSpacing: "0.16em",
+              }}
+              onClick={() => setSearchOpen(false)}
+            >
               {t.nav.close}
             </button>
           </form>
         </div>
-
-        {/* ── Mobile menu ── */}
-        <div
-          className={`lg:hidden overflow-hidden transition-all duration-300 bg-white border-t border-gray-100 ${mobileOpen ? "max-h-screen" : "max-h-0"}`}
-        >
-          <div className="px-6 py-4 space-y-1">
-            {NAV_ITEMS.map((item) => (
-              <div key={item}>
-                <button
-                  className={`w-full flex items-center justify-between py-3 text-sm tracking-widest uppercase border-b border-gray-100 ${item === "Sale" ? "text-[#FF6B6B]" : "text-gray-800"}`}
-                  onClick={() => setMobileExpanded(mobileExpanded === item ? null : item)}
-                >
-                  {navLabels[item]}
-                  <ChevronDown className={`w-4 h-4 transition-transform ${mobileExpanded === item ? "rotate-180" : ""}`} />
-                </button>
-                {mobileExpanded === item && (
-                  <div className="pl-4 pb-3 pt-2 grid grid-cols-2 gap-x-4 gap-y-2">
-                    {megaMenus[item].columns.flatMap((col) =>
-                      col.links.map((lnk) => (
-                        <Link
-                          key={lnk.label + col.heading}
-                          to={lnk.to}
-                          className="text-sm text-gray-600 hover:text-black py-1"
-                          onClick={() => setMobileOpen(false)}
-                        >
-                          {lnk.label}
-                        </Link>
-                      ))
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
-            <Link to="/shop" className="block py-3 text-sm tracking-widest uppercase text-gray-800 border-b border-gray-100" onClick={() => setMobileOpen(false)}>
-              {t.nav.shopAll}
-            </Link>
-            <Link to="/admin" className="block py-3 text-sm tracking-widest uppercase text-gray-800" onClick={() => setMobileOpen(false)}>
-              {t.nav.admin}
-            </Link>
-          </div>
-        </div>
       </nav>
 
-      {/* ── Mega menu dropdown — portalled to <body> so it escapes the sticky stacking context ── */}
-      {activeMenu && createPortal(
-        <>
+      {/* MEGA MENU */}
+
+      {activeMenu &&
+        createPortal(
           <div
-            className="fixed left-0 right-0 bg-white border-b border-gray-200 shadow-2xl"
-            style={{ top: dropdownTop, zIndex: 9999 }}
-            onMouseEnter={cancelClose}
+            className="fixed left-0 right-0 bg-white border-b"
+            style={{
+              top: dropdownTop,
+              zIndex: 9999,
+              borderColor: COLORS.border,
+              boxShadow: "0 30px 60px rgba(0,0,0,0.08)",
+            }}
+            onMouseEnter={() => {
+              if (closeTimer.current) clearTimeout(closeTimer.current);
+            }}
             onMouseLeave={scheduleClose}
           >
-            <MegaMenuPanel item={activeMenu} onClose={() => setActiveMenu(null)} />
-          </div>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 bg-black/10"
-            style={{ top: dropdownTop, zIndex: 9998 }}
-            onClick={() => setActiveMenu(null)}
-          />
-        </>,
-        document.body
-      )}
+            <MegaMenuPanel item={activeMenu} />
+          </div>,
+          document.body
+        )}
     </>
   );
 }
 
-/* ─────────────────────────── MegaMenuPanel ─────────────────────────── */
-
-function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }) {
-  const { t } = useLanguage();
+function MegaMenuPanel({ item }: { item: NavItem }) {
   const data = megaMenus[item];
-
-  /* Translated column headings per item */
-  const colHeadingMap: Record<string, string> = {
-    "Shop by Size": t.mega.shopBySize,
-    "Clothing": t.mega.clothing,
-
-    "Featured": t.mega.featured,
-    "Sale by Category": t.mega.saleByCategory,
-    "By Price": t.mega.byPrice,
-    "By Condition": t.mega.byCondition,
-    "Best Deals": t.mega.bestDeals,
-  };
-
-  /* Translated link labels */
-  const linkLabelMap: Record<string, string> = {
-    "New Arrivals": t.mega.newArrivals,
-    "Best Sellers": t.mega.bestSellers,
-    "On Sale": t.mega.onSale,
-    "All Women's": t.mega.allWomens,
-    "All Men's": t.mega.allMens,
-    "All Clothing": t.mega.allClothing,
-
-    "All Sale Items": t.mega.allSaleItems,
-    "Clothing Sale": t.mega.clothingSale,
-    "Biggest Discounts": t.mega.biggestDiscounts,
-    "Clearance": t.mega.clearance,
-    "Featured Deals": t.mega.featuredDeals,
-    "New Markdowns": t.mega.newMarkdowns,
-    "Blouses & Shirts": t.mega.blousesShirts,
-    "Dresses": t.mega.dresses,
-    "Skirts": t.mega.skirts,
-    "Coats & Jackets": t.mega.coatsJackets,
-    "Knitwear": t.mega.knitwear,
-    "T-Shirts & Tees": t.mega.tShirtsTees,
-    "Polo Shirts": t.mega.poloShirts,
-    "Hoodies": t.mega.hoodies,
-    "Jackets": t.mega.jackets,
-    "Jeans & Denim": t.mega.jeansDenim,
-    "Watches": t.mega.watches,
-    "Sunglasses": t.mega.sunglasses,
-    "Leather Goods": t.mega.leatherGoods,
-    "Scarves": t.mega.scarves,
-    "Bags & Purses": t.mega.bagsPurses,
-    "Tops & T-Shirts": t.mega.tops,
-    "Denim": t.mega.denim,
-    "Bags": t.mega.bags,
-    "Excellent Condition": t.mega.excellentCondition,
-    "Very Good": t.mega.veryGood,
-    "Good Condition": t.mega.goodCondition,
-  };
-
-  const imageLabelMap: Record<string, string> = {
-    "New Collection": t.mega.newCollection,
-    "Men's Essentials": t.mega.mensEssentials,
-
-    "Up to 70% Off": t.mega.upTo70,
-  };
-
-  const navLabelMap: Record<NavItem, string> = {
-    Women: t.nav.women,
-    Men: t.nav.men,
-
-    Sale: t.nav.sale,
-  };
 
   return (
     <div className="max-w-[1440px] mx-auto px-8 py-10">
       <div className="grid grid-cols-[220px_1fr] gap-12">
-
-        {/* ── Featured image ── */}
-        <div className="relative group overflow-hidden rounded-sm">
+        <div className="relative group overflow-hidden rounded-2xl">
           <img
             src={data.image}
             alt={item}
             className="w-full h-64 object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-          <div className="absolute bottom-4 left-4">
-            <p className="text-white text-xs tracking-widest uppercase mb-1 opacity-80">{navLabelMap[item]}</p>
-            <p className="text-white text-lg font-light tracking-wide">{imageLabelMap[data.imageLabel] ?? data.imageLabel}</p>
-            <Link
-              to="/shop"
-              className="mt-2 inline-flex items-center text-xs text-white/80 hover:text-white tracking-widest uppercase underline underline-offset-4 transition-colors"
-              onClick={onClose}
-            >
-              {t.mega.shopNow}
-            </Link>
+
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+
+          <div className="absolute bottom-4 left-4 text-white">
+            <p className="text-xs uppercase tracking-[0.2em] opacity-80">
+              {item}
+            </p>
+
+            <p className="text-xl font-light mt-1">{data.imageLabel}</p>
           </div>
         </div>
 
-        {/* ── Columns ── */}
         <div className="grid grid-cols-4 gap-8">
           {data.columns.map((col) => (
             <div key={col.heading}>
-              <h3 className="text-xs tracking-[0.2em] uppercase text-gray-400 mb-4 pb-2 border-b border-gray-100">
-                {colHeadingMap[col.heading] ?? col.heading}
+              <h3
+                className="text-[11px] uppercase mb-4 pb-2 border-b"
+                style={{
+                  color: "#9CA3AF",
+                  borderColor: "#F3F4F6",
+                  letterSpacing: "0.22em",
+                  fontWeight: 700,
+                }}
+              >
+                {col.heading}
               </h3>
-              <ul className="space-y-2.5">
+
+              <ul className="space-y-3">
                 {col.links.map((lnk) => (
                   <li key={lnk.label}>
                     <Link
                       to={lnk.to}
-                      className="text-sm text-gray-700 hover:text-black hover:translate-x-1 transition-all duration-150 inline-flex items-center gap-1 group/lnk"
-                      onClick={onClose}
+                      className="text-sm transition-all duration-200 inline-flex items-center gap-1 hover:translate-x-1"
+                      style={{
+                        color: "#374151",
+                      }}
                     >
-                      <span className="w-0 group-hover/lnk:w-2 h-px bg-black transition-all duration-200" />
-                      {linkLabelMap[lnk.label] ?? lnk.label}
+                      {lnk.label}
                     </Link>
                   </li>
                 ))}
@@ -595,118 +610,108 @@ function MegaMenuPanel({ item, onClose }: { item: NavItem; onClose: () => void }
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
 }
 
-/* ─────────────────────────── UserMenu ─────────────────────────── */
-
-function UserMenu({ user, onLogout }: { user?: { firstName: string; lastName: string; email: string; joinedAt: string }; onLogout: () => void }) {
-  const { t } = useLanguage();
+function UserMenu({
+  user,
+  onLogout,
+}: {
+  user?: any;
+  onLogout: () => void;
+}) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
-    };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
-  }, []);
-
-  const initials = `${user?.firstName[0] ?? ""}${user?.lastName[0] ?? ""}`.toUpperCase();
-
-  const gradients = [
-    "linear-gradient(135deg,#FF6B6B,#FFE66D)",
-    "linear-gradient(135deg,#4ECDC4,#95E1D3)",
-    "linear-gradient(135deg,#C5B9E4,#F4A3A8)",
-    "linear-gradient(135deg,#FFA07A,#FFE66D)",
-  ];
-  const gradientIdx = (user?.firstName.charCodeAt(0) || 0) % gradients.length;
+  const initials = `${user?.firstName?.[0] ?? ""}${
+    user?.lastName?.[0] ?? ""
+  }`.toUpperCase();
 
   return (
-    <div className="relative" ref={ref}>
+    <div className="relative">
+      {/* Avatar button */}
       <button
-        onClick={() => setOpen(v => !v)}
-        className="flex items-center gap-2.5 pl-1 pr-3 py-1 rounded-full hover:bg-gray-50 transition-colors"
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2"
       >
-        <div
-          className="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] flex-shrink-0"
-          style={{ background: gradients[gradientIdx], fontWeight: 700 }}
-        >
+        <div className="w-8 h-8 rounded-full bg-[#1F3A2E] flex items-center justify-center text-white text-xs font-bold">
           {initials}
         </div>
-        <span className="text-sm text-gray-700 max-w-[80px] truncate">{user?.firstName}</span>
-        <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+
+        <ChevronDown className="w-3 h-3 text-gray-500" />
       </button>
 
+      {/* Dropdown */}
       {open && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setOpen(false)} />
-          <div
-            className="absolute right-0 top-full mt-3 w-64 rounded-2xl overflow-hidden z-50"
-            style={{ boxShadow: "0 20px 60px rgba(0,0,0,0.15)", border: "1px solid #F3F4F6" }}
-          >
-            {/* Header */}
-            <div className="bg-[#0A0A0A] px-5 py-4">
-              <div className="flex items-center gap-3">
-                <div
-                  className="w-10 h-10 rounded-full flex items-center justify-center text-white flex-shrink-0"
-                  style={{ background: gradients[gradientIdx], fontWeight: 700 }}
-                >
-                  {initials}
-                </div>
-                <div className="min-w-0">
-                  <p className="text-white text-sm truncate" style={{ fontWeight: 600 }}>
-                    {user?.firstName} {user?.lastName}
-                  </p>
-                  <p className="text-white/40 text-xs truncate">{user?.email}</p>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1.5">
-                <span className="bg-white/10 text-white/60 text-[9px] px-2 py-0.5 rounded-full tracking-widest uppercase">{t.user.memberSince}</span>
-              </div>
+        <div
+          className="absolute right-0 top-full mt-3 w-72 rounded-2xl overflow-hidden z-50 bg-white"
+          style={{
+            boxShadow: "0 20px 50px rgba(0,0,0,0.08)",
+            border: "1px solid #EEF1ED",
+          }}
+        >
+          {/* Header */}
+          <div className="px-5 py-4 bg-[#1F3A2E]">
+            <p className="text-white font-semibold">
+              {user?.firstName} {user?.lastName}
+            </p>
+            <p className="text-white/70 text-sm">{user?.email}</p>
+          </div>
+
+          {/* Quick stats */}
+          <div className="px-4 py-3 grid grid-cols-2 gap-2 text-xs">
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-gray-400">Username</p>
+              <p className="font-medium text-gray-700">
+                {user?.username || "—"}
+              </p>
             </div>
 
-            {/* Menu items */}
-            <div className="bg-white py-2">
-              {[
-                { icon: User,     label: t.user.myAccount,   sub: t.user.profileSettings,   to: "/" },
-                { icon: Package,  label: t.user.myOrders,    sub: t.user.trackPurchases,    to: "/shop" },
-                { icon: Heart,    label: t.user.wishlist,    sub: t.user.savedItems,        to: "/shop" },
-                { icon: Settings, label: t.user.preferences, sub: t.user.notificationsMore, to: "/" },
-              ].map(({ icon: Icon, label, sub, to }) => (
-                <Link
-                  key={label}
-                  to={to}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-4 py-2.5 hover:bg-gray-50 transition-colors group"
-                >
-                  <div className="w-7 h-7 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0 group-hover:bg-[#FF6B6B]/10 transition-colors">
-                    <Icon className="w-3.5 h-3.5 text-gray-500 group-hover:text-[#FF6B6B] transition-colors" />
-                  </div>
-                  <div>
-                    <p className="text-gray-900 text-sm" style={{ fontWeight: 500 }}>{label}</p>
-                    <p className="text-gray-400 text-[11px]">{sub}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="border-t border-gray-100 bg-white px-4 py-3">
-              <button
-                onClick={() => { onLogout(); setOpen(false); }}
-                className="w-full flex items-center gap-2 text-sm text-gray-500 hover:text-[#FF6B6B] transition-colors py-1"
-              >
-                <LogOut className="w-4 h-4" />
-                {t.user.signOut}
-              </button>
+            <div className="bg-gray-50 rounded-xl p-3">
+              <p className="text-gray-400">Email</p>
+              <p className="font-medium text-gray-700 truncate">
+                {user?.email}
+              </p>
             </div>
           </div>
-        </>
+
+          {/* Navigation */}
+          <div className="p-2 border-t">
+            
+
+            <button
+              onClick={() => {
+                setOpen(false);
+                window.location.href = "/favorites";
+              }}
+              className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-[#1F3A2E] py-2 px-3 rounded-lg hover:bg-gray-50"
+            >
+              <Heart className="w-4 h-4" />
+              Favorites
+            </button>
+
+            <button
+              onClick={() => {
+                setOpen(false);
+                window.location.href = "/cart";
+              }}
+              className="w-full flex items-center gap-2 text-sm text-gray-600 hover:text-[#1F3A2E] py-2 px-3 rounded-lg hover:bg-gray-50"
+            >
+              <ShoppingCart className="w-4 h-4" />
+              Cart
+            </button>
+
+            {/* Logout */}
+            <button
+              onClick={onLogout}
+              className="w-full flex items-center gap-2 text-sm text-red-500 hover:text-red-600 py-2 px-3 rounded-lg hover:bg-red-50 mt-1"
+            >
+              <LogOut className="w-4 h-4" />
+              Sign Out
+            </button>
+          </div>
+        </div>
       )}
     </div>
   );
