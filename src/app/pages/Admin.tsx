@@ -131,8 +131,14 @@ export function Admin() {
   };
 
   const filtered = products.filter((p) => {
-    const matchCat = filterCat === "all" || p.category === filterCat;
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
+    const matchCat =
+      filterCat === "all" || p.category === filterCat;
+  
+    const matchSearch =
+      (p?.name ?? "")
+        .toLowerCase()
+        .includes((search ?? "").toLowerCase());
+  
     return matchCat && matchSearch;
   });
 
@@ -651,9 +657,9 @@ export function Admin() {
                       <div className="p-4">
                         <p className="text-sm font-medium text-gray-900 truncate">{form.name}</p>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="text-sm font-bold text-gray-900">${form.price || "0"}</span>
+                          <span className="text-sm font-bold text-gray-900">₮{form.price || "0"}</span>
                           {form.originalPrice && (
-                            <span className="text-xs line-through" style={{ color: "#9ca3af" }}>${form.originalPrice}</span>
+                            <span className="text-xs line-through" style={{ color: "#9ca3af" }}>₮{form.originalPrice}</span>
                           )}
                           {form.originalPrice && form.price < form.originalPrice && (
                             <span className="text-xs font-medium" style={{ color: "#dc2626" }}>
