@@ -192,15 +192,7 @@ const isAdmin = location.pathname.startsWith("/admin");
     <>
       {/* TOP BAR */}
 
-      <div
-        className="text-white text-center py-2 text-[11px] uppercase"
-        style={{
-          background: COLORS.primary,
-          letterSpacing: "0.22em",
-        }}
-      >
-        {t.announcement}
-      </div>
+      
 
       {/* NAVBAR */}
 
