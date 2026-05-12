@@ -668,29 +668,10 @@ export function ProductDetail() {
               </div>
 
               {/* Feature strip */}
-              <div className="pd-features">
-                <div className="pd-feature eco">
-                  <Package />
-                  {p.inStock}
-                </div>
-                <div className="pd-feature warn">
-                  <AlertCircle />
-                  No Returns
-                </div>
-                <div className="pd-feature eco">
-                  <Recycle />
-                  {p.sustainableNote}
-                </div>
-              </div>
+              
 
               {/* Notice */}
-              <div className="pd-notice">
-                <AlertCircle />
-                <p>
-                  <strong>❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ</strong> — All sales
-                  final. No returns or exchanges accepted.
-                </p>
-              </div>
+              
             </div>
           </div>
 

@@ -13,7 +13,7 @@ export function Footer() {
       {/* No Returns Banner */}
       <div style={{ background: "#c0392b", borderBottom: "1px solid rgba(255,255,255,0.08)" }} className="py-2.5 text-center">
         <p className="text-white text-xs tracking-[0.2em] uppercase font-medium">
-          ❗ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ &nbsp;·&nbsp; NO RETURNS &nbsp;·&nbsp; NO EXCHANGES
+          NO RETURNS &nbsp;·&nbsp; NO EXCHANGES
         </p>
       </div>
 
@@ -31,7 +31,7 @@ export function Footer() {
               />
               <div>
                 <h3 className="text-white text-base font-bold tracking-wide">988 Thrift</h3>
-                <p className="text-xs tracking-widest" style={{ color: "#5aaa6e" }}>♻ Vintage Shop</p>
+                <p className="text-xs tracking-widest" style={{ color: "#5aaa6e" }}> Vintage Shop</p>
               </div>
             </div>
 
@@ -46,7 +46,7 @@ export function Footer() {
               </div>
               <div className="flex items-center gap-2.5">
                 <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "#3a854f" }} />
-                <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>🟢 11:00 – 20:00</p>
+                <p className="text-sm" style={{ color: "rgba(255,255,255,0.6)" }}>11:00 – 20:00</p>
               </div>
               <div className="flex items-center gap-2.5">
                 <Phone className="w-4 h-4 flex-shrink-0" style={{ color: "#3a854f" }} />
@@ -90,7 +90,7 @@ export function Footer() {
               <li><a href="/size-guide" className="transition-colors hover:text-white" style={{ color: "rgba(255,255,255,0.5)" }}>{f.sizeGuide}</a></li>
               <li>
                 <a href="/returns" className="transition-colors flex items-center gap-1" style={{ color: "#f87171" }}>
-                  <span>❗</span> {f.returns}
+                  <span></span> {f.returns}
                 </a>
               </li>
             </ul>

@@ -186,7 +186,7 @@ export function Home() {
 
         <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, padding: "0 44px 60px" }}>
           <p className="eyebrow anim-1" style={{ color: "rgba(255,255,255,0.4)", marginBottom: 18 }}>
-            Pre-Loved Clothing Store &nbsp;·&nbsp; Natur Building, Unit 36A
+          Wide selection &nbsp;·&nbsp; Affordable &nbsp;·&nbsp; Quality 
           </p>
           <h1 className="anim-2 display-heading" style={{
             fontSize: "clamp(3.8rem, 9vw, 8rem)",
@@ -199,7 +199,7 @@ export function Home() {
           </p>
           <div className="anim-4" style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Link to="/shop" className="btn-white">Explore Collection</Link>
-            <a href="tel:85144414" className="btn-ghost-light">8514 4414</a>
+            
           </div>
         </div>
       </section>
@@ -207,7 +207,7 @@ export function Home() {
       {/* ════════════════════════════ POLICY BAR ══════════════════════════ */}
       <div style={{ background: "#0d0d0d", padding: "12px 24px", textAlign: "center" }}>
         <p style={{ margin: 0, fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: "0.22em", textTransform: "uppercase", color: "rgba(255,255,255,0.55)" }}>
-          All Sales Final &nbsp;·&nbsp; No Returns or Exchanges
+          All Sales Final 
         </p>
       </div>
 
@@ -228,7 +228,7 @@ export function Home() {
       {/* ═══════════════════════════ INFO STRIP ═══════════════════════════ */}
       <div className="info-strip">
         {[
-          { label: "Find us", heading: "Natur Building, Unit 36A", sub: "Behind New Mongolia School · Ulaanbaatar" },
+          { label: "Find us", heading: "Natur Building, Unit 36A", sub: "Behind Shine Mongol School · Ulaanbaatar" },
           { label: "Hours",   heading: "11:00 AM – 7:00 PM",       sub: "Open every day, no appointment needed" },
           { label: "Contact", heading: "8514 4414",                 sub: "Call or text us during store hours" },
           { label: "Policy",  heading: "All Sales Final",           sub: "Items sold as-is — no returns, no exchanges" },
@@ -329,20 +329,7 @@ export function Home() {
                 <img src={ECO_IMG} alt="988 Thrift Shop" style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
               </div>
 
-              <div style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}>
-                {[
-                  { label: "Address",   value: "Natur Building, Unit 36A\nBehind New Mongolia School, Ulaanbaatar" },
-                  { label: "Hours",     value: "11:00 AM – 7:00 PM · Open every day" },
-                  { label: "Phone",     value: "8514 4414" },
-                  { label: "Policy",    value: "All sales final — no returns or exchanges" },
-                  { label: "Community", value: "54,000+ followers on Instagram" },
-                ].map(({ label, value }) => (
-                  <div key={label} style={{ display: "flex", gap: 24, padding: "14px 0", borderBottom: "1px solid rgba(255,255,255,0.1)" }}>
-                    <span className="eyebrow" style={{ width: 88, flexShrink: 0, paddingTop: 2, color: "rgba(255,255,255,0.3)" }}>{label}</span>
-                    <span style={{ fontFamily: "'DM Sans',sans-serif", fontSize: 13, color: "rgba(255,255,255,0.65)", lineHeight: 1.65, whiteSpace: "pre-line" }}>{value}</span>
-                  </div>
-                ))}
-              </div>
+              
             </div>
           </div>
         </div>
@@ -381,16 +368,14 @@ export function Home() {
         </h2>
         <p className="body-text" style={{ color: "rgba(255,255,255,0.35)", margin: "0 auto 44px", maxWidth: 380, fontSize: 14, lineHeight: 1.9 }}>
           Natur Building, Unit 36A<br />
-          Behind New Mongolia School<br />
+          Behind Shine Mongol School<br />
           Open 11:00 AM – 7:00 PM · Every day
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center", flexWrap: "wrap", marginBottom: 44 }}>
           <a href="tel:85144414" className="btn-white">Call 8514 4414</a>
           <Link to="/shop" className="btn-ghost-light">Shop Online</Link>
         </div>
-        <p className="eyebrow" style={{ color: "rgba(255,255,255,0.18)" }}>
-          All Sales Final &nbsp;·&nbsp; No Returns or Exchanges
-        </p>
+        
       </section>
 
     </div>

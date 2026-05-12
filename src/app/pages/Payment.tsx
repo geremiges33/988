@@ -38,7 +38,7 @@ export function Payment() {
   const formatCardNumber = (value: string) => {
     const cleaned = value.replace(/\D/g, "").slice(0, 16);
 
-    return cleaned.replace(/(.{4})/g, "₮1 ").trim();
+    return cleaned.replace(/(.{4})/g, "$1 ").trim();
   };
 
   const formatExpiryDate = (value: string) => {

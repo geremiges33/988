@@ -3,7 +3,7 @@ export type Lang = "en" | "mn";
 export const translations = {
   en: {
     /* ── Announcement bar ── */
-    announcement: "📍 Натур, 36A байр · 🟢 11:00–20:00 · 📲 85144414 / 86310103 · ❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
+
 
     /* ── Navbar ── */
     nav: {
@@ -90,7 +90,7 @@ export const translations = {
     /* ── Footer ── */
     footer: {
       aboutTitle: "988 Thrift Shop",
-      aboutText: "♻️ Хуучин хувцасны дэлгүүр — Натур, Шинэ Монгол сургуулийн хойно 36A байр. Pre-loved vintage clothing with unique character.",
+      aboutText: "Thrift Shop — Natur Building, Unit 36A Pre-loved vintage clothing with unique character.",
       shop: "Shop",
       allItems: "All Items",
       vintageClothing: "Vintage Clothing",
@@ -107,7 +107,7 @@ export const translations = {
       subscribeText: "📲 85144414 / 86310103 · Open 11:00–20:00 daily",
       madeWith: "Made with",
       forSustainable: "for sustainable shopping",
-      copyright: "© 2026 988 Thrift Shop. All rights reserved. ❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ.",
+      copyright: "© 2026 988 Thrift Shop. All rights reserved. ️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ.",
     },
 
     /* ── Home page ── */
@@ -221,8 +221,7 @@ export const translations = {
       shareItem: "Share",
       wishlist: "Save",
       relatedTitle: "You may also like",
-      inStock: "In stock",
-      freeReturns: "❗️ No returns or exchanges",
+      freeReturns: "️ No returns or exchanges",
       sustainableNote: "Pre-loved item — buy sustainably",
     },
 
@@ -424,7 +423,7 @@ export const translations = {
       q2: "How do I place an order?",
       a2: "Simply browse our collection, add items to your cart, and proceed to checkout. You can pay securely with credit card or other payment methods. You'll receive a confirmation email once your order is placed.",
       q3: "What is your return policy?",
-      a3: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — 988 Thrift Shop does NOT accept returns or exchanges. All sales are final. Please review items carefully before purchasing.",
+      a3: "️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — 988 Thrift Shop does NOT accept returns or exchanges. All sales are final. Please review items carefully before purchasing.",
       q4: "How long does shipping take?",
       a4: "Standard shipping takes 5-7 business days. Express shipping (2-3 days) is available for an additional fee. Free shipping is available on orders over ₮50.",
       q5: "Are items authenticated?",
@@ -476,7 +475,7 @@ export const translations = {
     /* ── Returns ── */
     returns: {
       title: "Return Policy",
-      subtitle: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — All sales are final. No returns or exchanges.",
+      subtitle: "️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — All sales are final. No returns or exchanges.",
       days14: "All Sales Final",
       days14Desc: "No returns or exchanges accepted under any circumstances",
       easyProcess: "Check Before Buying",
@@ -496,7 +495,7 @@ export const translations = {
       condition1: "All sales are final — no returns or exchanges accepted",
       condition2: "Please review items carefully before purchasing",
       condition3: "Contact us with questions BEFORE buying, not after",
-      condition4: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
+      condition4: "️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
       needHelp: "Questions Before Buying?",
       needHelpDesc: "Call us before purchasing — we're happy to answer any questions!",
       contactSupport: "Call Us Now",
@@ -558,7 +557,6 @@ export const translations = {
 
   mn: {
     /* ── Announcement bar ── */
-    announcement: "📍 Натур, 36A байр · 🟢 11:00–20:00 · 📲 85144414 / 86310103 · ❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ",
 
     /* ── Navbar ── */
     nav: {
@@ -645,7 +643,7 @@ export const translations = {
     /* ── Footer ── */
     footer: {
       aboutTitle: "988 Thrift Shop",
-      aboutText: "♻️ Хуучин хувцасны дэлгүүр — Натур, Шинэ Монгол сургуулийн хойно 36A байр. Unique vintage & pre-loved pieces.",
+      aboutText: "️ Хуучин хувцасны дэлгүүр — Натур, Шинэ Монгол сургуулийн хойно 36A байр. Unique vintage & pre-loved pieces.",
       shop: "Дэлгүүр",
       allItems: "Бүх бараа",
       vintageClothing: "Винтаж хувцас",
@@ -662,7 +660,7 @@ export const translations = {
       subscribeText: "📲 85144414 / 86310103 · 11:00–20:00 цаг өдөр бүр нээлттэй",
       madeWith: "Хайраар хийгдсэн",
       forSustainable: "тогтвортой худалдааны төлөө",
-      copyright: "© 2026 988 Thrift Shop. Бүх эрх хуулиар хамгаалагдсан. ❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ.",
+      copyright: "© 2026 988 Thrift Shop. Бүх эрх хуулиар хамгаалагдсан. ️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ.",
     },
 
     /* ── Home page ── */
@@ -777,7 +775,7 @@ export const translations = {
       wishlist: "Хадгалах",
       relatedTitle: "Таалагдаж болох бараа",
       inStock: "Нөөцтэй",
-      freeReturns: "❗️ Буцаалт болон солилт байхгүй",
+      freeReturns: "️ Буцаалт болон солилт байхгүй",
       sustainableNote: "Дахин хэрэглэгдсэн бараа — тогтвортой худалдаа",
     },
 
@@ -979,7 +977,7 @@ export const translations = {
       q2: "Захиалга хэрхэн өгөх вэ?",
       a2: "Манай цуглуулгыг үзэж, барааг сагсандаа нэмээд төлбөр тооцоо хийнэ үү. Та кредит карт эсвэл бусад төлбөрийн аргаар аюулгүй төлөх боломжтой. Захиалга хийсний дараа баталгаажуулах имэйл хүлээн авна.",
       q3: "Буцаалтын бодлого юу вэ?",
-      a3: "❗️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — 988 Thrift Shop нь буцаалт болон солилтыг хүлээж авдаггүй. Бүх борлуулалт эцсийн. Худалдан авахаасаа өмнө барааг сайтар шалгаарай.",
+      a3: "️ БУЦААЛТ болон СОЛИЛТ БАЙХГҮЙ — 988 Thrift Shop нь буцаалт болон солилтыг хүлээж авдаггүй. Бүх борлуулалт эцсийн. Худалдан авахаасаа өмнө барааг сайтар шалгаарай.",
       q4: "Хүргэлт хэр удаан байдаг вэ?",
       a4: "Стандарт хүргэлт 5-7 ажлын өдөр. Шуурхай хүргэлт (2-3 өдөр) нэмэлт төлбөртэй боломжтой. ₮50-аас дээш захиалгад үнэгүй хүргэлт.",
       q5: "Бараа баталгаажсан уу?",

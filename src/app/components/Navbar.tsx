@@ -55,39 +55,56 @@ interface MegaMenuData {
 
 const megaMenus: Record<string, MegaMenuData> = {
   Women: {
-    image: WOMEN_IMAGE,
-    imageLabel: "New Collection",
+  image: WOMEN_IMAGE,
+  imageLabel: "New Collection",
+  columns: [
+    {
+      heading: "Shop by Size",
+      links: [
+        { label: "XS", to: "/shop/women?size=XS" },
+        { label: "S", to: "/shop/women?size=S" },
+        { label: "M", to: "/shop/women?size=M" },
+        { label: "L", to: "/shop/women?size=L" },
+        { label: "XL", to: "/shop/women?size=XL" },
+      ],
+    },
 
-    columns: [
-      {
-        heading: "Shop by Size",
-        links: [
-          { label: "XS", to: "/shop/women?size=XS" },
-          { label: "S", to: "/shop/women?size=S" },
-          { label: "M", to: "/shop/women?size=M" },
-          { label: "L", to: "/shop/women?size=L" },
-          { label: "XL", to: "/shop/women?size=XL" },
-        ],
-      },
-    ],
-  },
+    {
+      heading: "Price",
+      links: [
+        { label: "Under 50,000₮", to: "/shop/women?maxPrice=50000" },
+        { label: "50,000₮ - 100,000₮", to: "/shop/women?minPrice=50000&maxPrice=100000" },
+        { label: "100,000₮ - 300,000₮", to: "/shop/women?minPrice=100000&maxPrice=300000" },
+        { label: "Over 300,000₮", to: "/shop/women?minPrice=300000" },
+      ],
+    },
+  ],
+},
 
   Men: {
-    image: MEN_IMAGE,
-    imageLabel: "Men Essentials",
-
-    columns: [
-      {
-        heading: "Shop by Size",
-        links: [
-          { label: "S", to: "/shop/men?size=S" },
-          { label: "M", to: "/shop/men?size=M" },
-          { label: "L", to: "/shop/men?size=L" },
-          { label: "XL", to: "/shop/men?size=XL" },
-        ],
-      },
-    ],
-  },
+  image: MEN_IMAGE,
+  imageLabel: "Men Essentials",
+  columns: [
+    {
+      heading: "Shop by Size",
+      links: [
+        { label: "S", to: "/shop/men?size=S" },
+        { label: "M", to: "/shop/men?size=M" },
+        { label: "L", to: "/shop/men?size=L" },
+        { label: "XL", to: "/shop/men?size=XL" },
+      ],
+    },
+    {
+      heading: "Price",
+      links: [
+        { label: "Under 50,000₮", to: "/shop/men?maxPrice=50000" },
+        { label: "50,000₮ - 100,000₮", to: "/shop/men?minPrice=50000&maxPrice=100000" },
+        { label: "100,000₮ - 300,000₮", to: "/shop/men?minPrice=100000&maxPrice=300000" },
+        { label: "Over 300,000₮", to: "/shop/men?minPrice=300000" },
+      ],
+    },
+  ],
+},
 
   Sale: {
     image: SALE_IMAGE,
@@ -113,6 +130,8 @@ export function Navbar() {
   const { getCartCount } = useCart();
   const { getFavoritesCount } = useFavorites();
 
+  
+
   // AUTH
   const { user, logout } = useAuth();
 
@@ -120,6 +139,10 @@ export function Navbar() {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const params = new URLSearchParams(location.search);
+
+const minPrice = params.get("minPrice");
+const maxPrice = params.get("maxPrice");
 
 const isAdmin = location.pathname.startsWith("/admin");
 
@@ -192,7 +215,15 @@ const isAdmin = location.pathname.startsWith("/admin");
     <>
       {/* TOP BAR */}
 
-      
+      <div
+        className="text-white text-center py-2 text-[11px] uppercase"
+        style={{
+          background: COLORS.primary,
+          letterSpacing: "0.22em",
+        }}
+      >
+        {t.announcement}
+      </div>
 
       {/* NAVBAR */}
 
@@ -311,56 +342,13 @@ const isAdmin = location.pathname.startsWith("/admin");
     </Link>
   </>
 )}
-              {/* SEARCH */}
-
-              <button
-                className="p-2 rounded-full hover:bg-[#F3F5F2]"
-                onClick={() =>
-                  setSearchOpen((v) => !v)
-                }
-              >
-                <Search className="w-[18px] h-[18px]" />
-              </button>
+              
 
               {/* FAVORITES */}
 
-              <Link
-                to="/favorites"
-                className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
-              >
-                <Heart className="w-[18px] h-[18px]" />
-
-                {getFavoritesCount() > 0 && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
-                    style={{
-                      background: COLORS.primary,
-                    }}
-                  >
-                    {getFavoritesCount()}
-                  </span>
-                )}
-              </Link>
+              
 
               {/* CART */}
-
-              <Link
-                to="/cart"
-                className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
-              >
-                <ShoppingCart className="w-[18px] h-[18px]" />
-
-                {getCartCount() > 0 && (
-                  <span
-                    className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center"
-                    style={{
-                      background: COLORS.primary,
-                    }}
-                  >
-                    {getCartCount()}
-                  </span>
-                )}
-              </Link>
 
               <div className="w-px h-5 bg-gray-200" />
 
