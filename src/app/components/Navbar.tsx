@@ -128,7 +128,9 @@ type NavItem = (typeof NAV_ITEMS)[number];
 
 export function Navbar() {
   const { getCartCount } = useCart();
-  const { getFavoritesCount } = useFavorites();
+  const { getFavoritesCount, clearFavorites } = useFavorites();
+
+  
 
   
 
@@ -213,18 +215,6 @@ const isAdmin = location.pathname.startsWith("/admin");
 
   return (
     <>
-      {/* TOP BAR */}
-
-      <div
-        className="text-white text-center py-2 text-[11px] uppercase"
-        style={{
-          background: COLORS.primary,
-          letterSpacing: "0.22em",
-        }}
-      >
-        {t.announcement}
-      </div>
-
       {/* NAVBAR */}
 
       <nav
@@ -316,30 +306,66 @@ const isAdmin = location.pathname.startsWith("/admin");
     </button>
 
     {/* FAVORITES */}
-    <Link
-      to="/favorites"
-      className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+<Link
+  to="/favorites"
+  className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+>
+  <Heart className="w-[18px] h-[18px]" />
+
+  {getFavoritesCount() > 0 && (
+    <span
+      className="
+        absolute
+        -top-1
+        -right-1
+        bg-[#1F3A2E]
+        text-white
+        text-[10px]
+        rounded-full
+        min-w-[18px]
+        h-[18px]
+        px-1
+        flex
+        items-center
+        justify-center
+        font-semibold
+      "
     >
-      <Heart className="w-[18px] h-[18px]" />
-      {getFavoritesCount() > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-          {getFavoritesCount()}
-        </span>
-      )}
-    </Link>
+      {getFavoritesCount()}
+    </span>
+  )}
+</Link>
 
     {/* CART */}
-    <Link
-      to="/cart"
-      className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+<Link
+  to="/cart"
+  className="relative p-2 rounded-full hover:bg-[#F3F5F2]"
+>
+  <ShoppingCart className="w-[18px] h-[18px]" />
+
+  {getCartCount() > 0 && (
+    <span
+      className="
+        absolute
+        -top-1
+        -right-1
+        bg-[#1F3A2E]
+        text-white
+        text-[10px]
+        rounded-full
+        min-w-[18px]
+        h-[18px]
+        px-1
+        flex
+        items-center
+        justify-center
+        font-semibold
+      "
     >
-      <ShoppingCart className="w-[18px] h-[18px]" />
-      {getCartCount() > 0 && (
-        <span className="absolute -top-0.5 -right-0.5 text-white text-[10px] rounded-full w-4 h-4 flex items-center justify-center">
-          {getCartCount()}
-        </span>
-      )}
-    </Link>
+      {getCartCount()}
+    </span>
+  )}
+</Link>
   </>
 )}
               
@@ -558,6 +584,7 @@ function UserMenu({
   onLogout: () => void;
 }) {
   const [open, setOpen] = useState(false);
+  const { clearFavorites } = useFavorites();
 
   const initials = `${user?.firstName?.[0] ?? ""}${
     user?.lastName?.[0] ?? ""
@@ -641,12 +668,15 @@ function UserMenu({
             </Link>
 
             <button
-              onClick={onLogout}
-              className="w-full flex items-center gap-2 text-sm text-red-500 hover:text-red-600 py-2 px-3 rounded-lg hover:bg-red-50 mt-1"
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
+  onClick={() => {
+    clearFavorites();
+    onLogout();
+  }}
+  className="w-full flex items-center gap-2 text-sm text-red-500 hover:text-red-600 py-2 px-3 rounded-lg hover:bg-red-50 mt-1"
+>
+  <LogOut className="w-4 h-4" />
+  Sign Out
+</button>
           </div>
         </div>
       )}
