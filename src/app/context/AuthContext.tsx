@@ -479,8 +479,8 @@ export function AuthProvider({
     const updatedUsers =
       users.map((u) => {
         if (
-          u.user.id ===
-          updatedUser.id
+          u.user._id ===
+          updateduser._id
         ) {
           return {
             ...u,

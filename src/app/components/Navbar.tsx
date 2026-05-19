@@ -128,7 +128,7 @@ type NavItem = (typeof NAV_ITEMS)[number];
 
 export function Navbar() {
   const { getCartCount } = useCart();
-  const { getFavoritesCount, clearFavorites } = useFavorites();
+  const { getFavoritesCount } = useFavorites();
 
   
 

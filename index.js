@@ -28,8 +28,14 @@ mongoose
 const userSchema = new mongoose.Schema(
   {
     first_name: String,
+
     last_name: String,
-    email: { type: String, unique: true },
+
+    email: {
+      type: String,
+      unique: true,
+    },
+
     password: String,
 
     role: {
@@ -37,6 +43,27 @@ const userSchema = new mongoose.Schema(
       enum: ["admin", "customer"],
       default: "customer",
     },
+
+    favorites: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Product",
+      },
+    ],
+
+    cart: [
+      {
+        product: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+        },
+
+        quantity: {
+          type: Number,
+          default: 1,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -256,6 +283,83 @@ app.delete("/products/:id", async (req, res) => {
   await Product.findOneAndDelete({ id: req.params.id });
 
   res.json({ message: "✅ Deleted" });
+});
+
+app.post("/favorites", async (req, res) => {
+  const { userId, productId } = req.body;
+
+  const user = await User.findById(userId);
+
+  const exists = user.favorites.some(
+    (id) => id.toString() === productId
+  );
+
+  if (exists) {
+    user.favorites = user.favorites.filter(
+      (id) => id.toString() !== productId
+    );
+  } else {
+    user.favorites.push(productId);
+  }
+
+  await user.save();
+
+  const updated = await user.populate("favorites");
+  res.json(updated.favorites);
+});
+
+app.delete("/favorites/remove", async (req, res) => {
+  const { userId, productId } = req.body;
+
+  const user = await User.findById(userId);
+
+  if (!user) return res.status(404).json({ message: "User not found" });
+
+  user.favorites = user.favorites.filter(
+    (id) => id.toString() !== productId
+  );
+
+  await user.save();
+
+  res.json(user.favorites);
+});
+
+app.get("/favorites/:userId", async (req, res) => {
+  const user = await User.findById(req.params.userId)
+    .populate("favorites");
+
+  res.json(user.favorites);
+});
+
+app.post("/cart", async (req, res) => {
+  console.log("CART HIT:", req.body);
+  const { userId, productId } = req.body;
+
+  const user = await User.findById(userId);
+
+  const existing = user.cart.find(
+    (item) => item.product.toString() === productId
+  );
+
+  if (existing) {
+    existing.quantity += 1;
+  } else {
+    user.cart.push({
+      product: productId,
+      quantity: 1,
+    });
+  }
+
+  await user.save();
+
+  res.json(user.cart);
+});
+
+app.get("/cart/:userId", async (req, res) => {
+  const user = await User.findById(req.params.userId)
+    .populate("cart.product");
+
+  res.json(user.cart);
 });
 
 /* ───────────────────────────────

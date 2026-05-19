@@ -624,7 +624,7 @@ export function Signup() {
       /* USER OBJECT */
 
       const newUser = {
-        id: data.user.id,
+        id: data.user._id,
 
         firstName:
           data.user.first_name,

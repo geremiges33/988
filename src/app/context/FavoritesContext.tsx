@@ -10,101 +10,91 @@ import { Product } from "../data/products";
 
 interface FavoritesContextType {
   favorites: Product[];
-
-  addToFavorites: (product: Product) => void;
-
-  removeFromFavorites: (productId: string) => void;
-
+  addToFavorites: (product: Product) => Promise<void>;
+  removeFromFavorites: (productId: string) => Promise<void>;
   isFavorite: (productId: string) => boolean;
-
   getFavoritesCount: () => number;
-
   clearFavorites: () => void;
 }
 
-const FavoritesContext =
-  createContext<FavoritesContextType>({
-    favorites: [],
+const FavoritesContext = createContext<FavoritesContextType>({
+  favorites: [],
+  addToFavorites: async () => {},
+  removeFromFavorites: async () => {},
+  isFavorite: () => false,
+  getFavoritesCount: () => 0,
+  clearFavorites: () => {},
+});
 
-    addToFavorites: () => {},
+export function FavoritesProvider({ children }: { children: ReactNode }) {
+  const [favorites, setFavorites] = useState<Product[]>([]);
 
-    removeFromFavorites: () => {},
-
-    isFavorite: () => false,
-
-    getFavoritesCount: () => 0,
-
-    clearFavorites: () => {},
-  });
-
-export function FavoritesProvider({
-  children,
-}: {
-  children: ReactNode;
-}) {
-  const [favorites, setFavorites] = useState<Product[]>(() => {
-    if (typeof window !== "undefined") {
-      const stored =
-        localStorage.getItem("thrift-favorites");
-
-      return stored ? JSON.parse(stored) : [];
-    }
-
-    return [];
-  });
-
-  // SAVE TO LOCAL STORAGE
+  // LOAD
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      localStorage.setItem(
-        "thrift-favorites",
-        JSON.stringify(favorites)
-      );
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+
+    if (user) {
+      fetch(`http://localhost:8080/favorites/${user.id}`)
+        .then((res) => res.json())
+        .then((data) => setFavorites(data));
     }
-  }, [favorites]);
+  }, []);
 
-  // ADD
-  const addToFavorites = (product: Product) => {
-    setFavorites((prev) => {
-      const exists = prev.find(
-        (p) => p.id === product.id
-      );
+  // ADD / TOGGLE FAVORITE
+  const addToFavorites = async (product: Product) => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) return;
 
-      if (exists) return prev;
-
-      return [...prev, product];
+    await fetch("http://localhost:8080/favorites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        productId: product.id,
+      }),
     });
-  };
 
-  // REMOVE
-  const removeFromFavorites = (
-    productId: string
-  ) => {
-    setFavorites((prev) =>
-      prev.filter((p) => p.id !== productId)
+    const res = await fetch(
+      `http://localhost:8080/favorites/${user.id}`
     );
+
+    const data = await res.json();
+    setFavorites(data);
   };
 
-  // CHECK
+  // REMOVE (same toggle endpoint)
+  const removeFromFavorites = async (productId: string) => {
+    const user = JSON.parse(localStorage.getItem("user") || "null");
+    if (!user) return;
+
+    await fetch("http://localhost:8080/favorites", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        userId: user.id,
+        productId,
+      }),
+    });
+
+    const res = await fetch(
+      `http://localhost:8080/favorites/${user.id}`
+    );
+
+    const data = await res.json();
+    setFavorites(data);
+  };
+
   const isFavorite = (productId: string) => {
-    return favorites.some(
-      (p) => p.id === productId
-    );
+    return favorites.some((p) => p.id === productId);
   };
 
-  // COUNT
-  const getFavoritesCount = () => {
-    return favorites.length;
-  };
+  const getFavoritesCount = () => favorites.length;
 
-  // CLEAR ALL
-  const clearFavorites = () => {
-    setFavorites([]);
-
-    localStorage.removeItem(
-      "thrift-favorites"
-    );
-  };
+  const clearFavorites = () => setFavorites([]);
 
   return (
     <FavoritesContext.Provider
